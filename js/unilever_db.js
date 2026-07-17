@@ -1,74 +1,35 @@
 /**
- * Shared Local Database – Sales & Territory Datasets
+ * Global Enterprise Database State Engine (SSOT)
  */
-window.UNILEVER_SALES_DB = {
-  dispatches: {
-    'WH-OUT-00142': { 
-      id: 'WH/OUT/00142', 
-      distributor: 'Hetauda Merchants Ltd.', 
-      order: 'WH/OUT/00142', 
-      route: 'KTM → HET', 
-      contact: 'Ram Prasad (01-451xxxx)', 
-      eta: '14:30 · 1h 12m away', 
-      volume: '180 kg', 
-      status: 'In Transit', 
-      statusClass: 'green', 
-      latlng: [27.50, 85.12], 
-      routePoints: [[27.7172, 85.3240], [27.4277, 85.0315]] 
-    },
-    'WH-OUT-00138': { 
-      id: 'WH/OUT/00138', 
-      distributor: 'Naubise Supply Hub', 
-      order: 'WH/OUT/00138', 
-      route: 'KTM → PKR', 
-      contact: 'Kiran KC (01-522xxxx)', 
-      eta: '15:45 · DELAYED +1h 20m', 
-      volume: '160 kg', 
-      status: 'Delayed', 
-      statusClass: 'red', 
-      latlng: [27.72, 85.16], 
-      routePoints: [[27.7172, 85.3240], [27.7145, 85.1633]] 
-    },
-    'WH-OUT-00140': { 
-      id: 'WH/OUT/00140', 
-      distributor: 'Birgunj Traders Co.', 
-      order: 'WH/OUT/00140', 
-      route: 'KTM → BGR', 
-      contact: 'Sita Devi (051-xxx)', 
-      eta: '16:15 · 3h 57m away', 
-      volume: '220 kg', 
-      status: 'In Transit', 
-      statusClass: 'green', 
-      latlng: [27.20, 84.97], 
-      routePoints: [[27.7172, 85.3240], [27.4277, 85.0315], [27.0125, 84.8767]] 
-    },
-    'WH-OUT-00144': { 
-      id: 'WH/OUT/00144', 
-      distributor: 'Banepa District Wholesale', 
-      order: 'WH/OUT/00144', 
-      route: 'KTM → BNP', 
-      contact: 'Mohan Shrestha', 
-      eta: '13:20 · 22m', 
-      volume: '150 kg', 
-      status: 'Arriving Soon', 
-      statusClass: 'green', 
-      latlng: [27.65, 85.48], 
-      routePoints: [[27.7172, 85.3240], [27.6298, 85.5214]] 
-    },
-    'WH-OUT-00148': { 
-      id: 'WH/OUT/00148', 
-      distributor: 'North Valley Traders', 
-      order: 'WH/OUT/00148', 
-      route: 'KTM → SDN', 
-      contact: 'Priya Bajracharya', 
-      eta: '12:55 · 5m', 
-      volume: '140 kg', 
-      status: 'Arriving Now', 
-      statusClass: 'green', 
-      latlng: [27.74, 85.38], 
-      routePoints: [[27.7172, 85.3240], [27.7635, 85.4243]] 
-    }
+window.UNILEVER_GLOBAL_DB = {
+  session: {
+    user: "Saurav Pradhan",
+    role: "Regional Sales Manager",
+    scope: "Bagmati Province",
+    rule: "ir.rule: user_id = current_user"
   },
+  metrics: {
+    deliveriesToday: 12,
+    delayedOrders: 1,
+    volumeTransitKg: 850,
+    onTimeRateWeekly: 91.7
+  },
+  dispatches: {
+    'WH-OUT-00142': { id: 'WH/OUT/00142', distributor: 'Hetauda Merchants Ltd.', order: 'WH/OUT/00142', route: 'KTM → HET', contact: 'Ram Prasad (01-451xxxx)', eta: '14:30 · 1h 12m away', volume: '180 kg', status: 'In Transit', statusClass: 'green', latlng: [27.50, 85.12], routePoints: [[27.7172, 85.3240], [27.4277, 85.0315]] },
+    'WH-OUT-00138': { id: 'WH/OUT/00138', distributor: 'Naubise Supply Hub', order: 'WH/OUT/00138', route: 'KTM → PKR', contact: 'Kiran KC (01-522xxxx)', eta: '15:45 · DELAYED +1h 20m', volume: '160 kg', status: 'Delayed', statusClass: 'red', latlng: [27.72, 85.16], routePoints: [[27.7172, 85.3240], [27.7145, 85.1633]] },
+    'WH-OUT-00140': { id: 'WH/OUT/00140', distributor: 'Birgunj Traders Co.', order: 'WH/OUT/00140', route: 'KTM → BGR', contact: 'Sita Devi (051-xxx)', eta: '16:15 · 3h 57m away', volume: '220 kg', status: 'In Transit', statusClass: 'green', latlng: [27.20, 84.97], routePoints: [[27.7172, 85.3240], [27.4277, 85.0315], [27.0125, 84.8767]] },
+    'WH-OUT-00144': { id: 'WH/OUT/00144', distributor: 'Banepa District Wholesale', order: 'WH/OUT/00144', route: 'KTM → BNP', contact: 'Mohan Shrestha', eta: '13:20 · 22m', volume: '150 kg', status: 'Arriving Soon', statusClass: 'green', latlng: [27.65, 85.48], routePoints: [[27.7172, 85.3240], [27.6298, 85.5214]] },
+    'WH-OUT-00148': { id: 'WH/OUT/00148', distributor: 'North Valley Traders', order: 'WH/OUT/00148', route: 'KTM → SDN', contact: 'Priya Bajracharya', eta: '12:55 · 5m', volume: '140 kg', status: 'Arriving Now', statusClass: 'green', latlng: [27.74, 85.38], routePoints: [[27.7172, 85.3240], [27.7635, 85.4243]] }
+  },
+  distributors: [
+    { name: 'Hetauda Merchants Ltd.', phone: '01-451xxxx', contact: 'Ram Prasad', status: 'active', meta: '📦 WH/OUT/00142 · ETA 14:30' },
+    { name: 'Naubise Supply Hub', phone: '01-522xxxx', contact: 'Kiran KC', status: 'delayed', meta: '⏰ WH/OUT/00138 · +1h 20m delay' },
+    { name: 'Birgunj Traders Co.', phone: '051-xxxxx', contact: 'Sita Devi', status: 'active', meta: '📦 WH/OUT/00140 · ETA 16:15' },
+    { name: 'Banepa District Wholesale', phone: '011-xxxxx', contact: 'Mohan Shrestha', status: 'active', meta: '📦 WH/OUT/00144 · Arriving 13:20' },
+    { name: 'North Valley Traders', phone: '01-xxxxx', contact: 'Priya Bajracharya', status: 'arriving', meta: '✅ WH/OUT/00148 · Now (12:55)' },
+    { name: 'Lalitpur General Store', phone: '01-553xxxx', contact: 'Sarita Thapa', status: 'pending', meta: '⏳ Next dispatch: Tomorrow' },
+    { name: 'Bhaktapur Wholesale Hub', phone: '01-661xxxx', contact: 'Dinesh Maharjan', status: 'pending', meta: '⏳ Next dispatch: Tomorrow' }
+  ],
   stationsNav: {
     ktm: { latlng: [27.7172, 85.3240], zoom: 12, label: '🏢 Kathmandu HQ (Origin)' },
     het: { latlng: [27.4277, 85.0315], zoom: 12, label: '🏢 Hetauda Station' },

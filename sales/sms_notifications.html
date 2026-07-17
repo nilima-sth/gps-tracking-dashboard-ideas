@@ -1,0 +1,28 @@
+<div class="o-breadcrumb">
+  <a href="#" onclick="loadComponent('live_tracking')">Fleet</a> › 
+  <a href="#" onclick="loadComponent('live_tracking')">Sales Dashboard</a> › 
+  <span>SMS Gateway</span>
+</div>
+<div class="o-page-title">
+  Communication Logs & SMS Dispatch
+</div>
+
+<div class="list-card" style="max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div class="sms-box" style="border: 1px solid var(--border); box-shadow: none; display: block; width: 100%;">
+    <div class="sms-header" style="background: var(--teal);"><i class="fa-solid fa-comment-sms"></i> Manual System Notification</div>
+    <div class="sms-body">
+      <div class="sms-field">
+        <label>Distributor Stream Selection</label>
+        <select id="sms-target-selector" style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 5px;" onchange="window.updateSmsPreview(this.value)">
+        </select>
+      </div>
+      <div class="sms-field" style="margin-top: 15px;">
+        <label>Message Content Engine</label>
+        <textarea id="sms-body-preview" style="width: 100%; height: 120px; padding: 10px; border: 1px solid var(--border); border-radius: 5px; font-family: sans-serif; resize: none;"></textarea>
+      </div>
+    </div>
+    <div class="sms-footer" style="margin-top: 15px; border-top: none; padding: 0; background: transparent;">
+      <button class="btn-send" style="width: 100%; padding: 10px;" onclick="alert('SMS queued for dispatch via Odoo.')"><i class="fa-solid fa-paper-plane"></i> Execute SMS Broadcast</button>
+    </div>
+  </div>
+</div>
