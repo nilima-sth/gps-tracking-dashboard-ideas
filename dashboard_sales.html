@@ -1509,7 +1509,7 @@
       if (statusClass === 'orange') color = '#F0A500';
       
       return L.divIcon({
-        html: `<div style="background-color: ${color}; width: 26px; height: 26px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 13px;">🚛</div>`,
+        html: `<div title="Fix Time&#10;04/03/2026, 08:01:08 AM&#10;&#10;Address&#10;Suzate Pension & Restaurant, Machhindra Marg, Lalitpur-20, ललितपुर, ललितपुर महानगरपालिका, ललितपुर जिल्ला, बागमती प्रदेश, 44707, नेपाल&#10;&#10;Speed&#10;0.00 km/h&#10;&#10;Total Distance&#10;0.04 km  ⚙" style="background-color: ${color}; width: 26px; height: 26px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: help;">🚛</div>`,
         className: 'custom-map-marker',
         iconSize: [26, 26],
         iconAnchor: [13, 13]
@@ -1580,14 +1580,19 @@
         const marker = L.marker(d.latlng, { icon: getMarkerIcon(d.statusClass) });
         
         const popupHtml = `
-          <div style="font-family: 'DM Sans', sans-serif; min-width: 170px;">
+          <div style="font-family: 'DM Sans', sans-serif; min-width: 200px;">
             <div style="font-weight: 700; font-size: 12px; color: #714B67; border-bottom: 1px solid #E5E7EB; padding-bottom: 4px; margin-bottom: 6px;">${d.id}</div>
             <div style="font-size: 11px; line-height: 1.4;">
               <b>Distributor:</b> ${d.distributor}<br/>
               <b>Route:</b> ${d.route}<br/>
               <b>ETA:</b> ${d.eta}<br/>
               <b>Volume:</b> ${d.volume}<br/>
-              <b>Status:</b> <span class="badge ${d.statusClass === 'green' ? 'on-time' : 'delayed'}">${d.status}</span>
+              <b>Status:</b> <span class="badge ${d.statusClass === 'green' ? 'on-time' : 'delayed'}">${d.status}</span><br/>
+              <hr style="border:0;border-top:1px solid #E5E7EB;margin:6px 0;"/>
+              <b>Fix Time:</b> 04/03/2026, 08:01:08 AM<br/>
+              <b>Address:</b> Suzate Pension & Restaurant, Machhindra Marg, Lalitpur-20, ललितपुर, ललितपुर महानगरपालिका, ललितपुर जिल्ला, बागमती प्रदेश, 44707, नेपाल<br/>
+              <b>Speed:</b> 0.00 km/h<br/>
+              <b>Total Distance:</b> 0.04 km  ⚙
             </div>
           </div>
         `;

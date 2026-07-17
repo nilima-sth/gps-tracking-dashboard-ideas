@@ -1147,18 +1147,22 @@ function initLeaflet() {
     }
     const color = t.sc==='green'?'#1D9E75': t.sc==='red'?'#EF4444':'#F0A500';
     const marker = L.marker(t.latlng, { icon: L.divIcon({
-      html:`<div style="background:${color};width:30px;height:30px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;"><i class="fa-solid fa-truck-moving"></i></div>`,
+      html:`<div title="Fix Time&#10;04/03/2026, 08:01:08 AM&#10;&#10;Address&#10;Suzate Pension & Restaurant, Machhindra Marg, Lalitpur-20, ललितपुर, ललितपुर महानगरपालिका, ललितपुर जिल्ला, बागमती प्रदेश, 44707, नेपाल&#10;&#10;Speed&#10;0.00 km/h&#10;&#10;Total Distance&#10;0.04 km  ⚙" style="background:${color};width:30px;height:30px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;cursor:help;">🚛</div>`,
       className:'custom-truck-marker', iconSize:[30,30], iconAnchor:[15,15]
     })}).addTo(lMap);
 
-    const popup = `<div style="font-family:'DM Sans',sans-serif;min-width:170px;">
+    const popup = `<div style="font-family:'DM Sans',sans-serif;min-width:200px;">
       <div style="font-weight:800;font-size:12px;color:#714B67;border-bottom:1px solid #E2E8F0;padding-bottom:5px;margin-bottom:7px;">${t.reg}</div>
       <div style="font-size:11px;line-height:1.7;">
         <b>Driver:</b> ${t.driver}<br>
         <b>Route:</b> ${t.routeName}<br>
         <b>Speed:</b> ${t.speed} km/h &nbsp; <b>Fuel:</b> ${t.fuel}%<br>
         <b>Status:</b> ${t.status}<br>
-        <b>ETA:</b> ${t.eta}
+        <b>ETA:</b> ${t.eta}<br>
+        <hr style="border:0;border-top:1px solid #E2E8F0;margin:6px 0;"/>
+        <b>Fix Time:</b> 04/03/2026, 08:01:08 AM<br>
+        <b>Address:</b> Suzate Pension & Restaurant, Machhindra Marg, Lalitpur-20, ललितपुर, ललितपुर महानगरपालिका, ललितपुर जिल्ला, बागमती प्रदेश, 44707, नेपाल<br>
+        <b>Total Distance:</b> 0.04 km  ⚙
       </div>
       <button onclick="goDispatch('${t.id}')" style="margin-top:8px;width:100%;padding:5px;background:#714B67;color:#fff;border:none;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">Inspect Truck <i class="fa-solid fa-arrow-right"></i></button>
     </div>`;
@@ -1476,11 +1480,14 @@ function initFleetState() {
     S.fleet = {
       vReqState: 'New Request',
       vModel: '', vPlate: '', vTags: '',
+      vDriver: '',
       vMobility: '', vFutureDriver: '', vAssignDate: '',
       vCategory: '', vOrderDate: '', vChassis: '', vGpsDevice: '', vGpsStatus: '', vGpsPos: '', vGpsSync: '', vGpsAddr: '', vManager: '',
-      cState: 'New', cType: 'Leasing', cRef: '', cVendor: 'Select...', cKM: false, cServices: '', cDate: '',
+      cState: 'New', cType: 'Leasing', cRef: '', cVendor: '', cKM: false, cServices: '', cDate: '',
+      cVehicle: '', cDriver: '',
       rState: 'Draft', rTab: 'Distance',
       rOdoStart: '0.00', rOdoEnd: '0.00', rFuelQty: '0.00', rEmp: '',
+      rVehicle: '', rDriver: '',
       gps: [
         { id: 'gps1', name: 'Samjana', status: 'Offline', ignition: false, sel: false, route: '' },
         { id: 'gps2', name: 'moto', status: 'Offline', ignition: true, sel: false, route: 'Suzate Pension & Restaurant, Machhindra Marg, Lalitpur-20...' },
@@ -1489,6 +1496,22 @@ function initFleetState() {
     };
   }
   return S.fleet;
+}
+
+function buildSelectDriver(selectedVal, onChangeExpr) {
+  const driverOptions = S.trucks.map(t => `<option value="${t.driver}" ${selectedVal===t.driver?'selected':''}>${t.driver}</option>`).join('');
+  return `<select class="form-input" style="padding:4px 8px;width:150px;" onchange="${onChangeExpr}">
+    <option value="">Select Driver...</option>
+    ${driverOptions}
+  </select>`;
+}
+
+function buildSelectVehicle(selectedVal, onChangeExpr) {
+  const vehicleOptions = S.trucks.map(t => `<option value="${t.reg}" ${selectedVal===t.reg?'selected':''}>${t.reg} (${t.model})</option>`).join('');
+  return `<select class="form-input" style="padding:4px 8px;width:150px;" onchange="${onChangeExpr}">
+    <option value="">Select Vehicle...</option>
+    ${vehicleOptions}
+  </select>`;
 }
 
 function vehiclerequestHTML() {
@@ -1547,7 +1570,7 @@ function vehiclerequestHTML() {
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;">
           <div>
             <div style="font-weight:800;font-size:11px;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:5px;margin-bottom:15px;letter-spacing:1px;">DRIVER</div>
-            <div class="stat-row"><span class="stat-label">Driver</span><span class="stat-val"><a href="#" onclick="showToast('Link','Driver selected');return false;">Select...</a></span></div>
+            <div class="stat-row"><span class="stat-label">Driver</span><span class="stat-val">${buildSelectDriver(st.vDriver, 'S.fleet.vDriver=this.value; render();')}</span></div>
             <div class="stat-row"><span class="stat-label">Mobility Card</span><span class="stat-val"><input class="form-input" style="padding:4px 8px;width:150px;" value="${st.vMobility}" onchange="S.fleet.vMobility=this.value; render();"></span></div>
             <div class="stat-row"><span class="stat-label">Future Driver</span><span class="stat-val"><input class="form-input" style="padding:4px 8px;width:150px;" value="${st.vFutureDriver}" onchange="S.fleet.vFutureDriver=this.value; render();"></span></div>
             <div class="stat-row"><span class="stat-label">Assignment Date</span><span class="stat-val"><input class="form-input" type="date" style="padding:4px 8px;width:150px;" value="${st.vAssignDate}" onchange="S.fleet.vAssignDate=this.value; render();"></span></div>
@@ -1616,8 +1639,10 @@ function contractsHTML() {
             </span></div>
             <div class="stat-row"><span class="stat-label">Vendor</span><span class="stat-val">
               <select class="form-input" style="padding:4px 8px;width:150px;" onchange="S.fleet.cVendor=this.value; render();">
-                <option value="Select..." ${st.cVendor==='Select...'?'selected':''}>Select...</option>
+                <option value="" ${st.cVendor===''?'selected':''}>Select Vendor...</option>
                 <option value="Toyota" ${st.cVendor==='Toyota'?'selected':''}>Toyota Motors</option>
+                <option value="Tata Motors" ${st.cVendor==='Tata Motors'?'selected':''}>Tata Motors</option>
+                <option value="Ashok Leyland" ${st.cVendor==='Ashok Leyland'?'selected':''}>Ashok Leyland</option>
               </select>
             </span></div>
             <div class="stat-row"><span class="stat-label">Included Services</span><span class="stat-val"><input class="form-input" style="padding:4px 8px;width:150px;" value="${st.cServices}" onchange="S.fleet.cServices=this.value; render();"></span></div>
@@ -1633,7 +1658,7 @@ function contractsHTML() {
         <div style="font-weight:800;font-size:11px;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:5px;margin-bottom:15px;letter-spacing:1px;margin-top:30px;">VEHICLE</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;">
           <div>
-            <div class="stat-row"><span class="stat-label">Vehicle</span><span class="stat-val"><a href="#" onclick="showToast('Link','Vehicle selected');return false;">Select...</a></span></div>
+            <div class="stat-row"><span class="stat-label">Vehicle</span><span class="stat-val">${buildSelectVehicle(st.cVehicle, 'S.fleet.cVehicle=this.value; render();')}</span></div>
             <div class="stat-row"><span class="stat-label">Is Cost per KM</span><span class="stat-val"><input type="checkbox" ${st.cKM?'checked':''} onchange="S.fleet.cKM=this.checked; render();"></span></div>
             <div class="stat-row"><span class="stat-label">KM</span><span class="stat-val">0.00</span></div>
             
@@ -1642,7 +1667,7 @@ function contractsHTML() {
             </div>
           </div>
           <div>
-            <div class="stat-row"><span class="stat-label">Driver</span><span class="stat-val"><a href="#" onclick="showToast('Link','Driver selected');return false;">Select...</a></span></div>
+            <div class="stat-row"><span class="stat-label">Driver</span><span class="stat-val">${buildSelectDriver(st.cDriver, 'S.fleet.cDriver=this.value; render();')}</span></div>
           </div>
         </div>
         
@@ -1729,8 +1754,8 @@ function revenuesHTML() {
           </div>
           <div>
             <div style="font-weight:800;font-size:11px;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:5px;margin-bottom:15px;letter-spacing:1px;">VEHICLE & DRIVER</div>
-            <div class="stat-row"><span class="stat-label">Vehicle</span><span class="stat-val"><a href="#" onclick="showToast('Link','Vehicle selected');return false;">Select...</a></span></div>
-            <div class="stat-row"><span class="stat-label">Driver</span><span class="stat-val"><a href="#" onclick="showToast('Link','Driver selected');return false;">Select...</a></span></div>
+            <div class="stat-row"><span class="stat-label">Vehicle</span><span class="stat-val">${buildSelectVehicle(st.rVehicle, 'S.fleet.rVehicle=this.value; render();')}</span></div>
+            <div class="stat-row"><span class="stat-label">Driver</span><span class="stat-val">${buildSelectDriver(st.rDriver, 'S.fleet.rDriver=this.value; render();')}</span></div>
             <div class="stat-row"><span class="stat-label">Employee (Driver)</span><span class="stat-val"><input class="form-input" style="padding:4px 8px;width:150px;" value="${st.rEmp}" onchange="S.fleet.rEmp=this.value; render();"></span></div>
           </div>
         </div>
