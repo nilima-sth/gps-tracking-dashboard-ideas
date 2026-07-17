@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Reports — CodeDeb VMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="js/db.js"></script>
+    <script src="js/main.js"></script>
+</head>
+<body class="h-full flex flex-col overflow-hidden text-slate-700">
+
+    <header id="header-target" class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 shrink-0 z-40"></header>
+
+    <div class="flex-1 flex overflow-hidden">
+        <aside id="sidebar-target" class="w-60 bg-white border-r border-slate-200 flex flex-col shrink-0 z-30"></aside>
+
+        <!-- REPORTS INNER WINDOW -->
+        <main class="flex-1 overflow-y-auto p-4 space-y-4">
+            <div class="border-b border-slate-200 pb-2">
+                <h1 class="text-sm font-bold text-slate-900 tracking-tight">Revenue & Occupancy Analytics</h1>
+                <p class="text-[11px] text-slate-400">Consolidated analytics showing trip data summaries.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
+                <!-- PANEL A: REVENUE BY OWNER -->
+                <div class="bg-white border border-slate-200 p-4 rounded-md shadow-sm space-y-3">
+                    <h3 class="text-xs font-bold text-slate-800 flex items-center space-x-1 border-b border-slate-100 pb-2">
+                        <i data-lucide="dollar-sign" class="w-4 h-4 text-emerald-600"></i>
+                        <span>Owner Fleet Performance Summary</span>
+                    </h3>
+                    <div id="analytics-rev" class="space-y-2 text-xs"></div>
+                </div>
+
+                <!-- PANEL B: CHARGING STATS -->
+                <div class="bg-white border border-slate-200 p-4 rounded-md shadow-sm space-y-3">
+                    <h3 class="text-xs font-bold text-slate-800 flex items-center space-x-1 border-b border-slate-100 pb-2">
+                        <i data-lucide="zap" class="w-4 h-4 text-blue-600"></i>
+                        <span>Input Charging Rates Compatibility</span>
+                    </h3>
+                    <div class="space-y-2.5 text-xs text-slate-600">
+                        <div class="flex justify-between items-center border-b border-slate-50 pb-1.5">
+                            <span>King Long 19S (120kW Fast Charge)</span>
+                            <span class="font-bold text-slate-800 font-mono-data">6 Active Units</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-slate-50 pb-1.5">
+                            <span>King Long 14S/15S (60kW Input max)</span>
+                            <span class="font-bold text-slate-800 font-mono-data">39 Active Units</span>
+                        </div>
+                        <div class="flex justify-between items-center pb-1">
+                            <span>King Long Older Series (30kW Input max)</span>
+                            <span class="font-bold text-slate-800 font-mono-data">20 Active Units</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const db = getDatabase();
+            renderReports(db);
+            lucide.createIcons();
+        });
+
+        function renderReports(db) {
+            const ownerRev = {};
+            const ownerCount = {};
+
+            db.vehicles.forEach(v => {
+                if (!ownerRev[v.owner]) {
+                    ownerRev[v.owner] = 0;
+                    ownerCount[v.owner] = 0;
+                }
+                ownerRev[v.owner] += v.revenue;
+                ownerCount[v.owner]++;
+            });
+
+            const container = document.getElementById("analytics-rev");
+            container.innerHTML = Object.entries(ownerRev).map(([owner, rev]) => `
+                <div class="flex justify-between items-center border-b border-slate-50 pb-1.5 last:border-none last:pb-0">
+                    <div>
+                        <span class="font-bold text-slate-800 block">${owner}</span>
+                        <span class="text-[9px] text-slate-400 block">${ownerCount[owner]} Active Vehicles</span>
+                    </div>
+                    <span class="font-bold text-slate-900 font-mono-data">NPR ${rev.toLocaleString()}</span>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Directory — CodeDeb VMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="js/db.js"></script>
+    <script src="js/main.js"></script>
+</head>
+<body class="h-full flex flex-col overflow-hidden text-slate-700">
+
+    <header id="header-target" class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 shrink-0 z-40"></header>
+
+    <div class="flex-1 flex overflow-hidden">
+        <aside id="sidebar-target" class="w-60 bg-white border-r border-slate-200 flex flex-col shrink-0 z-30"></aside>
+
+        <!-- DIRECTORY GRID -->
+        <main class="flex-1 overflow-y-auto p-4 space-y-4">
+            <div class="border-b border-slate-200 pb-2 flex justify-between items-center">
+                <div>
+                    <h1 class="text-sm font-bold text-slate-900 tracking-tight">Active Duty Registry</h1>
+                    <p class="text-[11px] text-slate-400">Directory mapping staff, owner classifications, and vehicle parameters.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" id="driver-grid"></div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const db = getDatabase();
+            renderDrivers(db);
+            lucide.createIcons();
+        });
+
+        function renderDrivers(db) {
+            const container = document.getElementById("driver-grid");
+            container.innerHTML = db.vehicles.map(v => `
+                <div class="bg-white border border-slate-200 p-3.5 rounded-md shadow-sm space-y-3 flex flex-col justify-between">
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold text-slate-900 block">${v.regNo} (${v.id})</span>
+                            <span class="text-[9px] bg-slate-100 font-mono-data px-1.5 py-0.5 rounded uppercase tracking-wide font-bold">${v.chargeLimit} Input</span>
+                        </div>
+                        <div class="space-y-1 text-xs">
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Driver:</span>
+                                <span class="font-bold text-slate-800">${v.driver}</span>
+                            </div>
+                            <div class="flex justify-between font-mono-data text-[11px] text-slate-400 border-b border-slate-50 pb-1.5">
+                                <span>Phone:</span>
+                                <span>${v.driverPhone}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Conductor:</span>
+                                <span class="font-bold text-slate-800">${v.conductor}</span>
+                            </div>
+                            <div class="flex justify-between font-mono-data text-[11px] text-slate-400 border-b border-slate-50 pb-1.5">
+                                <span>Phone:</span>
+                                <span>${v.conductorPhone}</span>
+                            </div>
+                            <div class="flex justify-between pt-0.5">
+                                <span class="text-slate-400">Owner:</span>
+                                <span class="font-bold text-slate-900">${v.owner}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border-t border-slate-100 pt-2.5 flex justify-between text-[10px]">
+                        <span class="text-slate-400 font-semibold">Daily Checkup</span>
+                        <span class="text-emerald-600 font-bold uppercase font-mono-data">Checked OK</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
