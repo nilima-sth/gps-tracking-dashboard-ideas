@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en" class="h-full bg-slate-50">
 <head>
@@ -173,4 +174,175 @@
         }
     </script>
 </body>
+=======
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Map Tracker — CodeDeb VMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="js/db.js"></script>
+    <script src="js/main.js"></script>
+
+    <!-- Leaflet Map library CDN -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body class="h-full flex flex-col overflow-hidden text-slate-700">
+
+    <header id="header-target" class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 shrink-0 z-40"></header>
+
+    <div class="flex-1 flex overflow-hidden">
+        <aside id="sidebar-target" class="w-60 bg-white border-r border-slate-200 flex flex-col shrink-0 z-30"></aside>
+
+        <!-- MAP CANVAS WORKSPACE -->
+        <main class="flex-1 flex overflow-hidden relative">
+            
+            <!-- LEFT LIST QUICK NAVIGATION -->
+            <div class="w-80 bg-white border-r border-slate-200 flex flex-col shrink-0 z-20">
+                <div class="p-3 border-b border-slate-200 bg-slate-50/50">
+                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Fleet List</span>
+                    <h2 class="text-xs font-bold text-slate-800">Operational Vehicles (65)</h2>
+                </div>
+                <div class="flex-1 overflow-y-auto divide-y divide-slate-100" id="map-nav-list"></div>
+            </div>
+
+            <!-- THE MAP BOX -->
+            <div class="flex-1 h-full relative">
+                <div id="map-frame" class="w-full h-full z-10"></div>
+
+                <!-- FLOATING LEGEND -->
+                <div class="absolute top-4 right-4 bg-white/95 backdrop-blur-sm p-3 border border-slate-200 rounded-md shadow-md z-20 text-xs w-64 space-y-1.5">
+                    <h4 class="font-bold text-slate-900 border-b border-slate-100 pb-1 flex items-center space-x-1">
+                        <i data-lucide="map" class="w-4 h-4 text-slate-600"></i>
+                        <span>Highway Map Key</span>
+                    </h4>
+                    <div class="space-y-1">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3.5 h-3.5 rounded bg-slate-900 border border-white text-[8px] flex items-center justify-center text-white">🏢</span>
+                            <span class="text-slate-600 text-[11px]">Primary Station Depot Terminal</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3.5 h-3.5 rounded bg-amber-500 border border-white text-[8px] flex items-center justify-center text-white">⚡</span>
+                            <span class="text-slate-600 text-[11px]">Dedicated Highway Charging Hub</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3.5 h-3.5 rounded bg-sky-500 border border-white text-[8px] flex items-center justify-center text-white">🏨</span>
+                            <span class="text-slate-600 text-[11px]">Eateries & Charging Points</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let db = getDatabase();
+        let map, markersGroup;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            initLeafletMap();
+            renderMapSideList();
+            lucide.createIcons();
+        });
+
+        function initLeafletMap() {
+            // Focus on Palpa / Butwal center coordinates
+            map = L.map("map-frame", { zoomControl: false }).setView([27.8643, 83.5492], 8.5);
+            L.control.zoom({ position: "bottomright" }).addTo(map);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            markersGroup = L.layerGroup().addTo(map);
+
+            // Draw route line
+            const routeCoordinates = db.routeWaypoints.map(w => [w.lat, w.lng]);
+            L.polyline(routeCoordinates, {
+                color: "#475569",
+                weight: 2,
+                opacity: 0.6,
+                dashArray: "5, 10"
+            }).addTo(map);
+
+            // Plot stops with customized descriptors
+            db.routeWaypoints.forEach(w => {
+                let symbol = "⚡";
+                let color = "bg-amber-500";
+                if (w.type === "Depot") { symbol = "🏢"; color = "bg-slate-900"; }
+                if (w.type.includes("Eating")) { symbol = "🏨"; color = "bg-sky-500"; }
+
+                const marker = L.marker([w.lat, w.lng], {
+                    icon: L.divIcon({
+                        html: `<div class="${color} text-white font-bold text-[9px] w-6 h-6 rounded-md shadow-md border border-white flex items-center justify-center">${symbol}</div>`,
+                        className: "stop-icon",
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12]
+                    })
+                }).addTo(map);
+
+                marker.bindPopup(`
+                    <div class="text-xs space-y-1 min-width-[180px]">
+                        <h4 class="font-bold text-slate-950">${w.name} (${w.type})</h4>
+                        <p class="text-slate-500">${w.amenities}</p>
+                        <div class="pt-1.5 border-t border-slate-100 flex justify-between">
+                            <span class="text-slate-400 font-semibold">Chargers count:</span>
+                            <span class="font-bold text-slate-800">${w.chargers} ports (${w.power})</span>
+                        </div>
+                    </div>
+                `);
+            });
+
+            // Plot Dynamic Vehicles
+            db.vehicles.forEach(v => {
+                const marker = L.marker([v.lat, v.lng], {
+                    icon: L.divIcon({
+                        html: `<div class="bg-slate-950 text-white font-bold text-[9px] px-2 py-1 rounded-md shadow-md border border-slate-700 whitespace-nowrap">🚌 ${v.regNo}</div>`,
+                        className: "ev-icon",
+                        iconSize: [80, 20],
+                        iconAnchor: [40, 10]
+                    })
+                }).addTo(markersGroup);
+
+                marker.bindPopup(`
+                    <div class="text-xs space-y-1.5 min-width-[200px]">
+                        <h3 class="font-bold text-slate-950">${v.regNo} (${v.id})</h3>
+                        <p class="text-sky-600 font-semibold text-[10px]">${v.route}</p>
+                        <div class="grid grid-cols-2 gap-1 pt-1.5 border-t border-slate-100 text-[10px]">
+                            <div><b>Status:</b> ${v.status}</div>
+                            <div><b>Battery:</b> ${v.battery}%</div>
+                            <div><b>Speed:</b> ${v.speed} KM/H</div>
+                            <div><b>Driver:</b> ${v.driver}</div>
+                        </div>
+                    </div>
+                `);
+            });
+        }
+
+        function renderMapSideList() {
+            const container = document.getElementById("map-nav-list");
+            container.innerHTML = db.vehicles.map(v => `
+                <div onclick="panToVehicle(${v.lat}, ${v.lng})" class="p-3 hover:bg-slate-50 cursor-pointer transition text-xs space-y-1">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-slate-900">${v.regNo}</span>
+                        <span class="text-[9px] font-mono-data bg-slate-100 px-1 py-0.5 rounded text-slate-500">${v.id}</span>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-slate-500">
+                        <span>Current: ${v.currentLocation}</span>
+                        <span class="font-bold ${v.battery < 30 ? 'text-red-500' : 'text-emerald-500'}">${v.battery}%</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function panToVehicle(lat, lng) {
+            map.flyTo([lat, lng], 11, { animate: true, duration: 1.5 });
+        }
+    </script>
+</body>
+>>>>>>> main
 </html>
