@@ -181,7 +181,7 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:#F1F5F9;color:#1E293B
 .fuel-pct{font-size:10.5px;font-weight:700;font-family:'DM Mono',monospace;}
 
 /* Terminal cards */
-.terminal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.terminal-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));gap:10px;}
 .terminal-card{border:1px solid var(--border);border-radius:7px;padding:11px;}
 .terminal-name{font-size:10.5px;font-weight:700;color:var(--text-muted);}
 .terminal-count{font-size:15px;font-weight:800;color:var(--text);margin-top:2px;}
@@ -343,7 +343,11 @@ const S = {
   weather: {
     KTM:  { temp:'24°C', cond:'Light Rain',    icon:'<i class="fa-solid fa-cloud-showers-heavy text-info"></i>' },
     HET:  { temp:'29°C', cond:'Partly Cloudy', icon:'<i class="fa-solid fa-cloud-sun text-muted"></i>' },
-    BGR:  { temp:'34°C', cond:'Sunny & Dry',   icon:'<i class="fa-solid fa-sun text-warning"></i>' }
+    BGR:  { temp:'34°C', cond:'Sunny & Dry',   icon:'<i class="fa-solid fa-sun text-warning"></i>' },
+    PKR:  { temp:'23°C', cond:'Thunderstorm',  icon:'<i class="fa-solid fa-cloud-bolt text-primary"></i>' },
+    BTW:  { temp:'31°C', cond:'Hot & Humid',   icon:'<i class="fa-solid fa-temperature-high text-danger"></i>' },
+    NPJ:  { temp:'36°C', cond:'Clear Sky',     icon:'<i class="fa-solid fa-sun text-warning"></i>' },
+    BRT:  { temp:'32°C', cond:'Mostly Cloudy', icon:'<i class="fa-solid fa-cloud text-muted"></i>' }
   },
   alerts: [
     { id:'AL-001', type:'overspeed', truck:'TR-003', reg:'GA 3 PA 4412',
@@ -774,6 +778,38 @@ function dashboardHTML() {
                   </div>
                   <div class="terminal-count">2 En Route</div>
                   <div class="terminal-weather">${w.BGR.icon} ${w.BGR.temp} · ${w.BGR.cond}</div>
+                </div>
+                <div class="terminal-card">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                    <div class="terminal-name">Pokhara Station</div>
+                    <span class="badge badge-blue" style="font-size:9px;">Transit Hub</span>
+                  </div>
+                  <div class="terminal-count">1 En Route</div>
+                  <div class="terminal-weather">${w.PKR.icon} ${w.PKR.temp} · ${w.PKR.cond}</div>
+                </div>
+                <div class="terminal-card">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                    <div class="terminal-name">Butwal Station</div>
+                    <span class="badge badge-amber" style="font-size:9px;">1 Flagged</span>
+                  </div>
+                  <div class="terminal-count">1 En Route</div>
+                  <div class="terminal-weather">${w.BTW.icon} ${w.BTW.temp} · ${w.BTW.cond}</div>
+                </div>
+                <div class="terminal-card">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                    <div class="terminal-name">Nepalgunj Station</div>
+                    <span class="badge badge-green" style="font-size:9px;">Active depot</span>
+                  </div>
+                  <div class="terminal-count">1 En Route</div>
+                  <div class="terminal-weather">${w.NPJ.icon} ${w.NPJ.temp} · ${w.NPJ.cond}</div>
+                </div>
+                <div class="terminal-card">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                    <div class="terminal-name">Biratnagar Station</div>
+                    <span class="badge badge-slate" style="font-size:9px;">No active</span>
+                  </div>
+                  <div class="terminal-count">0 En Route</div>
+                  <div class="terminal-weather">${w.BRT.icon} ${w.BRT.temp} · ${w.BRT.cond}</div>
                 </div>
               </div></div>
             </div>
