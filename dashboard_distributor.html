@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Track Your Delivery — Unilever Nepal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<!-- Leaflet.js Map dependencies -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 13px; }
+body { font-family: 'DM Sans', system-ui, sans-serif; background: #F9FAFB; color: #1F2937; min-height: 100vh; }
+
+:root {
+  --purple: #714B67;
+  --purple-dark: #5a3a52;
+  --purple-light: #f3eef1;
+  --purple-mid: #d9c8d4;
+  --teal: #1D9E75;
+  --teal-light: #e8f7f2;
+  --teal-dark: #157a5b;
+  --amber: #F0A500;
+  --amber-light: #fef7e6;
+  --blue: #1F36C7;
+  --red: #EF4444;
+  --red-light: #FEF2F2;
+  --border: #E5E7EB;
+  --text: #1F2937;
+  --text-muted: #6B7280;
+  --bg: #F9FAFB;
+  --white: #FFFFFF;
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 3px; }
+
+/* ─── PORTAL HEADER ─── */
+.portal-header {
+  background: var(--purple);
+  padding: 0 20px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,.2);
+}
+.header-inner { max-width: 600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 52px; }
+.portal-logo { display: flex; align-items: center; gap: 10px; }
+.logo-mark { width: 34px; height: 34px; background: #fff; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: var(--blue); }
+.logo-text { color: #fff; }
+.logo-text .brand { font-size: 13.5px; font-weight: 700; letter-spacing: .3px; }
+.logo-text .sub { font-size: 10px; opacity: .75; font-weight: 400; }
+.order-ref { background: rgba(255,255,255,.15); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 600; border: 1px solid rgba(255,255,255,.3); }
+.expiry-badge { background: var(--amber-light); color: #92400e; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 10px; display: flex; align-items: center; gap: 4px; }
+
+/* ─── MAIN CONTAINER ─── */
+.portal-wrap { max-width: 600px; margin: 0 auto; padding: 14px 14px 40px; }
+
+/* ─── ETA HERO CARD ─── */
+.eta-card {
+  background: var(--white); border-radius: 10px; overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,.1); margin-bottom: 14px;
+  border: 1px solid var(--border);
+}
+.eta-top { background: linear-gradient(135deg, var(--purple) 0%, var(--purple-dark) 100%); padding: 22px 18px 18px; color: #fff; }
+.eta-eyebrow { font-size: 11px; font-weight: 600; opacity: .8; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+.eta-big { font-size: 36px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+.eta-sub { font-size: 12.5px; opacity: .85; font-weight: 400; }
+.eta-countdown { display: flex; gap: 10px; margin-top: 14px; }
+.eta-unit { background: rgba(255,255,255,.15); border-radius: 7px; padding: 9px 14px; text-align: center; flex: 1; }
+.eta-num { font-size: 24px; font-weight: 800; display: block; line-height: 1; }
+.eta-lbl { font-size: 10px; opacity: .75; font-weight: 500; margin-top: 2px; }
+
+/* Progress Bar */
+.progress-section { padding: 18px; }
+.progress-label { font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: .5px; }
+.progress-track { display: flex; align-items: center; position: relative; }
+.progress-line { position: absolute; top: 16px; left: 16px; right: 16px; height: 3px; background: var(--border); z-index: 0; }
+.progress-fill { position: absolute; top: 16px; left: 16px; width: 55%; height: 3px; background: var(--purple); z-index: 1; border-radius: 3px; }
+.progress-steps { display: flex; justify-content: space-between; width: 100%; position: relative; z-index: 2; }
+.step { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.step-circle { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; border: 3px solid var(--border); background: var(--white); }
+.step-circle.done { background: var(--purple); border-color: var(--purple); font-size: 15px; }
+.step-circle.active { background: var(--white); border-color: var(--purple); box-shadow: 0 0 0 4px rgba(113,75,103,.15); }
+.step-circle.pending { background: var(--white); border-color: var(--border); }
+.step-name { font-size: 11px; font-weight: 600; color: var(--text-muted); text-align: center; }
+.step-name.done { color: var(--purple); }
+.step-name.active { color: var(--text); }
+.step-time { font-size: 10px; color: var(--text-muted); text-align: center; }
+
+/* ─── MAP CARD ─── */
+.map-card { background: var(--white); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.1); margin-bottom: 14px; border: 1px solid var(--border); }
+.map-card-header { padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+.map-card-title { font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.privacy-note { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; z-index: 1000; pointer-events: none; }
+.map-area { position: relative; height: 280px; overflow: hidden; }
+
+/* Custom leaflet style overrides */
+.leaflet-popup-content-wrapper {
+  border-radius: 7px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+  border: 1px solid var(--border);
+}
+.leaflet-popup-content {
+  margin: 10px 12px;
+}
+.leaflet-container a.leaflet-popup-close-button {
+  top: 6px;
+  right: 6px;
+  color: var(--text-muted);
+}
+.truck-icon-main { width: 36px; height: 36px; border-radius: 50%; background: var(--purple); border: 3px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 17px; box-shadow: 0 3px 10px rgba(113,75,103,.4); position: relative; z-index: 2; }
+.dest-marker { position: absolute; font-size: 26px; transform: translate(-50%,-100%); }
+.map-bottom-bar { padding: 9px 13px; background: var(--bg); border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.dist-info { flex: 1; font-size: 12px; }
+.dist-info strong { color: var(--text); font-weight: 700; }
+.dist-info span { color: var(--text-muted); }
+.km-badge { background: var(--purple-light); color: var(--purple); font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--purple-mid); white-space: nowrap; }
+
+/* ─── GOODS TABLE ─── */
+.goods-card { background: var(--white); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.1); margin-bottom: 14px; border: 1px solid var(--border); }
+.goods-header { padding: 12px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.goods-title { font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.goods-total { background: var(--purple-light); color: var(--purple); font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; border: 1px solid var(--purple-mid); }
+.goods-table { width: 100%; border-collapse: collapse; }
+.goods-table thead th { padding: 7px 14px; text-align: left; font-size: 10.5px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border); background: var(--bg); text-transform: uppercase; letter-spacing: .5px; }
+.goods-table tbody tr { border-bottom: 1px solid #F3F4F6; }
+.goods-table tbody tr:last-child { border-bottom: none; }
+.goods-table td { padding: 9px 14px; font-size: 12.5px; }
+.goods-table .prod-name { font-weight: 600; color: var(--text); }
+.goods-table .prod-sku { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-family: 'DM Mono', monospace; }
+.goods-table .qty { font-weight: 700; color: var(--purple); }
+.goods-table .weight { color: var(--text-muted); font-size: 12px; }
+.goods-summary { padding: 10px 14px; background: var(--bg); border-top: 1px solid var(--border); display: flex; justify-content: flex-end; align-items: center; gap: 14px; font-size: 12.5px; }
+.goods-summary .total-label { color: var(--text-muted); font-weight: 500; }
+.goods-summary .total-val { font-weight: 700; color: var(--text); font-size: 14px; }
+
+/* ─── STATUS CARD ─── */
+.status-card { background: var(--white); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.1); margin-bottom: 14px; border: 1px solid var(--border); }
+.status-timeline { padding: 14px; }
+.timeline-item { display: flex; gap: 14px; margin-bottom: 14px; }
+.timeline-item:last-child { margin-bottom: 0; }
+.tl-icon { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+.tl-icon.done { background: #ecfdf5; }
+.tl-icon.active { background: var(--purple-light); border: 2px solid var(--purple); }
+.tl-icon.pending { background: var(--bg); }
+.tl-line { display: flex; flex-direction: column; }
+.tl-line .tl-name { font-size: 12.5px; font-weight: 600; color: var(--text); }
+.tl-line .tl-time { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.tl-connector { width: 2px; height: 14px; background: var(--border); margin-left: 16px; margin-bottom: -4px; }
+.tl-connector.done { background: var(--purple); }
+
+/* ─── EXPIRY WARNING ─── */
+.expiry-card { background: #fef9c3; border: 1px solid #fde68a; border-radius: 10px; padding: 13px 14px; margin-bottom: 14px; display: flex; align-items: flex-start; gap: 12px; }
+.expiry-icon { font-size: 20px; flex-shrink: 0; }
+.expiry-text { font-size: 12px; color: #92400e; line-height: 1.5; }
+.expiry-text strong { color: #78350f; font-size: 12.5px; }
+
+/* ─── PRIVACY FOOTER ─── */
+.privacy-footer { text-align: center; font-size: 11px; color: var(--text-muted); padding: 14px; line-height: 1.6; }
+.privacy-footer .lock { color: var(--purple); }
+
+/* ─── MOBILE FIXES ─── */
+@media (max-width: 480px) {
+  .eta-big { font-size: 28px; }
+  .eta-countdown { gap: 7px; }
+  .eta-unit { padding: 7px 9px; }
+  .eta-num { font-size: 18px; }
+  .step-name { font-size: 10px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="portal-header">
+  <div class="header-inner">
+    <div class="portal-logo">
+      <div class="logo-mark">U</div>
+      <div class="logo-text">
+        <div class="brand">Unilever Nepal</div>
+        <div class="sub">Delivery Tracking Portal</div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+      <div class="order-ref">Order #SO-9923</div>
+      <div class="expiry-badge">⏱ Link expires on delivery</div>
+    </div>
+  </div>
+</div>
+
+<div class="portal-wrap">
+
+  <!-- EXPIRY NOTICE -->
+  <div class="expiry-card">
+    <div class="expiry-icon">🔒</div>
+    <div class="expiry-text">
+      <strong>Secure Tracking Link</strong><br/>
+      This page is exclusively for <strong>Hetauda Merchants Ltd. (Order #SO-9923)</strong>. This link will automatically expire once your delivery is marked complete. No registration required.
+    </div>
+  </div>
+
+  <!-- ETA HERO -->
+  <div class="eta-card">
+    <div class="eta-top">
+      <div class="eta-eyebrow">📦 Your Delivery is On Its Way</div>
+      <div class="eta-big">~2h 15m</div>
+      <div class="eta-sub">Estimated arrival at your warehouse · ETA 14:30 today</div>
+      <div class="eta-countdown">
+        <div class="eta-unit">
+          <span class="eta-num" id="hrs">02</span>
+          <div class="eta-lbl">Hours</div>
+        </div>
+        <div class="eta-unit">
+          <span class="eta-num" id="mins">14</span>
+          <div class="eta-lbl">Minutes</div>
+        </div>
+        <div class="eta-unit">
+          <span class="eta-num" id="secs">38</span>
+          <div class="eta-lbl">Seconds</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="progress-section">
+      <div class="progress-label">Delivery Progress</div>
+      <div class="progress-track">
+        <div class="progress-line"></div>
+        <div class="progress-fill"></div>
+        <div class="progress-steps">
+          <div class="step">
+            <div class="step-circle done">✓</div>
+            <div class="step-name done">Dispatched</div>
+            <div class="step-time">08:45 AM</div>
+          </div>
+          <div class="step">
+            <div class="step-circle done">✓</div>
+            <div class="step-name done">Picked Up</div>
+            <div class="step-time">09:15 AM</div>
+          </div>
+          <div class="step">
+            <div class="step-circle active">🚛</div>
+            <div class="step-name active">In Transit</div>
+            <div class="step-time">Now · 62 km away</div>
+          </div>
+          <div class="step">
+            <div class="step-circle pending">📍</div>
+            <div class="step-name">Arriving</div>
+            <div class="step-time">~14:15</div>
+          </div>
+          <div class="step">
+            <div class="step-circle pending">✅</div>
+            <div class="step-name">Delivered</div>
+            <div class="step-time">~14:30</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAP CARD -->
+  <div class="map-card">
+    <div class="map-card-header">
+      <div class="map-card-title">🗺️ Live Route — Your Delivery</div>
+      <div class="privacy-note">🔒 Only your order is shown</div>
+    </div>
+    <div class="map-area" style="position: relative;">
+      <!-- Leaflet map container -->
+      <div id="map" style="width: 100%; height: 100%; z-index: 1;"></div>
+    </div>
+    <div class="map-bottom-bar">
+      <div class="dist-info">
+        <strong>Hetauda Merchants Ltd.</strong><br/>
+        <span>Mahendra Rajmarg, Hetauda, Makwanpur</span>
+      </div>
+      <div class="km-badge">62 km away</div>
+    </div>
+  </div>
+
+  <!-- GOODS TABLE -->
+  <div class="goods-card">
+    <div class="goods-header">
+      <div class="goods-title">📋 Goods Receipt Summary — Order #SO-9923</div>
+      <div class="goods-total">850 kg total</div>
+    </div>
+    <table class="goods-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th style="text-align:center;">Quantity</th>
+          <th style="text-align:right;">Weight</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="prod-name">Lux Soap (Rose)</div>
+            <div class="prod-sku">SKU: LUX-ROSE-75G · Carton × 48 bars</div>
+          </td>
+          <td style="text-align:center;"><span class="qty">500</span> ctns</td>
+          <td style="text-align:right;" class="weight">180 kg</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="prod-name">Sunsilk Shampoo (Black Shine)</div>
+            <div class="prod-sku">SKU: SUNS-BLK-200ML · Carton × 24 btl</div>
+          </td>
+          <td style="text-align:center;"><span class="qty">200</span> ctns</td>
+          <td style="text-align:right;" class="weight">120 kg</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="prod-name">Dove Body Wash (Original)</div>
+            <div class="prod-sku">SKU: DOVE-BW-500ML · Carton × 12 btl</div>
+          </td>
+          <td style="text-align:center;"><span class="qty">150</span> ctns</td>
+          <td style="text-align:right;" class="weight">90 kg</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="prod-name">Wheel Laundry Detergent</div>
+            <div class="prod-sku">SKU: WHEEL-1KG · Carton × 12 packs</div>
+          </td>
+          <td style="text-align:center;"><span class="qty">300</span> ctns</td>
+          <td style="text-align:right;" class="weight">360 kg</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="prod-name">Lifebuoy Hand Sanitizer</div>
+            <div class="prod-sku">SKU: LB-SANT-500ML · Carton × 20 btl</div>
+          </td>
+          <td style="text-align:center;"><span class="qty">50</span> ctns</td>
+          <td style="text-align:right;" class="weight">50 kg</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="prod-name">Clear Anti-Dandruff Shampoo</div>
+            <div class="prod-sku">SKU: CLR-AD-180ML · Carton × 24 btl</div>
+          </td>
+          <td style="text-align:center;"><span class="qty">80</span> ctns</td>
+          <td style="text-align:right;" class="weight">50 kg</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="goods-summary">
+      <span class="total-label">Total Items</span>
+      <span class="total-val">1,280 units across 6 products</span>
+      <span class="total-label" style="margin-left:12px;">Total Weight</span>
+      <span class="total-val">850 kg</span>
+    </div>
+  </div>
+
+  <!-- STATUS TIMELINE -->
+  <div class="status-card">
+    <div style="padding:12px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px;">
+      <span style="font-size:13.5px; font-weight:700;">📅 Delivery Timeline</span>
+    </div>
+    <div class="status-timeline">
+      <div class="tl-connector done"></div>
+      <div class="timeline-item">
+        <div class="tl-icon done">✅</div>
+        <div class="tl-line">
+          <div class="tl-name">Order Confirmed</div>
+          <div class="tl-time">Today, 07:30 AM · Unilever Nepal Warehouse, Kathmandu</div>
+        </div>
+      </div>
+      <div class="tl-connector done"></div>
+      <div class="timeline-item">
+        <div class="tl-icon done">✅</div>
+        <div class="tl-line">
+          <div class="tl-name">Goods Loaded &amp; Dispatched</div>
+          <div class="tl-time">Today, 08:45 AM · Loading complete, truck dispatched</div>
+        </div>
+      </div>
+      <div class="tl-connector done"></div>
+      <div class="timeline-item">
+        <div class="tl-icon done">✅</div>
+        <div class="tl-line">
+          <div class="tl-name">Cleared Kathmandu Ring Road Checkpoint</div>
+          <div class="tl-time">Today, 09:22 AM</div>
+        </div>
+      </div>
+      <div class="tl-connector done"></div>
+      <div class="timeline-item">
+        <div class="tl-icon active">🚛</div>
+        <div class="tl-line">
+          <div class="tl-name" style="color:var(--purple);">In Transit — En Route to Hetauda</div>
+          <div class="tl-time">Now · 62 km remaining · Estimated 2h 15m</div>
+        </div>
+      </div>
+      <div class="tl-connector"></div>
+      <div class="timeline-item">
+        <div class="tl-icon pending">📍</div>
+        <div class="tl-line">
+          <div class="tl-name" style="color:var(--text-muted);">Arriving at Your Warehouse</div>
+          <div class="tl-time">Expected 14:15 – 14:30 today</div>
+        </div>
+      </div>
+      <div class="tl-connector"></div>
+      <div class="timeline-item">
+        <div class="tl-icon pending">✅</div>
+        <div class="tl-line">
+          <div class="tl-name" style="color:var(--text-muted);">Delivery Complete · Link Expires</div>
+          <div class="tl-time">Pending · Requires your acknowledgment signature</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACT CARD -->
+  <div style="background:var(--white); border-radius:10px; padding:14px; box-shadow:0 2px 12px rgba(0,0,0,.1); margin-bottom:14px; border:1px solid var(--border);">
+    <div style="font-size:13px; font-weight:700; margin-bottom:12px;">📞 Need Help?</div>
+    <div style="display:flex; gap:10px;">
+      <a href="tel:+97714001234" style="flex:1; background:var(--purple); color:#fff; padding:9px; border-radius:7px; text-align:center; text-decoration:none; font-size:12.5px; font-weight:600;">📞 Call Support</a>
+      <a href="sms:+977980XXXXXXX" style="flex:1; background:var(--purple-light); color:var(--purple); padding:9px; border-radius:7px; text-align:center; text-decoration:none; font-size:12.5px; font-weight:600; border:1px solid var(--purple-mid);">💬 SMS Us</a>
+    </div>
+    <div style="font-size:11px; color:var(--text-muted); margin-top:9px; text-align:center;">Unilever Nepal Fleet Operations · Mon–Sat 8AM–6PM</div>
+  </div>
+
+  <!-- PRIVACY FOOTER -->
+  <div class="privacy-footer">
+    <span class="lock">🔒</span> This tracking page is private and secure.<br/>
+    No vehicle identification, driver details, or fleet-wide information is shared.<br/>
+    Powered by <strong style="color:var(--purple);">Odoo 19 Fleet</strong> · Unilever Nepal
+  </div>
+
+</div>
+
+<script>
+  // Countdown timer
+  let totalSecs = 2 * 3600 + 14 * 60 + 38;
+  function tick() {
+    if (totalSecs <= 0) return;
+    totalSecs--;
+    const h = Math.floor(totalSecs / 3600);
+    const m = Math.floor((totalSecs % 3600) / 60);
+    const s = totalSecs % 60;
+    document.getElementById('hrs').textContent = String(h).padStart(2,'0');
+    document.getElementById('mins').textContent = String(m).padStart(2,'0');
+    document.getElementById('secs').textContent = String(s).padStart(2,'0');
+  }
+  setInterval(tick, 1000);
+
+  // Map configuration
+  let map, truckMarker;
+  const routePoints = [
+    [27.7172, 85.3240], // Kathmandu Origin
+    [27.6580, 85.2420],
+    [27.5950, 85.1650], // Current area (around midway)
+    [27.4900, 85.1100],
+    [27.4277, 85.0315]  // Hetauda Destination
+  ];
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Initialize map centered between Kathmandu and Hetauda
+    map = L.map('map', { zoomControl: false }).setView([27.58, 85.18], 9.5);
+    
+    // Zoom control top right
+    L.control.zoom({ position: 'topright' }).addTo(map);
+
+    // OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Draw route path
+    L.polyline(routePoints, {
+      color: 'var(--purple)',
+      weight: 4,
+      dashArray: '8, 6',
+      opacity: 0.8
+    }).addTo(map);
+
+    // Add Kathmandu Origin Marker
+    L.marker([27.7172, 85.3240], {
+      icon: L.divIcon({
+        html: '<div style="background-color: #6B7280; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.3);">K</div>',
+        className: 'origin-marker',
+        iconSize: [22, 22],
+        iconAnchor: [11, 11]
+      })
+    }).bindPopup('<b>Kathmandu Warehouse</b><br/>Origin Checkpoint passed at 08:45 AM').addTo(map);
+
+    // Add Hetauda Destination Marker
+    L.marker([27.4277, 85.0315], {
+      icon: L.divIcon({
+        html: '<div style="background-color: #1D9E75; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.3);">H</div>',
+        className: 'destination-marker',
+        iconSize: [22, 22],
+        iconAnchor: [11, 11]
+      })
+    }).bindPopup('<b>Hetauda Merchants Ltd.</b><br/>Destination Warehouse · ETA 14:30 today').addTo(map);
+
+    // Add simulated moving Truck Marker
+    const initialPos = [27.5950, 85.1650];
+    truckMarker = L.marker(initialPos, {
+      icon: L.divIcon({
+        html: '<div style="position: relative;"><div style="position: absolute; top: -15px; left: -15px; width: 30px; height: 30px; border-radius: 50%; border: 3px solid var(--purple); animation: ringPulse 1.5s ease-out infinite;"></div><div style="background-color: var(--purple); width: 32px; height: 32px; border-radius: 50%; border: 2.5px solid #fff; box-shadow: 0 2px 8px rgba(113,75,103,0.4); display: flex; align-items: center; justify-content: center; font-size: 16px; position: relative; z-index: 2;">🚛</div></div>',
+        className: 'distributor-truck-marker',
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+      })
+    }).addTo(map);
+
+    // Style for custom animation
+    const styleSheet = document.createElement("style");
+    styleSheet.innerText = `
+      @keyframes ringPulse {
+        0% { transform: scale(0.5); opacity: 1; }
+        100% { transform: scale(1.5); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(styleSheet);
+
+    truckMarker.bindPopup(`
+      <div style="font-family: 'DM Sans', sans-serif;">
+        <div style="font-weight: 700; font-size: 12px; color: var(--purple); border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-bottom: 6px;">Order #SO-9923</div>
+        <div style="font-size: 11px; line-height: 1.4;">
+          <b>Status:</b> In Transit<br/>
+          <b>Speed:</b> 54 km/h<br/>
+          <b>Remaining:</b> 62 km · approx. 2h 15m
+        </div>
+      </div>
+    }).openPopup();
+
+    truckMarker.on('mouseover', function (e) {
+      this.openPopup();
+    });
+    truckMarker.on('mouseout', function (e) {
+      // Keep it open by default, but let hover function if closed
+    });
+
+    // Subtle truck position wiggle animation
+    let posIndex = 0;
+    setInterval(() => {
+      posIndex += 0.05;
+      const latWiggle = initialPos[0] + Math.sin(posIndex) * 0.0005;
+      const lngWiggle = initialPos[1] + Math.cos(posIndex) * 0.0005;
+      truckMarker.setLatLng([latWiggle, lngWiggle]);
+    }, 100);
+  });
+</script>
+</body>
+</html>

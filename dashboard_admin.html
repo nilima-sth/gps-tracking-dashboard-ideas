@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Fleet Admin Dashboard – Unilever Nepal | Odoo 19</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<!-- Leaflet.js Map dependencies -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 13px; }
+body { font-family: 'DM Sans', system-ui, sans-serif; background: #F9FAFB; color: #1F2937; min-height: 100vh; }
+
+:root {
+  --purple: #714B67;
+  --purple-dark: #5a3a52;
+  --purple-light: #f3eef1;
+  --purple-mid: #d9c8d4;
+  --teal: #1D9E75;
+  --teal-light: #e8f7f2;
+  --teal-dark: #157a5b;
+  --amber: #F0A500;
+  --amber-light: #fef7e6;
+  --blue: #3B82F6;
+  --blue-light: #EFF6FF;
+  --red: #EF4444;
+  --red-light: #FEF2F2;
+  --border: #E5E7EB;
+  --text: #1F2937;
+  --text-muted: #6B7280;
+  --bg: #F9FAFB;
+  --white: #FFFFFF;
+  --sidebar-w: 230px;
+  --topbar-h: 44px;
+  --shadow: 0 1px 3px rgba(0,0,0,.12);
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+
+/* ── TOPBAR ── */
+.o-topbar {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--topbar-h);
+  background: var(--purple); display: flex; align-items: center;
+  padding: 0 20px; z-index: 1000; gap: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.o-topbar .hamburger { color: #fff; font-size: 18px; cursor: pointer; }
+.o-topbar .logo { color: #fff; font-weight: 700; font-size: 14px; letter-spacing: .3px; display: flex; align-items: center; gap: 8px; }
+.o-topbar .logo span.badge { background: #fff; color: var(--purple); font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; }
+.o-topbar .app-name { color: rgba(255,255,255,.82); font-size: 12.5px; font-weight: 500; padding-left: 14px; border-left: 1px solid rgba(255,255,255,.25); }
+.o-topbar .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; color: #fff; }
+.o-topbar .icon-btn { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: .15s; font-size: 13px; }
+.o-topbar .icon-btn:hover { background: rgba(255,255,255,.15); }
+.o-topbar .avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--amber); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; font-weight: 700; cursor: pointer; }
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); display: inline-block; animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.4;} }
+
+/* ── SIDEBAR ── */
+.o-sidebar {
+  position: fixed; top: var(--topbar-h); left: 0; bottom: 0;
+  width: var(--sidebar-w); background: var(--white); border-right: 1px solid var(--border);
+  overflow-y: auto; z-index: 900; padding-top: 8px;
+}
+.o-sidebar .nav-section { padding: 6px 0; }
+.o-sidebar .nav-label { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .8px; padding: 6px 16px 4px; }
+.o-sidebar .nav-item { display: flex; align-items: center; gap: 9px; padding: 7px 16px; cursor: pointer; color: var(--text); font-size: 12.5px; font-weight: 500; border-radius: 0; transition: .1s; border-left: 3px solid transparent; }
+.o-sidebar .nav-item:hover { background: var(--purple-light); color: var(--purple); }
+.o-sidebar .nav-item.active { background: var(--purple-light); color: var(--purple); border-left-color: var(--purple); font-weight: 600; }
+.o-sidebar .nav-icon { font-size: 14px; width: 18px; text-align: center; }
+.o-sidebar .nav-badge { margin-left: auto; background: var(--red); color: #fff; font-size: 9.5px; font-weight: 700; padding: 1px 6px; border-radius: 10px; }
+.o-sidebar .nav-badge.warn { background: var(--amber); }
+
+/* ── MAIN CONTENT ── */
+.o-main { margin-left: var(--sidebar-w); padding-top: var(--topbar-h); min-height: 100vh; }
+.o-content { padding: 14px 18px 24px; }
+
+/* ── BREADCRUMB / PAGE HEADER ── */
+.o-breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-muted); margin-bottom: 3px; }
+.o-breadcrumb a { color: var(--purple); text-decoration: none; font-weight: 500; }
+.o-page-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+.o-page-title .live-pill { display: flex; align-items: center; gap: 5px; background: var(--teal-light); color: var(--teal-dark); font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; border: 1px solid #a7e3ce; }
+
+/* ── KPI CARDS ── */
+.kpi-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 16px; }
+.kpi-card {
+  background: var(--white); border: 1px solid var(--border); border-radius: 7px;
+  padding: 14px 16px; display: flex; align-items: center; gap: 14px;
+  cursor: pointer; transition: .15s; box-shadow: var(--shadow);
+}
+.kpi-card:hover { border-color: var(--purple); box-shadow: 0 0 0 2px rgba(113,75,103,.12); transform: translateY(-1px); }
+.kpi-icon { width: 40px; height: 40px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.kpi-icon.purple { background: var(--purple-light); }
+.kpi-icon.teal { background: var(--teal-light); }
+.kpi-icon.danger { background: var(--red-light); }
+.kpi-icon.success { background: #ecfdf5; }
+.kpi-icon.warning { background: var(--amber-light); }
+.kpi-val { font-size: 24px; font-weight: 700; line-height: 1; color: var(--text); }
+.kpi-val .kpi-total { font-size: 14px; font-weight: 400; color: var(--text-muted); }
+.kpi-label { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
+.kpi-sub { font-size: 11px; color: var(--teal); margin-top: 3px; font-weight: 500; }
+.kpi-sub.red { color: var(--red); }
+
+/* ── SECTION HEADER ── */
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.section-title { font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 7px; }
+.section-title .dot { width: 7px; height: 7px; border-radius: 50%; }
+.section-title .dot.green { background: var(--teal); }
+
+/* ── BUTTONS ── */
+.btn-outline { border: 1px solid var(--border); background: var(--white); padding: 5px 10px; border-radius: 5px; font-size: 12px; font-weight: 500; color: var(--text); cursor: pointer; display: flex; align-items: center; gap: 5px; transition: .1s; font-family: 'DM Sans', system-ui; }
+.btn-outline:hover { border-color: var(--purple); color: var(--purple); }
+.btn-primary { background: var(--purple); color: #fff; border: none; padding: 5px 12px; border-radius: 5px; font-size: 12px; font-weight: 500; cursor: pointer; transition: .15s; font-family: 'DM Sans', system-ui; }
+.btn-primary:hover { background: var(--purple-dark); }
+
+/* ── MAP ── */
+.map-card { background: var(--white); border: 1px solid var(--border); border-radius: 7px; overflow: hidden; box-shadow: var(--shadow); margin-bottom: 16px; }
+.map-toolbar { padding: 8px 14px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); background: var(--bg); }
+.map-legend { display: flex; align-items: center; gap: 14px; margin-left: auto; font-size: 11.5px; }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-dot { width: 9px; height: 9px; border-radius: 50%; }
+.map-area { position: relative; height: 380px; background: linear-gradient(135deg, #e8f4f8 0%, #d4eaf0 30%, #c8e0d5 60%, #dde8c4 100%); overflow: hidden; }
+.terrain { position: absolute; inset: 0; overflow: hidden; }
+.terrain svg { width: 100%; height: 100%; }
+
+/* Route paths */
+.route { stroke-dasharray: 6 4; stroke-dashoffset: 0; animation: march 1.5s linear infinite; }
+@keyframes march { to { stroke-dashoffset: -20; } }
+
+/* City labels */
+.city-label { position: absolute; background: var(--white); border: 1px solid #c0c0c0; border-radius: 3px; padding: 2px 6px; font-size: 10px; font-weight: 600; color: #333; pointer-events: none; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+
+/* Truck markers */
+.truck-marker { position: absolute; transform: translate(-50%,-50%); cursor: pointer; transition: .2s; }
+.truck-marker:hover { transform: translate(-50%,-50%) scale(1.15); z-index: 10; }
+.truck-marker:hover .truck-tooltip { display: block; }
+.truck-icon { width: 30px; height: 30px; border-radius: 50%; border: 2.5px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.3); }
+.truck-icon.green { background: #28a745; }
+.truck-icon.red { background: var(--red); }
+.truck-icon.orange { background: var(--amber); }
+.truck-tooltip { display: none; position: absolute; bottom: 38px; left: 50%; transform: translateX(-50%); background: var(--white); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; min-width: 210px; box-shadow: 0 4px 16px rgba(0,0,0,.15); z-index: 20; font-size: 11.5px; }
+.truck-tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--white); }
+.truck-tooltip::before { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 7px solid transparent; border-top-color: var(--border); margin-top: 1px; }
+.tooltip-row { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.tooltip-row:last-child { margin-bottom: 0; }
+.tooltip-key { color: var(--text-muted); font-weight: 500; }
+.tooltip-val { font-weight: 600; color: var(--text); text-align: right; }
+.tooltip-badge { display: inline-block; padding: 1px 6px; border-radius: 10px; font-size: 10px; font-weight: 700; }
+.tooltip-badge.green { background: var(--teal-light); color: var(--teal-dark); }
+.tooltip-badge.red { background: var(--red-light); color: #991b1b; }
+.tooltip-badge.orange { background: var(--amber-light); color: #92400e; }
+.tooltip-title { font-weight: 700; font-size: 12.5px; color: var(--purple); margin-bottom: 6px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+
+/* Map overlays */
+.map-info-overlay {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 180px;
+  pointer-events: auto;
+}
+.info-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.info-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+  background: var(--teal);
+}
+.info-dot.active { background: var(--teal); }
+.info-dot.delayed { background: var(--red); }
+.info-dot.alert { background: var(--amber); }
+.info-details p {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.map-controls-overlay {
+  position: absolute;
+  top: 10px;
+  right: 50px;
+  display: flex;
+  gap: 6px;
+  z-index: 1000;
+  pointer-events: auto;
+}
+.map-overlay-btn {
+  background: var(--white);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  font-family: 'DM Sans', system-ui;
+}
+.map-overlay-btn:hover {
+  border-color: var(--purple);
+  color: var(--purple);
+}
+.map-overlay-btn.active {
+  background: var(--purple);
+  color: #fff;
+  border-color: var(--purple);
+}
+.alert-banner { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(239,68,68,.9); color: #fff; padding: 6px 16px; font-size: 11.5px; font-weight: 600; display: flex; align-items: center; gap: 8px; z-index: 1000; pointer-events: none; }
+
+/* Custom leaflet style overrides */
+.leaflet-popup-content-wrapper {
+  border-radius: 7px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+  border: 1px solid var(--border);
+}
+.leaflet-popup-content {
+  margin: 10px 12px;
+}
+.leaflet-container a.leaflet-popup-close-button {
+  top: 6px;
+  right: 6px;
+  color: var(--text-muted);
+}
+
+/* ── CHARTS ── */
+.charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.chart-card { background: var(--white); border: 1px solid var(--border); border-radius: 7px; padding: 14px 16px; box-shadow: var(--shadow); }
+.chart-card-title { font-size: 12.5px; font-weight: 600; color: var(--text); margin-bottom: 12px; }
+.bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 140px; }
+.bar-group { display: flex; flex-direction: column; align-items: center; flex: 1; gap: 3px; }
+.bars { display: flex; align-items: flex-end; gap: 2px; height: 120px; }
+.bar { border-radius: 3px 3px 0 0; min-width: 14px; transition: .3s; cursor: pointer; }
+.bar:hover { opacity: .8; }
+.bar-month { font-size: 10px; color: var(--text-muted); font-weight: 500; }
+.bar-legend { display: flex; gap: 12px; margin-top: 10px; }
+.bar-leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-muted); }
+.bar-leg-dot { width: 9px; height: 9px; border-radius: 2px; }
+
+/* Donut */
+.donut-wrap { display: flex; align-items: center; gap: 20px; }
+.donut-labels { display: flex; flex-direction: column; gap: 7px; flex: 1; }
+.donut-label-row { display: flex; align-items: center; gap: 8px; font-size: 11.5px; }
+.donut-label-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.donut-label-name { color: var(--text-muted); flex: 1; }
+.donut-label-val { font-weight: 700; color: var(--text); }
+
+/* ── TABLE ── */
+.list-card { background: var(--white); border: 1px solid var(--border); border-radius: 7px; box-shadow: var(--shadow); overflow: hidden; }
+.list-toolbar { padding: 8px 14px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); background: var(--bg); }
+.search-box { display: flex; align-items: center; gap: 6px; background: var(--white); border: 1px solid var(--border); border-radius: 5px; padding: 5px 10px; flex: 1; max-width: 280px; }
+.search-box input { border: none; outline: none; font-size: 12px; color: var(--text); width: 100%; background: transparent; font-family: 'DM Sans', system-ui; }
+.filter-btn { display: flex; align-items: center; gap: 5px; border: 1px solid var(--border); border-radius: 5px; padding: 4px 9px; background: var(--white); font-size: 11.5px; color: var(--text-muted); cursor: pointer; transition: .1s; font-family: 'DM Sans', system-ui; }
+.filter-btn:hover { border-color: var(--purple); color: var(--purple); }
+.o-table { width: 100%; border-collapse: collapse; }
+.o-table thead th { padding: 7px 12px; text-align: left; font-size: 11px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border); background: var(--bg); white-space: nowrap; text-transform: uppercase; letter-spacing: .4px; }
+.o-table thead th:first-child { padding-left: 14px; }
+.o-table thead th input[type=checkbox] { cursor: pointer; }
+.o-table tbody tr { border-bottom: 1px solid #F3F4F6; transition: .1s; cursor: pointer; }
+.o-table tbody tr:hover { background: var(--purple-light); }
+.o-table tbody tr:last-child { border-bottom: none; }
+.o-table td { padding: 8px 12px; font-size: 12.5px; color: var(--text); vertical-align: middle; }
+.o-table td:first-child { padding-left: 14px; }
+.o-link { color: var(--purple); font-weight: 600; text-decoration: none; }
+.o-link:hover { text-decoration: underline; }
+
+/* Badges */
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.badge.in-transit { background: var(--teal-light); color: var(--teal-dark); }
+.badge.delayed { background: var(--red-light); color: #991b1b; }
+.badge.on-time { background: #ecfdf5; color: #065f46; }
+.badge.alert { background: var(--amber-light); color: #92400e; }
+.flag-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--red); font-weight: 500; background: var(--red-light); padding: 2px 7px; border-radius: 4px; }
+.flag-chip.warn { color: #92400e; background: var(--amber-light); }
+.pagination { display: flex; align-items: center; justify-content: flex-end; padding: 8px 14px; gap: 8px; border-top: 1px solid var(--border); font-size: 11.5px; color: var(--text-muted); }
+.page-btn { width: 26px; height: 26px; border: 1px solid var(--border); border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: var(--white); }
+.page-btn:hover { border-color: var(--purple); color: var(--purple); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1100px) {
+  .kpi-row { grid-template-columns: repeat(2,1fr); }
+  .charts-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="o-topbar">
+  <div class="hamburger">☰</div>
+  <div class="logo">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="5" fill="rgba(255,255,255,0.2)"/><path d="M6 12h12M6 8h8M6 16h10" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+    Odoo <span class="badge">19</span>
+  </div>
+  <div class="app-name">⬤ Fleet Management</div>
+  <div class="topbar-right">
+    <span style="font-size:11.5px; color:rgba(255,255,255,.75); display:flex; align-items:center; gap:5px;">
+      <span class="live-dot"></span> Live Tracking
+    </span>
+    <div class="icon-btn">🔔</div>
+    <div class="icon-btn">💬</div>
+    <div class="icon-btn">⚙️</div>
+    <div class="avatar">AM</div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="o-sidebar">
+  <div class="nav-section">
+    <div class="nav-label">Fleet Overview</div>
+    <div class="nav-item active"><span class="nav-icon">🗺️</span> Live Dashboard</div>
+    <div class="nav-item"><span class="nav-icon">🚛</span> All Vehicles <span class="nav-badge">45</span></div>
+    <div class="nav-item"><span class="nav-icon">📦</span> Active Dispatches</div>
+    <div class="nav-item"><span class="nav-icon">⚠️</span> Alerts <span class="nav-badge">3</span></div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Operations</div>
+    <div class="nav-item"><span class="nav-icon">🛣️</span> Routes</div>
+    <div class="nav-item"><span class="nav-icon">👷</span> Drivers</div>
+    <div class="nav-item"><span class="nav-icon">🔧</span> Maintenance <span class="nav-badge warn">2</span></div>
+    <div class="nav-item"><span class="nav-icon">⛽</span> Fuel Logs</div>
+    <div class="nav-item"><span class="nav-icon">🚑</span> Accidents</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Analytics</div>
+    <div class="nav-item"><span class="nav-icon">📊</span> Cost Analysis</div>
+    <div class="nav-item"><span class="nav-icon">🏎️</span> Odometer Report</div>
+    <div class="nav-item"><span class="nav-icon">📋</span> Safety Report</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Configuration</div>
+    <div class="nav-item"><span class="nav-icon">🏢</span> Models &amp; Makes</div>
+    <div class="nav-item"><span class="nav-icon">📄</span> Contracts</div>
+    <div class="nav-item"><span class="nav-icon">🔑</span> Access Rules</div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="o-main">
+  <div class="o-content">
+    <!-- Breadcrumb -->
+    <div class="o-breadcrumb">
+      <a href="#">Fleet</a> <span>›</span> <span>Dashboard</span>
+    </div>
+    <!-- Page Title -->
+    <div class="o-page-title">
+      Fleet Command Center
+      <span class="live-pill"><span class="live-dot"></span> Real-time</span>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-icon purple">🚛</div>
+        <div>
+          <div class="kpi-val">42 <span class="kpi-total">/ 45</span></div>
+          <div class="kpi-label">Active vs. Total Trucks</div>
+          <div class="kpi-sub">3 idle · 0 under maintenance</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon danger">⚠️</div>
+        <div>
+          <div class="kpi-val" style="color:var(--red)">3</div>
+          <div class="kpi-label">Safety Alerts</div>
+          <div class="kpi-sub red">2 speeding · 1 harsh brake</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon success">✅</div>
+        <div>
+          <div class="kpi-val" style="color:var(--teal)">94%</div>
+          <div class="kpi-label">On-Time Delivery Rate</div>
+          <div class="kpi-sub">↑ 2.1% vs last week</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon warning">🕐</div>
+        <div>
+          <div class="kpi-val" style="color:var(--amber)">4</div>
+          <div class="kpi-label">Delayed Deliveries</div>
+          <div class="kpi-sub red">Avg +1h 22m behind ETA</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAP SECTION -->
+    <div class="section-header">
+      <div class="section-title">
+        <span class="dot green"></span>
+        Live GPS Tracking — Nepal Routes
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-outline">🔄 Refresh</button>
+        <button class="btn-outline">⬤ All Trucks</button>
+        <button class="btn-outline">🚨 Alerts Only</button>
+      </div>
+    </div>
+
+    <div class="map-card">
+      <div class="map-toolbar">
+        <span style="font-size:11.5px; font-weight:600; color:var(--text-muted);">MAP VIEW</span>
+        <span style="font-size:11px; color:var(--text-muted);">Hover over a truck marker for live details</span>
+        <div class="map-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#28a745"></div>On Schedule (35)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Delayed (4)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Alert (3)</div>
+        </div>
+        <select id="station-navigator" onchange="navigateToStation(this.value)" style="margin-left: auto; margin-right: 10px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 11.5px; background: white; font-family: 'DM Sans', sans-serif; cursor: pointer; outline: none; color: var(--text);">
+          <option value="">🗺️ Navigate to Station...</option>
+          <option value="ktm">🏢 Kathmandu HQ (Origin)</option>
+          <option value="het">🏢 Hetauda Station</option>
+          <option value="bgr">🏢 Birgunj Station</option>
+          <option value="pkr">🏢 Pokhara Station</option>
+          <option value="btw">🏢 Butwal Station</option>
+          <option value="npj">🏢 Nepalgunj Station</option>
+          <option value="brt">🏢 Biratnagar Station</option>
+        </select>
+        <button class="btn-outline" style="margin-right:0;">⛶ Fullscreen</button>
+      </div>
+      <div class="map-area" style="position: relative;">
+        <!-- Leaflet map container -->
+        <div id="map" style="width: 100%; height: 100%; z-index: 1;"></div>
+
+        <!-- Top-left info card overlay -->
+        <div class="map-info-overlay">
+          <div class="info-title">
+            <span class="info-dot active" id="overlay-dot"></span>
+            <span id="overlay-truck-id">BA 2 KHA 1423 (Active)</span>
+          </div>
+          <div class="info-details">
+            <p id="overlay-route">Route: KTM → BGR</p>
+            <p id="overlay-speed">Speed: 62 km/h</p>
+            <p id="overlay-driver">Driver: Rajan Shrestha</p>
+          </div>
+        </div>
+
+        <!-- Top-right control buttons overlay -->
+        <div class="map-controls-overlay">
+          <button class="map-overlay-btn" id="btn-traffic" onclick="toggleTraffic()">Show Traffic</button>
+          <button class="map-overlay-btn" id="btn-charging" onclick="toggleCharging()">Charging Stations</button>
+        </div>
+
+        <!-- Alert Banner -->
+        <div class="alert-banner">
+          🚨 &nbsp; ALERT: Truck GA 3 PA 4412 — Speed 94 km/h on Pokhara–Butwal Highway (Limit 80) &nbsp;|&nbsp; Truck BA 1 CHA 7829 — Idle 48 minutes at Mugling &nbsp;|&nbsp; Harsh Brake logged at 10:14 AM
+        </div>
+      </div>
+    </div>
+
+    <!-- CHARTS ROW -->
+    <div class="charts-row">
+      <!-- Bar chart: Delays by Route -->
+      <div class="chart-card">
+        <div class="chart-card-title">⏱ Delays by Route — Last 30 Days</div>
+        <div class="bar-chart">
+          <div class="bar-group">
+            <div class="bars">
+              <div class="bar" style="height:90px;background:var(--purple);width:16px;" title="Fuel"></div>
+              <div class="bar" style="height:55px;background:var(--teal);width:16px;" title="Traffic"></div>
+              <div class="bar" style="height:35px;background:var(--amber);width:16px;" title="Driver Stops"></div>
+            </div>
+            <div class="bar-month">KTM–BGR</div>
+          </div>
+          <div class="bar-group">
+            <div class="bars">
+              <div class="bar" style="height:65px;background:var(--purple);width:16px;"></div>
+              <div class="bar" style="height:40px;background:var(--teal);width:16px;"></div>
+              <div class="bar" style="height:20px;background:var(--amber);width:16px;"></div>
+            </div>
+            <div class="bar-month">KTM–PKR</div>
+          </div>
+          <div class="bar-group">
+            <div class="bars">
+              <div class="bar" style="height:45px;background:var(--purple);width:16px;"></div>
+              <div class="bar" style="height:25px;background:var(--teal);width:16px;"></div>
+              <div class="bar" style="height:55px;background:var(--amber);width:16px;"></div>
+            </div>
+            <div class="bar-month">KTM–HET</div>
+          </div>
+          <div class="bar-group">
+            <div class="bars">
+              <div class="bar" style="height:110px;background:var(--purple);width:16px;"></div>
+              <div class="bar" style="height:70px;background:var(--teal);width:16px;"></div>
+              <div class="bar" style="height:40px;background:var(--amber);width:16px;"></div>
+            </div>
+            <div class="bar-month">KTM–NPJ</div>
+          </div>
+          <div class="bar-group">
+            <div class="bars">
+              <div class="bar" style="height:30px;background:var(--purple);width:16px;"></div>
+              <div class="bar" style="height:50px;background:var(--teal);width:16px;"></div>
+              <div class="bar" style="height:25px;background:var(--amber);width:16px;"></div>
+            </div>
+            <div class="bar-month">PKR–BTW</div>
+          </div>
+        </div>
+        <div class="bar-legend">
+          <div class="bar-leg"><div class="bar-leg-dot" style="background:var(--purple)"></div>Fuel Delays</div>
+          <div class="bar-leg"><div class="bar-leg-dot" style="background:var(--teal)"></div>Traffic</div>
+          <div class="bar-leg"><div class="bar-leg-dot" style="background:var(--amber)"></div>Driver Stops</div>
+        </div>
+      </div>
+
+      <!-- Fleet Status Donut -->
+      <div class="chart-card">
+        <div class="chart-card-title">🚛 Fleet Status Overview</div>
+        <div class="donut-wrap">
+          <svg width="120" height="120" viewBox="0 0 42 42">
+            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#28a745" stroke-width="5" stroke-dasharray="78 22" stroke-dashoffset="25" />
+            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="var(--red)" stroke-width="5" stroke-dasharray="9 91" stroke-dashoffset="-53"/>
+            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="var(--amber)" stroke-width="5" stroke-dasharray="7 93" stroke-dashoffset="-62"/>
+            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#adb5bd" stroke-width="5" stroke-dasharray="6 94" stroke-dashoffset="-69"/>
+            <text x="21" y="20" font-size="5.5" font-weight="700" fill="#333" text-anchor="middle">45</text>
+            <text x="21" y="26" font-size="3.5" fill="#888" text-anchor="middle">Trucks</text>
+          </svg>
+          <div class="donut-labels">
+            <div class="donut-label-row"><div class="donut-label-dot" style="background:#28a745"></div><div class="donut-label-name">On Route</div><div class="donut-label-val">35</div></div>
+            <div class="donut-label-row"><div class="donut-label-dot" style="background:var(--red)"></div><div class="donut-label-name">Delayed</div><div class="donut-label-val">4</div></div>
+            <div class="donut-label-row"><div class="donut-label-dot" style="background:var(--amber)"></div><div class="donut-label-name">Alert</div><div class="donut-label-val">3</div></div>
+            <div class="donut-label-row"><div class="donut-label-dot" style="background:#adb5bd"></div><div class="donut-label-name">Idle / Parked</div><div class="donut-label-val">3</div></div>
+          </div>
+        </div>
+        <div style="margin-top:14px; padding-top:10px; border-top:1px solid var(--border);">
+          <div style="font-size:11.5px; font-weight:600; color:var(--text-muted); margin-bottom:7px;">Safety Score (Rolling 7-day avg)</div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="flex:1; background:var(--border); border-radius:3px; height:6px; overflow:hidden;">
+              <div style="width:82%;height:100%;background:var(--teal);border-radius:3px;"></div>
+            </div>
+            <span style="font-weight:700; color:var(--teal); font-size:14px;">82 / 100</span>
+          </div>
+          <div style="font-size:10.5px; color:var(--text-muted); margin-top:4px;">Based on 7 speeding + 3 harsh brake events</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIST VIEW -->
+    <div class="section-header">
+      <div class="section-title">📋 Active Dispatches — Today</div>
+      <div style="display:flex; gap:8px; align-items:center; font-size:11.5px; color:var(--text-muted);">
+        Showing <strong style="color:var(--text)">42</strong> of 42 records
+        <button class="btn-primary" style="font-size:11.5px; padding:4px 10px;">+ New Dispatch</button>
+      </div>
+    </div>
+    <div class="list-card">
+      <div class="list-toolbar">
+        <div class="search-box">
+          <span style="color:var(--text-muted); font-size:12px;">🔍</span>
+          <input type="text" placeholder="Search by truck, order, or destination…"/>
+        </div>
+        <div class="filter-btn">⬦ Filters</div>
+        <div class="filter-btn">⬦ Group By</div>
+        <div class="filter-btn">⬦ Favorites</div>
+        <div style="margin-left:auto; display:flex; gap:6px;">
+          <div class="filter-btn">☰ List</div>
+          <div class="filter-btn">▦ Kanban</div>
+        </div>
+      </div>
+      <table class="o-table">
+        <thead>
+          <tr>
+            <th><input type="checkbox"/></th>
+            <th>Delivery Ref</th>
+            <th>Truck / License</th>
+            <th>Driver</th>
+            <th>Destination (Distributor)</th>
+            <th>Route</th>
+            <th>ETA</th>
+            <th>Status</th>
+            <th>Safety Flags</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="checkbox"/></td>
+            <td><a class="o-link" href="#">WH/OUT/00142</a></td>
+            <td>BA 2 KHA 1423</td>
+            <td>Rajan Shrestha</td>
+            <td>Birgunj Traders Co.</td>
+            <td>KTM → BGR</td>
+            <td>14:30 (1h 12m)</td>
+            <td><span class="badge in-transit">In Transit</span></td>
+            <td><span style="color:var(--teal); font-size:12px;">✓ Clean</span></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"/></td>
+            <td><a class="o-link" href="#">WH/OUT/00138</a></td>
+            <td>BA 1 CHA 7829</td>
+            <td>Bikash Tamang</td>
+            <td>Pokhara Valley Dist.</td>
+            <td>KTM → PKR</td>
+            <td>15:45 (+1h 20m)</td>
+            <td><span class="badge delayed">Delayed &gt;1hr</span></td>
+            <td><span class="flag-chip">⏱ Idle 48m – Mugling</span></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"/></td>
+            <td><a class="o-link" href="#">WH/OUT/00145</a></td>
+            <td>GA 3 PA 4412</td>
+            <td>Suresh Rai</td>
+            <td>Butwal General Store</td>
+            <td>PKR → BTW</td>
+            <td>13:50 (On Time)</td>
+            <td><span class="badge alert">⚠ Alert</span></td>
+            <td><span class="flag-chip">🚨 Speeding 94 km/h</span></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"/></td>
+            <td><a class="o-link" href="#">WH/OUT/00140</a></td>
+            <td>KO 1 GA 3311</td>
+            <td>Deepak Gurung</td>
+            <td>Hetauda Merchants Ltd.</td>
+            <td>KTM → HET</td>
+            <td>13:10 (28m left)</td>
+            <td><span class="badge on-time">On Schedule</span></td>
+            <td><span style="color:var(--teal); font-size:12px;">✓ Clean</span></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"/></td>
+            <td><a class="o-link" href="#">WH/OUT/00131</a></td>
+            <td>LU 2 MA 8821</td>
+            <td>Arjun Thapa</td>
+            <td>Nepalgunj Wholesale Hub</td>
+            <td>KTM → NPJ</td>
+            <td>18:30 (5h 42m)</td>
+            <td><span class="badge in-transit">In Transit</span></td>
+            <td><span class="flag-chip warn">⚡ Harsh Brake 10:14AM</span></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"/></td>
+            <td><a class="o-link" href="#">WH/OUT/00147</a></td>
+            <td>BA 4 KA 2210</td>
+            <td>Ramesh Magar</td>
+            <td>Hetauda Merchants Ltd.</td>
+            <td>KTM → HET</td>
+            <td>14:05 (47m left)</td>
+            <td><span class="badge on-time">On Schedule</span></td>
+            <td><span style="color:var(--teal); font-size:12px;">✓ Clean</span></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"/></td>
+            <td><a class="o-link" href="#">WH/OUT/00129</a></td>
+            <td>GA 1 NA 5520</td>
+            <td>Santosh Koirala</td>
+            <td>Birgunj Traders Co.</td>
+            <td>KTM → BGR</td>
+            <td>16:00 (+35m delay)</td>
+            <td><span class="badge delayed">Delayed</span></td>
+            <td><span class="flag-chip">⏱ Unscheduled stop 22m</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>1–7 of 42</span>
+        <div class="page-btn">‹</div>
+        <div class="page-btn">›</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Truck data database
+  const trucks = {
+    'BA-2-KHA-1423': { id: 'BA 2 KHA 1423', driver: 'Rajan Shrestha', order: 'WH/OUT/00142', destination: 'Birgunj Traders Co.', route: 'KTM → BGR', speed: '62 km/h', eta: '14:30 · 1h 12m', status: 'On Schedule', statusClass: 'green', latlng: [27.35, 85.02], routePoints: [[27.7172, 85.3240], [27.4277, 85.0315], [27.0125, 84.8767]] },
+    'BA-1-CHA-7829': { id: 'BA 1 CHA 7829', driver: 'Bikash Tamang', order: 'WH/OUT/00138', destination: 'Pokhara Valley Dist.', route: 'KTM → PKR', speed: '0 km/h · Idle 48m', eta: '15:45 · DELAYED', status: 'Delayed >1hr', statusClass: 'red', latlng: [27.82, 84.55], routePoints: [[27.7172, 85.3240], [27.85, 84.50], [28.2096, 83.9856]] },
+    'GA-3-PA-4412': { id: 'GA 3 PA 4412', driver: 'Suresh Rai', order: 'WH/OUT/00145', destination: 'Butwal General Store', route: 'PKR → BTW', speed: '94 km/h ⚠️', eta: '13:50 · On Time', status: 'Speeding Alert', statusClass: 'orange', latlng: [27.95, 83.70], routePoints: [[28.2096, 83.9856], [27.7006, 83.4484]] },
+    'KO-1-GA-3311': { id: 'KO 1 GA 3311', driver: 'Deepak Gurung', order: 'WH/OUT/00140', destination: 'Hetauda Merchants Ltd.', route: 'KTM → HET', speed: '55 km/h', eta: '13:10 · 28m', status: 'On Schedule', statusClass: 'green', latlng: [27.52, 85.11], routePoints: [[27.7172, 85.3240], [27.4277, 85.0315]] },
+    'LU-2-MA-8821': { id: 'LU 2 MA 8821', driver: 'Arjun Thapa', order: 'WH/OUT/00131', destination: 'Nepalgunj Wholesale Hub', route: 'KTM → NPJ', speed: '71 km/h', eta: '18:30 · 5h 42m', status: 'Safety Flag', statusClass: 'orange', latlng: [27.78, 83.80], routePoints: [[27.7172, 85.3240], [27.80, 84.50], [27.70, 83.50], [28.0500, 81.6167]] },
+    'BA-4-KA-2210': { id: 'BA 4 KA 2210', driver: 'Ramesh Magar', order: 'WH/OUT/00147', destination: 'Hetauda Merchants Ltd.', route: 'KTM → HET', speed: '58 km/h', eta: '14:05 · 47m', status: 'On Schedule', statusClass: 'green', latlng: [27.60, 85.20], routePoints: [[27.7172, 85.3240], [27.4277, 85.0315]] },
+    'GA-1-NA-5520': { id: 'GA 1 NA 5520', driver: 'Santosh Koirala', order: 'WH/OUT/00129', destination: 'Birgunj Traders Co.', route: 'KTM → BGR', speed: '0 km/h · Stop 22m', eta: '16:00 · Delayed', status: 'Delayed', statusClass: 'red', latlng: [27.18, 84.95], routePoints: [[27.7172, 85.3240], [27.4277, 85.0315], [27.0125, 84.8767]] }
+  };
+
+  // Custom marker generator
+  function getMarkerIcon(statusClass) {
+    let color = '#1D9E75'; // default teal
+    if (statusClass === 'red') color = '#EF4444'; // red
+    if (statusClass === 'orange') color = '#F0A500'; // amber
+    
+    return L.divIcon({
+      html: `<div style="background-color: ${color}; width: 26px; height: 26px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 13px;">🚛</div>`,
+      className: 'custom-map-marker',
+      iconSize: [26, 26],
+      iconAnchor: [13, 13]
+    });
+  }
+
+  // Initialize Map
+  let map, markersGroup, routesGroup, trafficLayer, chargingLayer;
+  let activeTruckId = 'BA-2-KHA-1423';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Standard chart animations
+    const bars = document.querySelectorAll('.bar');
+    bars.forEach(b => {
+      const h = b.style.height;
+      b.style.height = '0';
+      setTimeout(() => { b.style.height = h; b.style.transition = 'height .6s ease'; }, 200);
+    });
+
+    // Map initialization
+    map = L.map('map', { zoomControl: false }).setView([27.7007, 84.5], 7.5);
+    
+    // Position zoom controls top right
+    L.control.zoom({ position: 'topright' }).addTo(map);
+
+    // OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    markersGroup = L.layerGroup().addTo(map);
+    routesGroup = L.layerGroup().addTo(map);
+
+    // Draw static warehouse station labels
+    const stationLocations = [
+      { name: '🏢 KTM HQ (Origin)', latlng: [27.7172, 85.3240] },
+      { name: '🏢 Hetauda Station', latlng: [27.4277, 85.0315] },
+      { name: '🏢 Birgunj Station', latlng: [27.0125, 84.8767] },
+      { name: '🏢 Pokhara Station', latlng: [28.2096, 83.9856] },
+      { name: '🏢 Butwal Station', latlng: [27.7006, 83.4484] },
+      { name: '🏢 Nepalgunj Station', latlng: [28.0500, 81.6167] },
+      { name: '🏢 Biratnagar Station', latlng: [26.4525, 87.2718] }
+    ];
+    stationLocations.forEach(s => {
+      L.marker(s.latlng, {
+        icon: L.divIcon({
+          html: `<div style="background-color: rgba(255, 255, 255, 0.9); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-size: 10px; font-weight: 700; color: var(--purple); box-shadow: 0 1px 3px rgba(0,0,0,0.15); white-space: nowrap;">${s.name}</div>`,
+          className: 'station-label-marker',
+          iconSize: [120, 18],
+          iconAnchor: [60, 9]
+        })
+      }).bindPopup(`<b>${s.name}</b><br/>Unilever Nepal Regional Depot`).addTo(map);
+    });
+
+    // Render routes & markers
+    renderMapElements();
+
+    // Select default truck on load
+    selectTruck(activeTruckId);
+
+    // Bind click handlers to table rows
+    setupTableInteraction();
+  });
+
+  function renderMapElements() {
+    markersGroup.clearLayers();
+    routesGroup.clearLayers();
+
+    // Map routes
+    Object.keys(trucks).forEach(key => {
+      const t = trucks[key];
+
+      // Draw dashed route polyline
+      if (t.routePoints && t.routePoints.length > 0) {
+        L.polyline(t.routePoints, {
+          color: '#714B67', // Purple
+          weight: 3,
+          dashArray: '6, 6',
+          opacity: 0.5
+        }).addTo(routesGroup);
+      }
+
+      // Add marker
+      const marker = L.marker(t.latlng, { icon: getMarkerIcon(t.statusClass) });
+      
+      const popupHtml = `
+        <div style="font-family: 'DM Sans', sans-serif; min-width: 160px;">
+          <div style="font-weight: 700; font-size: 12px; color: #714B67; border-bottom: 1px solid #E5E7EB; padding-bottom: 4px; margin-bottom: 6px;">${t.id}</div>
+          <div style="font-size: 11px; line-height: 1.4;">
+            <b>Driver:</b> ${t.driver}<br/>
+            <b>Order:</b> ${t.order}<br/>
+            <b>Route:</b> ${t.route}<br/>
+            <b>Speed:</b> ${t.speed}<br/>
+            <b>ETA:</b> ${t.eta}<br/>
+            <b>Status:</b> <span class="badge ${t.statusClass === 'green' ? 'on-time' : (t.statusClass === 'red' ? 'delayed' : 'alert')}">${t.status}</span>
+          </div>
+        </div>
+      `;
+      marker.bindPopup(popupHtml);
+      
+      marker.on('click', () => {
+        selectTruck(key);
+      });
+      marker.on('mouseover', function (e) {
+        this.openPopup();
+      });
+      marker.on('mouseout', function (e) {
+        if (activeTruckId !== key) {
+          this.closePopup();
+        }
+      });
+
+      marker.addTo(markersGroup);
+      t.markerRef = marker;
+    });
+  }
+
+  function selectTruck(key) {
+    activeTruckId = key;
+    const t = trucks[key];
+    if (!t) return;
+
+    // Center map
+    map.panTo(t.latlng);
+
+    // Open popup
+    t.markerRef.openPopup();
+
+    // Update overlay panel
+    document.getElementById('overlay-truck-id').innerText = `${t.id} (${t.status})`;
+    document.getElementById('overlay-route').innerText = `Route: ${t.route} (${t.destination})`;
+    document.getElementById('overlay-speed').innerText = `Speed: ${t.speed} · ETA: ${t.eta}`;
+    document.getElementById('overlay-driver').innerText = `Driver: ${t.driver} · Order: ${t.order}`;
+
+    // Update overlay dot color
+    const dot = document.getElementById('overlay-dot');
+    dot.className = 'info-dot';
+    dot.classList.add(t.statusClass === 'green' ? 'active' : (t.statusClass === 'red' ? 'delayed' : 'alert'));
+
+    // Highlight row in table
+    const rows = document.querySelectorAll('.o-table tbody tr');
+    rows.forEach(row => {
+      row.style.background = '';
+      if (row.innerHTML.includes(t.id)) {
+        row.style.background = 'var(--purple-light)';
+      }
+    });
+  }
+
+  function setupTableInteraction() {
+    const rows = document.querySelectorAll('.o-table tbody tr');
+    rows.forEach(row => {
+      // Find truck ID cell
+      const cells = row.querySelectorAll('td');
+      if (cells.length > 2) {
+        const licensePlateText = cells[2].innerText.trim();
+        const key = Object.keys(trucks).find(k => trucks[k].id === licensePlateText);
+        if (key) {
+          row.style.cursor = 'pointer';
+          row.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'A') {
+              selectTruck(key);
+            }
+          });
+        }
+      }
+    });
+  }
+
+  // Toggles for traffic and charging station simulated overlays
+  function toggleTraffic() {
+    const btn = document.getElementById('btn-traffic');
+    if (trafficLayer) {
+      map.removeLayer(trafficLayer);
+      trafficLayer = null;
+      btn.classList.remove('active');
+    } else {
+      // Draw simple red/orange polylines along major highways to simulate traffic
+      trafficLayer = L.layerGroup();
+      // Mugling traffic line
+      L.polyline([[27.78, 85.00], [27.85, 84.50]], { color: '#EF4444', weight: 6, opacity: 0.7 }).addTo(trafficLayer);
+      // Hetauda highway traffic line
+      L.polyline([[27.50, 85.15], [27.4277, 85.0315]], { color: '#F0A500', weight: 6, opacity: 0.7 }).addTo(trafficLayer);
+      trafficLayer.addTo(map);
+      btn.classList.add('active');
+    }
+  }
+
+  function toggleCharging() {
+    const btn = document.getElementById('btn-charging');
+    if (chargingLayer) {
+      map.removeLayer(chargingLayer);
+      chargingLayer = null;
+      btn.classList.remove('active');
+    } else {
+      // Draw simulated electric vehicle charging stations
+      chargingLayer = L.layerGroup();
+      const stations = [
+        { name: 'KTM Central EV Hub', latlng: [27.7172, 85.3240] },
+        { name: 'Mugling Fast Charger', latlng: [27.81, 84.60] },
+        { name: 'Hetauda Bypass Charge Station', latlng: [27.42, 85.05] }
+      ];
+      stations.forEach(s => {
+        L.marker(s.latlng, {
+          icon: L.divIcon({
+            html: '<div style="background-color: #3B82F6; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; border: 1.5px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.3);">⚡</div>',
+            className: 'charging-marker',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+          })
+        }).bindPopup(`<b>${s.name}</b><br/>Status: Online (2/4 plugs available)`).addTo(chargingLayer);
+      });
+      chargingLayer.addTo(map);
+      btn.classList.add('active');
+    }
+  }
+
+  // Station coordinates and details mapping for autonavigation
+  const stationsNav = {
+    ktm: { latlng: [27.7172, 85.3240], zoom: 12, label: '🏢 Kathmandu HQ (Origin)' },
+    het: { latlng: [27.4277, 85.0315], zoom: 12, label: '🏢 Hetauda Station' },
+    bgr: { latlng: [27.0125, 84.8767], zoom: 12, label: '🏢 Birgunj Station' },
+    pkr: { latlng: [28.2096, 83.9856], zoom: 12, label: '🏢 Pokhara Station' },
+    btw: { latlng: [27.7006, 83.4484], zoom: 12, label: '🏢 Butwal Station' },
+    npj: { latlng: [28.0500, 81.6167], zoom: 12, label: '🏢 Nepalgunj Station' },
+    brt: { latlng: [26.4525, 87.2718], zoom: 12, label: '🏢 Biratnagar Station' }
+  };
+
+  function navigateToStation(code) {
+    if (!code) {
+      map.setView([27.7007, 84.5], 7.5);
+      return;
+    }
+    const s = stationsNav[code];
+    if (s) {
+      map.flyTo(s.latlng, s.zoom, {
+        animate: true,
+        duration: 1.5
+      });
+      L.popup()
+        .setLatLng(s.latlng)
+        .setContent(`<div style="font-family: 'DM Sans', sans-serif; font-size: 11.5px; font-weight: bold; color: var(--purple);">${s.label}</div>`)
+        .openOn(map);
+    }
+  }
+</script>
+</body>
+</html>

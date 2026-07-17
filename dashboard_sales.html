@@ -1,0 +1,1729 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sales Manager Dashboard – Bagmati Region | Odoo 19</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Leaflet.js Map dependencies -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: 13px;
+    }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: #F9FAFB;
+      color: #1F2937;
+      min-height: 100vh;
+    }
+
+    :root {
+      --purple: #714B67;
+      --purple-dark: #5a3a52;
+      --purple-light: #f3eef1;
+      --purple-mid: #d9c8d4;
+      --teal: #1D9E75;
+      --teal-light: #e8f7f2;
+      --teal-dark: #157a5b;
+      --amber: #F0A500;
+      --amber-light: #fef7e6;
+      --blue: #3B82F6;
+      --blue-light: #EFF6FF;
+      --red: #EF4444;
+      --red-light: #FEF2F2;
+      --border: #E5E7EB;
+      --text: #1F2937;
+      --text-muted: #6B7280;
+      --bg: #F9FAFB;
+      --white: #FFFFFF;
+      --sidebar-w: 230px;
+      --topbar-h: 44px;
+      --shadow: 0 1px 3px rgba(0, 0, 0, .12);
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #D1D5DB;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #9CA3AF;
+    }
+
+    /* ── TOPBAR ── */
+    .o-topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--topbar-h);
+      background: var(--purple);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      z-index: 1000;
+      gap: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .2);
+    }
+
+    .o-topbar .logo {
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: .3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .o-topbar .logo span.badge {
+      background: #fff;
+      color: var(--purple);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 10px;
+    }
+
+    .o-topbar .app-name {
+      color: rgba(255, 255, 255, .82);
+      font-size: 12.5px;
+      font-weight: 500;
+      padding-left: 14px;
+      border-left: 1px solid rgba(255, 255, 255, .25);
+    }
+
+    .o-topbar .topbar-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+    }
+
+    .o-topbar .icon-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: .15s;
+      font-size: 13px;
+    }
+
+    .o-topbar .icon-btn:hover {
+      background: rgba(255, 255, 255, .15);
+    }
+
+    .o-topbar .avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--amber);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .role-pill {
+      background: rgba(255, 255, 255, .15);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, .3);
+    }
+
+    /* ── SIDEBAR ── */
+    .o-sidebar {
+      position: fixed;
+      top: var(--topbar-h);
+      left: 0;
+      bottom: 0;
+      width: var(--sidebar-w);
+      background: var(--white);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      z-index: 900;
+      padding-top: 8px;
+    }
+
+    .o-sidebar .region-card {
+      margin: 10px;
+      background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+      border-radius: 7px;
+      padding: 12px;
+      color: #fff;
+    }
+
+    .o-sidebar .region-card .region-name {
+      font-size: 12.5px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .o-sidebar .region-card .region-sub {
+      font-size: 11px;
+      opacity: .75;
+    }
+
+    .o-sidebar .region-stats {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .o-sidebar .region-stat {
+      flex: 1;
+      background: rgba(255, 255, 255, .15);
+      border-radius: 5px;
+      padding: 5px 7px;
+      text-align: center;
+    }
+
+    .o-sidebar .region-stat .num {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .o-sidebar .region-stat .lbl {
+      font-size: 9px;
+      opacity: .8;
+    }
+
+    .nav-section {
+      padding: 6px 0;
+    }
+
+    .nav-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      padding: 6px 16px 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 7px 16px;
+      cursor: pointer;
+      color: var(--text);
+      font-size: 12.5px;
+      font-weight: 500;
+      border-left: 3px solid transparent;
+      transition: .1s;
+    }
+
+    .nav-item:hover {
+      background: var(--purple-light);
+      color: var(--purple);
+    }
+
+    .nav-item.active {
+      background: var(--purple-light);
+      color: var(--purple);
+      border-left-color: var(--purple);
+      font-weight: 600;
+    }
+
+    .nav-icon {
+      font-size: 14px;
+      width: 18px;
+      text-align: center;
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--red);
+      color: #fff;
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 10px;
+    }
+
+    .o-main {
+      margin-left: var(--sidebar-w);
+      padding-top: var(--topbar-h);
+      min-height: 100vh;
+    }
+
+    .o-content {
+      padding: 14px 18px 24px;
+    }
+
+    .o-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+
+    .o-breadcrumb a {
+      color: var(--purple);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .o-page-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .scope-pill {
+      background: var(--purple-light);
+      color: var(--purple);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--purple-mid);
+    }
+
+    .scope-note {
+      background: #fef9c3;
+      border: 1px solid #fde68a;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 11.5px;
+      color: #92400e;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── KPI CARDS ── */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .kpi-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: .15s;
+      box-shadow: var(--shadow);
+    }
+
+    .kpi-card:hover {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 2px rgba(113, 75, 103, .12);
+      transform: translateY(-1px);
+    }
+
+    .kpi-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .kpi-icon.purple {
+      background: var(--purple-light);
+    }
+
+    .kpi-icon.teal {
+      background: var(--teal-light);
+    }
+
+    .kpi-icon.danger {
+      background: var(--red-light);
+    }
+
+    .kpi-icon.success {
+      background: #ecfdf5;
+    }
+
+    .kpi-val {
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .kpi-label {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      font-weight: 500;
+    }
+
+    .kpi-sub {
+      font-size: 11px;
+      color: var(--teal);
+      margin-top: 3px;
+      font-weight: 500;
+    }
+
+    .kpi-sub.red {
+      color: var(--red);
+    }
+
+    .kpi-sub.orange {
+      color: var(--amber);
+    }
+
+    /* ── SECTION ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .btn-outline {
+      border: 1px solid var(--border);
+      background: var(--white);
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: .1s;
+      font-family: 'DM Sans', system-ui;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--purple);
+      color: var(--purple);
+    }
+
+    .btn-teal {
+      background: var(--teal);
+      color: #fff;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: .15s;
+      font-family: 'DM Sans', system-ui;
+    }
+
+    .btn-teal:hover {
+      background: var(--teal-dark);
+    }
+
+    /* ── MAP ── */
+    .map-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+    }
+
+    .map-toolbar {
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    .scoped-badge {
+      background: var(--purple-light);
+      color: var(--purple);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--purple-mid);
+    }
+
+    .map-area {
+      position: relative;
+      height: 340px;
+      background: linear-gradient(135deg, #e0eff5 0%, #d5e8e5 50%, #dde8c4 100%);
+      overflow: hidden;
+    }
+
+    .city-label {
+      position: absolute;
+      background: var(--white);
+      border: 1px solid #c0c0c0;
+      border-radius: 3px;
+      padding: 2px 6px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #333;
+      pointer-events: none;
+      white-space: nowrap;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .15);
+    }
+
+    .truck-marker {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .truck-marker:hover {
+      transform: translate(-50%, -50%) scale(1.15);
+      z-index: 10;
+    }
+
+    .truck-marker:hover .truck-tooltip {
+      display: block;
+    }
+
+    .truck-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 2.5px solid #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .3);
+    }
+
+    .truck-icon.green {
+      background: #28a745;
+    }
+
+    .truck-icon.red {
+      background: var(--red);
+    }
+
+    .truck-icon.orange {
+      background: var(--amber);
+    }
+
+    .truck-tooltip {
+      display: none;
+      position: absolute;
+      bottom: 38px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      min-width: 200px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, .15);
+      z-index: 20;
+      font-size: 11.5px;
+    }
+
+    .truck-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: var(--white);
+    }
+
+    .tooltip-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .tooltip-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .tooltip-key {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .tooltip-val {
+      font-weight: 600;
+      color: var(--text);
+      text-align: right;
+    }
+
+    .tooltip-title {
+      font-weight: 700;
+      font-size: 12.5px;
+      color: var(--teal);
+      margin-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 5px;
+    }
+
+    .tooltip-badge {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .tooltip-badge.green {
+      background: var(--teal-light);
+      color: var(--teal-dark);
+    }
+
+    .tooltip-badge.red {
+      background: var(--red-light);
+      color: #991b1b;
+    }
+
+    .privacy-note {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(29, 158, 117, .9);
+      color: #fff;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    /* Map overlays */
+    .map-info-overlay {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px 14px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      min-width: 180px;
+      pointer-events: auto;
+    }
+    .info-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .info-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+      background: var(--teal);
+    }
+    .info-dot.active { background: var(--teal); }
+    .info-dot.delayed { background: var(--red); }
+    .info-dot.alert { background: var(--amber); }
+    .info-details p {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    .map-controls-overlay {
+      position: absolute;
+      top: 10px;
+      right: 50px;
+      display: flex;
+      gap: 6px;
+      z-index: 1000;
+      pointer-events: auto;
+    }
+    .map-overlay-btn {
+      background: var(--white);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 500;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      font-family: 'DM Sans', system-ui;
+    }
+    .map-overlay-btn:hover {
+      border-color: var(--purple);
+      color: var(--purple);
+    }
+    .map-overlay-btn.active {
+      background: var(--purple);
+      color: #fff;
+      border-color: var(--purple);
+    }
+
+    /* Custom leaflet style overrides */
+    .leaflet-popup-content-wrapper {
+      border-radius: 7px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+      border: 1px solid var(--border);
+    }
+    .leaflet-popup-content {
+      margin: 10px 12px;
+    }
+    .leaflet-container a.leaflet-popup-close-button {
+      top: 6px;
+      right: 6px;
+      color: var(--text-muted);
+    }
+
+    /* ── TWO COL ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    /* ── TABLE ── */
+    .list-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .list-toolbar {
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 5px 10px;
+      flex: 1;
+      max-width: 260px;
+    }
+
+    .search-box input {
+      border: none;
+      outline: none;
+      font-size: 12px;
+      color: var(--text);
+      width: 100%;
+      background: transparent;
+      font-family: 'DM Sans', system-ui;
+    }
+
+    .o-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .o-table thead th {
+      padding: 7px 12px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+
+    .o-table thead th:first-child {
+      padding-left: 14px;
+    }
+
+    .o-table tbody tr {
+      border-bottom: 1px solid #F3F4F6;
+      transition: .1s;
+      cursor: pointer;
+    }
+
+    .o-table tbody tr:hover {
+      background: var(--purple-light);
+    }
+
+    .o-table td {
+      padding: 8px 12px;
+      font-size: 12.5px;
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    .o-table td:first-child {
+      padding-left: 14px;
+    }
+
+    .o-link {
+      color: var(--purple);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .o-link:hover {
+      text-decoration: underline;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .badge.in-transit {
+      background: var(--teal-light);
+      color: var(--teal-dark);
+    }
+
+    .badge.delayed {
+      background: var(--red-light);
+      color: #991b1b;
+    }
+
+    .badge.on-time {
+      background: #ecfdf5;
+      color: #065f46;
+    }
+
+    .btn-notify {
+      background: var(--teal);
+      color: #fff;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: 'DM Sans', system-ui;
+    }
+
+    .btn-notify:hover {
+      background: var(--teal-dark);
+    }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 8px 14px;
+      gap: 8px;
+      border-top: 1px solid var(--border);
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .page-btn {
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: var(--white);
+    }
+
+    .page-btn:hover {
+      border-color: var(--purple);
+      color: var(--purple);
+    }
+
+    /* ── DISTRIBUTOR PANEL ── */
+    .dist-panel {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .dist-panel-header {
+      background: var(--purple);
+      color: #fff;
+      padding: 11px 14px;
+      font-size: 12.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dist-list {
+      padding: 6px 0;
+    }
+
+    .dist-item {
+      padding: 9px 14px;
+      border-bottom: 1px solid #F3F4F6;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      cursor: pointer;
+      transition: .1s;
+    }
+
+    .dist-item:hover {
+      background: var(--purple-light);
+    }
+
+    .dist-item:last-child {
+      border-bottom: none;
+    }
+
+    .dist-name {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .dist-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .dist-status {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+    }
+
+    .dot-status {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+    }
+
+    /* ── SMS MODAL ── */
+    .sms-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(31, 41, 55, .5);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sms-modal.active {
+      display: flex;
+    }
+
+    .sms-box {
+      background: var(--white);
+      border-radius: 9px;
+      width: 420px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .2);
+    }
+
+    .sms-header {
+      background: var(--teal);
+      color: #fff;
+      padding: 13px 16px;
+      font-size: 13.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sms-body {
+      padding: 16px;
+    }
+
+    .sms-field {
+      margin-bottom: 12px;
+    }
+
+    .sms-field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+
+    .sms-field input,
+    .sms-field textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 7px 10px;
+      font-size: 12.5px;
+      font-family: 'DM Sans', system-ui;
+      outline: none;
+      color: var(--text);
+      transition: border-color .15s;
+    }
+
+    .sms-field input:focus,
+    .sms-field textarea:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(29, 158, 117, .08);
+    }
+
+    .sms-field textarea {
+      resize: vertical;
+      height: 80px;
+    }
+
+    .sms-footer {
+      padding: 10px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      background: var(--bg);
+      border-radius: 0 0 9px 9px;
+    }
+
+    .btn-cancel {
+      border: 1px solid var(--border);
+      background: var(--white);
+      padding: 6px 14px;
+      border-radius: 5px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: 'DM Sans', system-ui;
+      color: var(--text-muted);
+    }
+
+    .btn-send {
+      background: var(--teal);
+      color: #fff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'DM Sans', system-ui;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--teal);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 7px;
+      font-size: 12.5px;
+      font-weight: 600;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, .2);
+      display: none;
+      z-index: 3000;
+    }
+
+    .toast.show {
+      display: block;
+      animation: fadeSlide .3s ease;
+    }
+
+    @keyframes fadeSlide {
+      from {
+        opacity: 0;
+        transform: translateY(10px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOPBAR -->
+  <div class="o-topbar">
+    <div style="color:#fff; font-size:18px; cursor:pointer;">☰</div>
+    <div class="logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <rect width="24" height="24" rx="5" fill="rgba(255,255,255,0.2)" />
+        <path d="M6 12h12M6 8h8M6 16h10" stroke="#fff" stroke-width="2" stroke-linecap="round" />
+      </svg>
+      Odoo <span class="badge">19</span>
+    </div>
+    <div class="app-name">📊 Sales – Fleet Tracking</div>
+    <span class="role-pill">Regional Sales · Bagmati</span>
+    <div class="topbar-right">
+      <div class="icon-btn">🔔</div>
+      <div class="icon-btn">⚙️</div>
+      <div class="avatar">SP</div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="o-sidebar">
+    <div class="region-card">
+      <div class="region-name">📍 Bagmati Province</div>
+      <div class="region-sub">Sales Rep: Saurav Pradhan</div>
+      <div class="region-stats">
+        <div class="region-stat">
+          <div class="num">7</div>
+          <div class="lbl">Distributors</div>
+        </div>
+        <div class="region-stat">
+          <div class="num">12</div>
+          <div class="lbl">Deliveries</div>
+        </div>
+        <div class="region-stat">
+          <div class="num">1</div>
+          <div class="lbl">Delayed</div>
+        </div>
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">My Dashboard</div>
+      <div class="nav-item active"><span class="nav-icon">🗺️</span> Live Tracking</div>
+      <div class="nav-item"><span class="nav-icon">👥</span> My Distributors</div>
+      <div class="nav-item"><span class="nav-icon">📦</span> My Deliveries <span class="nav-badge">1</span></div>
+      <div class="nav-item"><span class="nav-icon">📱</span> SMS Notifications</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Sales</div>
+      <div class="nav-item"><span class="nav-icon">📋</span> Sales Orders</div>
+      <div class="nav-item"><span class="nav-icon">💰</span> Revenue – Territory</div>
+      <div class="nav-item"><span class="nav-icon">📈</span> Performance KPIs</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="o-main">
+    <div class="o-content">
+      <div class="o-breadcrumb"><a href="#">Fleet</a> › <a href="#">Sales Dashboard</a> › <span>Bagmati Province</span>
+      </div>
+      <div class="o-page-title">
+        My Territory — Live View
+        <span class="scope-pill">🔒 Scoped: Bagmati Region Only</span>
+      </div>
+
+      <!-- Scope Notice -->
+      <div class="scope-note">
+        ℹ️ &nbsp; You are viewing data scoped exclusively to distributors assigned to your sales team (Bagmati
+        Province). Fleet-wide data and driver behavior metrics are not visible at this access level. · <strong>ir.rule:
+          user_id = current_user</strong>
+      </div>
+
+      <!-- KPI ROW -->
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-icon teal">📦</div>
+          <div>
+            <div class="kpi-val">12</div>
+            <div class="kpi-label">Deliveries – My Territory Today</div>
+            <div class="kpi-sub">↑ 3 vs. yesterday</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon danger">⏰</div>
+          <div>
+            <div class="kpi-val" style="color:var(--red)">1</div>
+            <div class="kpi-label">Delayed Orders</div>
+            <div class="kpi-sub red">Pokhara Valley Dist. · +1h 20m</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon purple">⚖️</div>
+          <div>
+            <div class="kpi-val">850 <span style="font-size:13px; font-weight:400; color:var(--text-muted)">kg</span>
+            </div>
+            <div class="kpi-label">Total Volume in Transit</div>
+            <div class="kpi-sub">Across 5 active trucks</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon success">✅</div>
+          <div>
+            <div class="kpi-val" style="color:var(--teal)">91.7%</div>
+            <div class="kpi-label">On-Time Rate – This Week</div>
+            <div class="kpi-sub">11 of 12 orders on schedule</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAP -->
+      <div class="section-header">
+        <div class="section-title">🗺️ Localized Map — Bagmati &amp; Surrounding Zones</div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-outline">🔄 Refresh</button>
+          <button class="btn-teal" onclick="openSmsModal()">📱 Notify All Distributors</button>
+        </div>
+      </div>
+      <div class="map-card">
+        <div class="map-toolbar">
+          <span class="scoped-badge">🔒 Filtered View — 5 Trucks (Your Territory)</span>
+          <span style="font-size:11px; color:var(--text-muted); margin-left:8px;">Driver behavior metrics hidden · ETA &amp; delivery status only</span>
+          <select id="station-navigator" onchange="navigateToStation(this.value)" style="margin-left: auto; padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 11.5px; background: white; font-family: 'DM Sans', sans-serif; cursor: pointer; outline: none; color: var(--text);">
+            <option value="">🗺️ Navigate to Station...</option>
+            <option value="ktm">🏢 Kathmandu HQ (Origin)</option>
+            <option value="het">🏢 Hetauda Station</option>
+            <option value="bgr">🏢 Birgunj Station</option>
+            <option value="pkr">🏢 Pokhara Station</option>
+            <option value="btw">🏢 Butwal Station</option>
+            <option value="npj">🏢 Nepalgunj Station</option>
+            <option value="brt">🏢 Biratnagar Station</option>
+          </select>
+        </div>
+        <div class="map-area" style="position: relative;">
+          <!-- Leaflet map container -->
+          <div id="map" style="width: 100%; height: 100%; z-index: 1;"></div>
+
+          <!-- Top-left info card overlay -->
+          <div class="map-info-overlay">
+            <div class="info-title">
+              <span class="info-dot active" id="overlay-dot"></span>
+              <span id="overlay-truck-id">WH/OUT/00142 (In Transit)</span>
+            </div>
+            <div class="info-details">
+              <p id="overlay-route">Route: KTM → HET</p>
+              <p id="overlay-speed">ETA: 14:30 · 1h 12m away</p>
+              <p id="overlay-distributor">Distributor: Hetauda Merchants Ltd.</p>
+            </div>
+          </div>
+
+          <!-- Top-right control buttons overlay -->
+          <div class="map-controls-overlay">
+            <button class="map-overlay-btn" id="btn-traffic" onclick="toggleTraffic()">Show Traffic</button>
+            <button class="map-overlay-btn" id="btn-charging" onclick="toggleCharging()">Charging Stations</button>
+          </div>
+
+          <div class="privacy-note">🔒 No driver behavior data · ETA only</div>
+        </div>
+      </div>
+
+      <!-- TWO COLUMN: List + Distributor Sidebar -->
+      <div class="two-col">
+        <!-- List -->
+        <div class="list-card">
+          <div class="list-toolbar">
+            <div class="section-title" style="margin:0; font-size:12.5px;">📋 Customer Service List — My Deliveries
+            </div>
+            <div class="search-box" style="margin-left:auto;">
+              <span style="color:var(--text-muted);">🔍</span>
+              <input type="text" placeholder="Search distributor or order…" />
+            </div>
+          </div>
+          <table class="o-table">
+            <thead>
+              <tr>
+                <th>Distributor Name</th>
+                <th>Delivery Ref</th>
+                <th>Expected Arrival</th>
+                <th>Contact Person</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Hetauda Merchants Ltd.</strong></td>
+                <td><a class="o-link" href="#">WH/OUT/00142</a></td>
+                <td>14:30</td>
+                <td>Ram Prasad</td>
+                <td><span class="badge in-transit">In Transit</span></td>
+                <td><button class="btn-notify"
+                    onclick="openSmsModal('Hetauda Merchants Ltd.', 'WH/OUT/00142', '14:30')">📱 Notify</button></td>
+              </tr>
+              <tr>
+                <td><strong>Naubise Supply Hub</strong></td>
+                <td><a class="o-link" href="#">WH/OUT/00138</a></td>
+                <td style="color:var(--red); font-weight:600;">15:45 <span style="font-size:11px;">(+1h 20m)</span></td>
+                <td>Kiran KC</td>
+                <td><span class="badge delayed">Delayed</span></td>
+                <td><button class="btn-notify" onclick="openSmsModal('Naubise Supply Hub', 'WH/OUT/00138', '15:45')">📱
+                    Notify</button></td>
+              </tr>
+              <tr>
+                <td><strong>Birgunj Traders Co.</strong></td>
+                <td><a class="o-link" href="#">WH/OUT/00140</a></td>
+                <td>16:15</td>
+                <td>Sita Devi</td>
+                <td><span class="badge in-transit">In Transit</span></td>
+                <td><button class="btn-notify" onclick="openSmsModal('Birgunj Traders Co.', 'WH/OUT/00140', '16:15')">📱
+                    Notify</button></td>
+              </tr>
+              <tr>
+                <td><strong>Banepa District Wholesale</strong></td>
+                <td><a class="o-link" href="#">WH/OUT/00144</a></td>
+                <td>13:20</td>
+                <td>Mohan Shrestha</td>
+                <td><span class="badge on-time">Arriving Soon</span></td>
+                <td><button class="btn-notify"
+                    onclick="openSmsModal('Banepa District Wholesale', 'WH/OUT/00144', '13:20')">📱 Notify</button></td>
+              </tr>
+              <tr>
+                <td><strong>North Valley Traders</strong></td>
+                <td><a class="o-link" href="#">WH/OUT/00148</a></td>
+                <td>12:55</td>
+                <td>Priya Bajracharya</td>
+                <td><span class="badge on-time">Arriving Now</span></td>
+                <td><button class="btn-notify"
+                    onclick="openSmsModal('North Valley Traders', 'WH/OUT/00148', '12:55')">📱 Notify</button></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="pagination"><span>1–5 of 12 today</span>
+            <div class="page-btn">‹</div>
+            <div class="page-btn">›</div>
+          </div>
+        </div>
+
+        <!-- Distributor Quick Panel -->
+        <div class="dist-panel">
+          <div class="dist-panel-header">👥 My Distributors · Bagmati</div>
+          <div class="dist-list">
+            <div class="dist-item">
+              <div class="dist-name">Hetauda Merchants Ltd.</div>
+              <div class="dist-meta">
+                <span>01-451xxxx · Ram Prasad</span>
+                <div class="dist-status">
+                  <div class="dot-status" style="background:#28a745"></div>Active
+                </div>
+              </div>
+              <div style="font-size:11px; color:var(--teal); margin-top:2px;">📦 WH/OUT/00142 · ETA 14:30</div>
+            </div>
+            <div class="dist-item">
+              <div class="dist-name">Naubise Supply Hub</div>
+              <div class="dist-meta">
+                <span>01-522xxxx · Kiran KC</span>
+                <div class="dist-status">
+                  <div class="dot-status" style="background:var(--red)"></div>Delayed
+                </div>
+              </div>
+              <div style="font-size:11px; color:var(--red); margin-top:2px;">⏰ WH/OUT/00138 · +1h 20m delay</div>
+            </div>
+            <div class="dist-item">
+              <div class="dist-name">Birgunj Traders Co.</div>
+              <div class="dist-meta">
+                <span>051-xxxxx · Sita Devi</span>
+                <div class="dist-status">
+                  <div class="dot-status" style="background:#28a745"></div>Active
+                </div>
+              </div>
+              <div style="font-size:11px; color:var(--teal); margin-top:2px;">📦 WH/OUT/00140 · ETA 16:15</div>
+            </div>
+            <div class="dist-item">
+              <div class="dist-name">Banepa District Wholesale</div>
+              <div class="dist-meta">
+                <span>011-xxxxx · Mohan Shrestha</span>
+                <div class="dist-status">
+                  <div class="dot-status" style="background:#28a745"></div>Active
+                </div>
+              </div>
+              <div style="font-size:11px; color:var(--teal); margin-top:2px;">📦 WH/OUT/00144 · Arriving 13:20</div>
+            </div>
+            <div class="dist-item">
+              <div class="dist-name">North Valley Traders</div>
+              <div class="dist-meta">
+                <span>01-xxxxx · Priya Bajracharya</span>
+                <div class="dist-status">
+                  <div class="dot-status" style="background:var(--teal)"></div>Arriving
+                </div>
+              </div>
+              <div style="font-size:11px; color:var(--teal); margin-top:2px;">✅ WH/OUT/00148 · Now (12:55)</div>
+            </div>
+            <div class="dist-item">
+              <div class="dist-name">Lalitpur General Store</div>
+              <div class="dist-meta">
+                <span>01-553xxxx · Sarita Thapa</span>
+                <div class="dist-status">
+                  <div class="dot-status" style="background:#adb5bd"></div>Pending
+                </div>
+              </div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">⏳ Next dispatch: Tomorrow</div>
+            </div>
+            <div class="dist-item">
+              <div class="dist-name">Bhaktapur Wholesale Hub</div>
+              <div class="dist-meta">
+                <span>01-661xxxx · Dinesh Maharjan</span>
+                <div class="dist-status">
+                  <div class="dot-status" style="background:#adb5bd"></div>Pending
+                </div>
+              </div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">⏳ Next dispatch: Tomorrow</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SMS MODAL -->
+  <div class="sms-modal" id="smsModal">
+    <div class="sms-box">
+      <div class="sms-header">📱 Notify Distributor via SMS — Odoo SMS Wizard</div>
+      <div class="sms-body">
+        <div class="sms-field">
+          <label>Recipient (Distributor)</label>
+          <input type="text" id="smsRecipient" value="Hetauda Merchants Ltd." readonly />
+        </div>
+        <div class="sms-field">
+          <label>Phone Number</label>
+          <input type="text" id="smsPhone" value="+977-01-451xxxx" />
+        </div>
+        <div class="sms-field">
+          <label>Message Preview</label>
+          <textarea id="smsMessage"></textarea>
+        </div>
+        <div class="sms-field">
+          <label>Tracking Link (Expires on Delivery)</label>
+          <input type="text" value="https://unilevernepal.com/track/xz7k9m2q" readonly
+            style="background:var(--bg); color:var(--teal); font-weight:600;" />
+        </div>
+      </div>
+      <div class="sms-footer">
+        <button class="btn-cancel" onclick="closeSmsModal()">Cancel</button>
+        <button class="btn-send" onclick="sendSms()">📤 Send SMS via Odoo</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">✅ SMS sent successfully via Odoo</div>
+
+  <script>
+    function openSmsModal(dist, order, eta) {
+      dist = dist || 'All Distributors';
+      order = order || 'Multiple';
+      eta = eta || 'Scheduled';
+      document.getElementById('smsRecipient').value = dist;
+      document.getElementById('smsMessage').value =
+        `Dear ${dist},\n\nYour Unilever Nepal delivery (Ref: ${order}) is currently en route and expected to arrive by ${eta}.\n\nTrack your delivery: https://unilevernepal.com/track/xz7k9m2q\n(Link expires upon delivery)\n\nUnilever Nepal Fleet Operations`;
+      document.getElementById('smsModal').classList.add('active');
+    }
+    function closeSmsModal() {
+      document.getElementById('smsModal').classList.remove('active');
+    }
+    function sendSms() {
+      closeSmsModal();
+      const t = document.getElementById('toast');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3500);
+    }
+    document.getElementById('smsModal').addEventListener('click', function (e) {
+      if (e.target === this) closeSmsModal();
+    });
+
+    // Map & Dispatches configuration
+    const dispatches = {
+      'WH-OUT-00142': { id: 'WH/OUT/00142', distributor: 'Hetauda Merchants Ltd.', order: 'WH/OUT/00142', route: 'KTM → HET', contact: 'Ram Prasad (01-451xxxx)', eta: '14:30 · 1h 12m away', volume: '180 kg', status: 'In Transit', statusClass: 'green', latlng: [27.50, 85.12], routePoints: [[27.7172, 85.3240], [27.4277, 85.0315]] },
+      'WH-OUT-00138': { id: 'WH/OUT/00138', distributor: 'Naubise Supply Hub', order: 'WH/OUT/00138', route: 'KTM → PKR', contact: 'Kiran KC (01-522xxxx)', eta: '15:45 · DELAYED +1h 20m', volume: '160 kg', status: 'Delayed', statusClass: 'red', latlng: [27.72, 85.16], routePoints: [[27.7172, 85.3240], [27.7145, 85.1633]] },
+      'WH-OUT-00140': { id: 'WH/OUT/00140', distributor: 'Birgunj Traders Co.', order: 'WH/OUT/00140', route: 'KTM → BGR', contact: 'Sita Devi (051-xxx)', eta: '16:15 · 3h 57m away', volume: '220 kg', status: 'In Transit', statusClass: 'green', latlng: [27.20, 84.97], routePoints: [[27.7172, 85.3240], [27.4277, 85.0315], [27.0125, 84.8767]] },
+      'WH-OUT-00144': { id: 'WH/OUT/00144', distributor: 'Banepa District Wholesale', order: 'WH/OUT/00144', route: 'KTM → BNP', contact: 'Mohan Shrestha', eta: '13:20 · 22m', volume: '150 kg', status: 'Arriving Soon', statusClass: 'green', latlng: [27.65, 85.48], routePoints: [[27.7172, 85.3240], [27.6298, 85.5214]] },
+      'WH-OUT-00148': { id: 'WH/OUT/00148', distributor: 'North Valley Traders', order: 'WH/OUT/00148', route: 'KTM → SDN', contact: 'Priya Bajracharya', eta: '12:55 · 5m', volume: '140 kg', status: 'Arriving Now', statusClass: 'green', latlng: [27.74, 85.38], routePoints: [[27.7172, 85.3240], [27.7635, 85.4243]] }
+    };
+
+    function getMarkerIcon(statusClass) {
+      let color = '#1D9E75'; 
+      if (statusClass === 'red') color = '#EF4444';
+      if (statusClass === 'orange') color = '#F0A500';
+      
+      return L.divIcon({
+        html: `<div style="background-color: ${color}; width: 26px; height: 26px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 13px;">🚛</div>`,
+        className: 'custom-map-marker',
+        iconSize: [26, 26],
+        iconAnchor: [13, 13]
+      });
+    }
+
+    let map, markersGroup, routesGroup, trafficLayer, chargingLayer;
+    let activeDispatchId = 'WH-OUT-00142';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Map initialization
+      map = L.map('map', { zoomControl: false }).setView([27.6, 85.25], 9);
+      
+      L.control.zoom({ position: 'topright' }).addTo(map);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+
+      markersGroup = L.layerGroup().addTo(map);
+      routesGroup = L.layerGroup().addTo(map);
+
+      // Draw static warehouse station labels
+      const stationLocations = [
+        { name: '🏢 KTM HQ (Origin)', latlng: [27.7172, 85.3240] },
+        { name: '🏢 Hetauda Station', latlng: [27.4277, 85.0315] },
+        { name: '🏢 Birgunj Station', latlng: [27.0125, 84.8767] },
+        { name: '🏢 Pokhara Station', latlng: [28.2096, 83.9856] },
+        { name: '🏢 Butwal Station', latlng: [27.7006, 83.4484] },
+        { name: '🏢 Nepalgunj Station', latlng: [28.0500, 81.6167] },
+        { name: '🏢 Biratnagar Station', latlng: [26.4525, 87.2718] }
+      ];
+      stationLocations.forEach(s => {
+        L.marker(s.latlng, {
+          icon: L.divIcon({
+            html: `<div style="background-color: rgba(255, 255, 255, 0.9); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-size: 10px; font-weight: 700; color: var(--purple); box-shadow: 0 1px 3px rgba(0,0,0,0.15); white-space: nowrap;">${s.name}</div>`,
+            className: 'station-label-marker',
+            iconSize: [120, 18],
+            iconAnchor: [60, 9]
+          })
+        }).bindPopup(`<b>${s.name}</b><br/>Unilever Nepal Regional Depot`).addTo(map);
+      });
+
+      renderMapElements();
+      selectDispatch(activeDispatchId);
+      setupTableInteraction();
+    });
+
+    function renderMapElements() {
+      markersGroup.clearLayers();
+      routesGroup.clearLayers();
+
+      Object.keys(dispatches).forEach(key => {
+        const d = dispatches[key];
+
+        // Draw dashed route
+        if (d.routePoints && d.routePoints.length > 0) {
+          L.polyline(d.routePoints, {
+            color: '#714B67',
+            weight: 3,
+            dashArray: '5, 5',
+            opacity: 0.55
+          }).addTo(routesGroup);
+        }
+
+        // Add marker
+        const marker = L.marker(d.latlng, { icon: getMarkerIcon(d.statusClass) });
+        
+        const popupHtml = `
+          <div style="font-family: 'DM Sans', sans-serif; min-width: 170px;">
+            <div style="font-weight: 700; font-size: 12px; color: #714B67; border-bottom: 1px solid #E5E7EB; padding-bottom: 4px; margin-bottom: 6px;">${d.id}</div>
+            <div style="font-size: 11px; line-height: 1.4;">
+              <b>Distributor:</b> ${d.distributor}<br/>
+              <b>Route:</b> ${d.route}<br/>
+              <b>ETA:</b> ${d.eta}<br/>
+              <b>Volume:</b> ${d.volume}<br/>
+              <b>Status:</b> <span class="badge ${d.statusClass === 'green' ? 'on-time' : 'delayed'}">${d.status}</span>
+            </div>
+          </div>
+        `;
+        marker.bindPopup(popupHtml);
+        marker.on('click', () => selectDispatch(key));
+        marker.on('mouseover', function (e) {
+          this.openPopup();
+        });
+        marker.on('mouseout', function (e) {
+          if (activeDispatchId !== key) {
+            this.closePopup();
+          }
+        });
+        marker.addTo(markersGroup);
+        d.markerRef = marker;
+      });
+    }
+
+    function selectDispatch(key) {
+      activeDispatchId = key;
+      const d = dispatches[key];
+      if (!d) return;
+
+      map.panTo(d.latlng);
+      d.markerRef.openPopup();
+
+      // Update overlay panel
+      document.getElementById('overlay-truck-id').innerText = `${d.id} (${d.status})`;
+      document.getElementById('overlay-route').innerText = `Route: ${d.route}`;
+      document.getElementById('overlay-speed').innerText = `ETA: ${d.eta} · Vol: ${d.volume}`;
+      document.getElementById('overlay-distributor').innerText = `Distributor: ${d.distributor} · Contact: ${d.contact}`;
+
+      const dot = document.getElementById('overlay-dot');
+      dot.className = 'info-dot';
+      dot.classList.add(d.statusClass === 'green' ? 'active' : 'delayed');
+
+      // Highlight row in table
+      const rows = document.querySelectorAll('.o-table tbody tr');
+      rows.forEach(row => {
+        row.style.background = '';
+        if (row.innerHTML.includes(d.id)) {
+          row.style.background = 'var(--purple-light)';
+        }
+      });
+    }
+
+    function setupTableInteraction() {
+      const rows = document.querySelectorAll('.o-table tbody tr');
+      rows.forEach(row => {
+        const link = row.querySelector('.o-link');
+        if (link) {
+          const ref = link.innerText.trim();
+          const key = Object.keys(dispatches).find(k => dispatches[k].id === ref);
+          if (key) {
+            row.style.cursor = 'pointer';
+            row.addEventListener('click', (e) => {
+              if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A') {
+                selectDispatch(key);
+              }
+            });
+          }
+        }
+      });
+    }
+
+    function toggleTraffic() {
+      const btn = document.getElementById('btn-traffic');
+      if (trafficLayer) {
+        map.removeLayer(trafficLayer);
+        trafficLayer = null;
+        btn.classList.remove('active');
+      } else {
+        trafficLayer = L.layerGroup();
+        // Naubise highway traffic
+        L.polyline([[27.7172, 85.3240], [27.7145, 85.1633]], { color: '#EF4444', weight: 6, opacity: 0.75 }).addTo(trafficLayer);
+        trafficLayer.addTo(map);
+        btn.classList.add('active');
+      }
+    }
+
+    function toggleCharging() {
+      const btn = document.getElementById('btn-charging');
+      if (chargingLayer) {
+        map.removeLayer(chargingLayer);
+        chargingLayer = null;
+        btn.classList.remove('active');
+      } else {
+        chargingLayer = L.layerGroup();
+        const stations = [
+          { name: 'KTM Central EV Hub', latlng: [27.7172, 85.3240] },
+          { name: 'Naubise Charger', latlng: [27.7145, 85.1633] }
+        ];
+        stations.forEach(s => {
+          L.marker(s.latlng, {
+            icon: L.divIcon({
+              html: '<div style="background-color: #3B82F6; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; border: 1.5px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.3);">⚡</div>',
+              className: 'charging-marker',
+              iconSize: [20, 20],
+              iconAnchor: [10, 10]
+            })
+          }).bindPopup(`<b>${s.name}</b><br/>Status: Online`).addTo(chargingLayer);
+        });
+        chargingLayer.addTo(map);
+        btn.classList.add('active');
+      }
+    }
+
+    // Station coordinates and details mapping for autonavigation
+    const stationsNav = {
+      ktm: { latlng: [27.7172, 85.3240], zoom: 12, label: '🏢 Kathmandu HQ (Origin)' },
+      het: { latlng: [27.4277, 85.0315], zoom: 12, label: '🏢 Hetauda Station' },
+      bgr: { latlng: [27.0125, 84.8767], zoom: 12, label: '🏢 Birgunj Station' },
+      pkr: { latlng: [28.2096, 83.9856], zoom: 12, label: '🏢 Pokhara Station' },
+      btw: { latlng: [27.7006, 83.4484], zoom: 12, label: '🏢 Butwal Station' },
+      npj: { latlng: [28.0500, 81.6167], zoom: 12, label: '🏢 Nepalgunj Station' },
+      brt: { latlng: [26.4525, 87.2718], zoom: 12, label: '🏢 Biratnagar Station' }
+    };
+
+    function navigateToStation(code) {
+      if (!code) {
+        map.setView([27.6, 85.25], 9);
+        return;
+      }
+      const s = stationsNav[code];
+      if (s) {
+        map.flyTo(s.latlng, s.zoom, {
+          animate: true,
+          duration: 1.5
+        });
+        L.popup()
+          .setLatLng(s.latlng)
+          .setContent(`<div style="font-family: 'DM Sans', sans-serif; font-size: 11.5px; font-weight: bold; color: var(--purple);">${s.label}</div>`)
+          .openOn(map);
+      }
+    }
+  </script>
+</body>
+
+</html>
