@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sajha EV-Fleet ERP | CodeDeb</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            800: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .route-timeline-line::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 10px;
+            bottom: 10px;
+            width: 2px;
+            background-color: #e2e8f0;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="h-full overflow-hidden bg-slate-50 text-slate-800 font-sans flex flex-col">
+
+    <!-- TOP CONTROL HEADER -->
+    <header class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-40 shrink-0">
+        <div class="flex items-center space-x-3">
+            <img src="https://i.imgur.com/lw1gRcQ.jpeg" alt="CodeDeb Logo" class="h-9 w-9 rounded-md object-cover border border-slate-200 shadow-sm">
+            <div>
+                <span class="font-bold text-slate-900 tracking-tight text-sm">CodeDeb</span>
+                <span class="text-xs text-slate-500 ml-1.5 px-1.5 py-0.5 bg-slate-100 rounded-md font-medium border border-slate-200">Sajha EV-Fleet ERP</span>
+            </div>
+        </div>
+
+        <!-- Real-time Quick Counter Monitor -->
+        <div class="hidden lg:flex items-center space-x-6 text-xs border-x border-slate-200 px-6 my-1.5">
+            <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-slate-500 font-medium">Terminal Hub Link:</span>
+                <span class="text-slate-800 font-semibold" id="topbar-live-terminals">Tamghas ⇄ Butwal ⇄ Kathmandu</span>
+            </div>
+            <div class="flex items-center space-x-1">
+                <span class="text-slate-400">EV Fleet Online:</span>
+                <span class="text-slate-900 font-bold" id="topbar-vehicles-count">6 Vehicles</span>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <!-- Dynamic Timer Clock -->
+            <div class="text-right hidden sm:block">
+                <div class="text-xs font-mono font-bold text-slate-700" id="live-clock">15:18:00 PM</div>
+                <div class="text-[10px] text-slate-400 font-medium">Friday, 17 July 2026</div>
+            </div>
+            <!-- Notification Bell Badge Trigger -->
+            <button onclick="switchPage('notifications')" class="p-1.5 hover:bg-slate-100 rounded-lg relative text-slate-500 transition-colors">
+                <i data-lucide="bell" class="w-5 h-5"></i>
+                <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            <!-- Profile dropdown -->
+            <div class="flex items-center space-x-2 border-l border-slate-200 pl-3">
+                <div class="w-8 h-8 rounded-full bg-brand-500 text-white font-bold text-xs flex items-center justify-center shadow-inner">
+                    OPS
+                </div>
+                <div class="text-left hidden md:block">
+                    <div class="text-xs font-semibold text-slate-800">Saurav Pradhan</div>
+                    <div class="text-[10px] text-slate-400 font-medium">Operations Manager</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- CORE ERP LAYOUT WRAPPER -->
+    <div class="flex-1 flex overflow-hidden">
+
+        <!-- NAV SIDEBAR -->
+        <aside class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 z-30">
+            <div class="p-3">
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-2">Fleet Operations</div>
+                <nav class="space-y-1">
+                    <button onclick="switchPage('dashboard')" id="nav-dashboard" class="w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-md transition-colors text-slate-700 hover:bg-slate-50">
+                        <div class="flex items-center space-x-2.5">
+                            <i data-lucide="layout-dashboard" class="w-4 h-4 text-slate-500"></i>
+                            <span>Dashboard</span>
+                        </div>
+                        <span class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full font-bold">Live</span>
+                    </button>
+                    <button onclick="switchPage('departure')" id="nav-departure" class="w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-md transition-colors text-slate-700 hover:bg-slate-50">
+                        <div class="flex items-center space-x-2.5">
+                            <i data-lucide="table-properties" class="w-4 h-4 text-slate-500"></i>
+                            <span>Departure Board</span>
+                        </div>
+                        <span class="text-[10px] bg-sky-50 text-sky-600 border border-sky-100 px-1.5 py-0.5 rounded-full font-bold" id="sidebar-departure-badge">3 Boarding</span>
+                    </button>
+                    <button onclick="switchPage('vehicles')" id="nav-vehicles" class="w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-md transition-colors text-slate-700 hover:bg-slate-50">
+                        <div class="flex items-center space-x-2.5">
+                            <i data-lucide="truck" class="w-4 h-4 text-slate-500"></i>
+                            <span>Live Vehicles</span>
+                        </div>
+                        <span class="text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-100 px-1.5 py-0.5 rounded-full font-bold">Track</span>
+                    </button>
+                    <button onclick="switchPage('routes')" id="nav-routes" class="w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-md transition-colors text-slate-700 hover:bg-slate-50">
+                        <div class="flex items-center space-x-2.5">
+                            <i data-lucide="milestone" class="w-4 h-4 text-slate-500"></i>
+                            <span>Routes Map</span>
+                        </div>
+                    </button>
+                    <button onclick="switchPage('drivers')" id="nav-drivers" class="w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-md transition-colors text-slate-700 hover:bg-slate-50">
+                        <div class="flex items-center space-x-2.5">
+                            <i data-lucide="users" class="w-4 h-4 text-slate-500"></i>
+                            <span>Drivers Management</span>
+                        </div>
+                    </button>
+                    <button onclick="switchPage('trips')" id="nav-trips" class="w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-md transition-colors text-slate-700 hover:bg-slate-50">
+                        <div class="flex items-center space-x-2.5">
+                            <i data-lucide="calendar" class="w-4 h-4 text-slate-500"></i>
+                            <span>Today's Trips</span>
+                        </div>
+                    </button>
+                </nav>
+            </div>
+
+            <div class="p-3 border-t border-slate-100">
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-2">Management & Intel</div>
+                <nav class="space-y-1">
+                    <button onclick="switchPage('notifications')" id="nav-notifications" class="w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-md transition-colors text-slate-700 hover:bg-slate-50">
+                        <div class="flex items-center space-x-2.5">
+                            <i data-lucide="bell" class="w-4 h-4 text-slate-500"></i>
+                            <span>Alerts Inbox</span>
+                        </div>
+                        <span class="text-[10px] bg-red-50 text-red-600 border border-red-100 px-1.5 py-0.5 rounded-full font-bold" id="sidebar-alert-badge">4 Active</span>
+                    </button>
+                    <button onclick="switchPage('reports')" id="nav-reports" class="w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-md transition-colors text-slate-700 hover:bg-slate-50">
+                        <div class="flex items-center space-x-2.5">
+                            <i data-lucide="trending-up" class="w-4 h-4 text-slate-500"></i>
+                            <span>Reports & Analytics</span>
+                        </div>
+                    </button>
+                    <button onclick="switchPage('settings')" id="nav-settings" class="w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-md transition-colors text-slate-700 hover:bg-slate-50">
+                        <div class="flex items-center space-x-2.5">
+                            <i data-lucide="sliders" class="w-4 h-4 text-slate-500"></i>
+                            <span>ERP System Settings</span>
+                        </div>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Operational Context Switcher Quick Widget -->
+            <div class="mt-auto p-4 border-t border-slate-100 bg-slate-50">
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Counter Workstation</div>
+                <select id="terminal-selector" onchange="filterTerminalContext(this.value)" class="w-full text-xs bg-white border border-slate-200 rounded-md p-1.5 text-slate-700 font-semibold focus:outline-none focus:ring-1 focus:ring-brand-500">
+                    <option value="all">🌐 All Counter Desks</option>
+                    <option value="Tamghas">🏔️ Tamghas Counter</option>
+                    <option value="Butwal">🏪 Butwal Counter</option>
+                    <option value="Kathmandu">🏬 Kathmandu Terminal</option>
+                </select>
+            </div>
+        </aside>
+
+        <!-- MAIN APP CONTENT PANELS -->
+        <main class="flex-1 overflow-hidden flex flex-col relative" id="main-content-viewport">
+            <!-- Dynamic pages render directly here via JavaScript -->
+        </main>
+
+    </div>
+
+    <!-- REUSABLE SUCCESS NOTIFICATION TOAST -->
+    <div id="success-toast" class="fixed bottom-5 right-5 bg-slate-900 text-white border border-slate-800 px-4 py-3 rounded-lg shadow-xl flex items-center space-x-3 transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300 z-50">
+        <div class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center">
+            <i data-lucide="check" class="w-4 h-4"></i>
+        </div>
+        <div>
+            <div class="text-xs font-bold" id="toast-title">Action Succeeded</div>
+            <div class="text-[10px] text-slate-300" id="toast-desc">Details processed cleanly inside system state.</div>
+        </div>
+    </div>
+
+    <!-- CORE VANILLA JAVASCRIPT STATE ENGINE -->
+    <script>
+        // Real-time updating operational dataset representing Nepali EV counters
+        const appState = {
+            currentPage: 'dashboard',
+            activeVehicleId: 'EV-101',
+            activeInspectorTab: 'seatmap',
+            countersFilter: 'all',
+            statusFilter: 'all',
+            searchQuery: '',
+            quickBookingSeat: null,
+            weather: {
+                Kathmandu: { temp: '24°C', cond: 'Light Rain', status: 'road-wet' },
+                Butwal: { temp: '32°C', cond: 'Sunny & Dry', status: 'optimal' },
+                Tamghas: { temp: '19°C', cond: 'Mountain Fog', status: 'reduced-vis' }
+            },
+            alerts: [
+                { id: 'al-1', type: 'overspeed', vehicle: 'EV-101', detail: 'Speeding 72 km/h detected at Bartung segment (limit 50)', time: '10 mins ago', status: 'active' },
+                { id: 'al-2', type: 'battery', vehicle: 'EV-102', detail: 'Critical low battery level (14%) before reaching Dumre charging station', time: '14 mins ago', status: 'active' },
+                { id: 'al-3', type: 'geofence', vehicle: 'EV-105', detail: 'Deviated from planned Siddhartha Highway route', time: '28 mins ago', status: 'active' },
+                { id: 'al-4', type: 'braking', vehicle: 'EV-104', detail: 'Harsh braking threshold exceeded near Mugling loop', time: '40 mins ago', status: 'active' }
+            ],
+            vehicles: [
+                {
+                    id: 'EV-101',
+                    regNo: 'Ba 2 Kha 4012',
+                    model: 'Foton e-View Pro',
+                    capacity: 14,
+                    driver: 'Ram Bahadur Gurung',
+                    driverPhone: '98510-12345',
+                    conductor: 'Hari Prasad Shrestha',
+                    conductorPhone: '98413-54321',
+                    owner: 'Sajha Yatayat Ltd.',
+                    route: 'TMS-KTM', 
+                    routeName: 'Tamghas ⇄ Kathmandu (via Palpa/Butwal)',
+                    currentLocation: 'Mugling Highway Stop',
+                    currentAddress: 'Mugling Bypass Rd, Chitwan Region, Nepal',
+                    lat: '27.8114',
+                    long: '84.5582',
+                    status: 'In Transit',
+                    battery: 64,
+                    range: 160,
+                    speed: 52,
+                    maxSpeed: 75,
+                    avgSpeed: 45,
+                    delay: 15, // in minutes
+                    eta: '18:45',
+                    nextStop: 'Kurintar Charging Hub',
+                    continuousDriving: '2h 15m',
+                    idleDuration: '5m',
+                    runtime: '3h 10m',
+                    brakes: 'Good (92%)',
+                    tyres: 'Safe',
+                    mechanical: 'Green',
+                    driverScore: 94,
+                    overspeedCount: 1,
+                    harshBrakingCount: 0,
+                    departureTime: '13:00',
+                    destination: 'Kathmandu',
+                    origin: 'Tamghas',
+                    timeline: [
+                        { name: 'Tamghas Counter', scheduled: '13:00', actual: '13:05', status: 'Departed', delay: 5, dist: '0 km' },
+                        { name: 'Bartung Junction (Tansen)', scheduled: '14:45', actual: '15:00', status: 'Departed', delay: 15, dist: '85 km' },
+                        { name: 'Butwal Terminal', scheduled: '15:45', actual: '16:00', status: 'Departed', delay: 15, dist: '125 km' },
+                        { name: 'Mugling Stop (Rest)', scheduled: '17:50', actual: '18:05', status: 'Current', delay: 15, dist: '240 km' },
+                        { name: 'Kathmandu gongabu', scheduled: '19:45', actual: '20:00', status: 'Pending', delay: 15, dist: '350 km' }
+                    ],
+                    seats: [
+                        { id: '1A', status: 'occupied', name: 'Niranjan Thapa', phone: '98012-34567', boarding: 'Tamghas', drop: 'Kathmandu', payment: 'Paid' },
+                        { id: '1B', status: 'occupied', name: 'Sushila Karki', phone: '98132-44556', boarding: 'Tamghas', drop: 'Kathmandu', payment: 'Paid' },
+                        { id: '2A', status: 'occupied', name: 'Dipendra Shrestha', phone: '98511-99887', boarding: 'Butwal', drop: 'Kathmandu', payment: 'Paid' },
+                        { id: '2B', status: 'vacant' },
+                        { id: '3A', status: 'occupied', name: 'Manish Shakya', phone: '98412-11223', boarding: 'Bartung', drop: 'Kathmandu', payment: 'Paid' },
+                        { id: '3B', status: 'reserved', name: 'Gita Adhikari', phone: '98033-55667', boarding: 'Butwal', drop: 'Kathmandu', payment: 'Pending' },
+                        { id: '4A', status: 'vacant' },
+                        { id: '4B', status: 'vacant' },
+                        { id: '5A', status: 'occupied', name: 'Kushal Giri', phone: '98123-77889', boarding: 'Tamghas', drop: 'Butwal', payment: 'Paid' },
+                        { id: '5B', status: 'occupied', name: 'Aarati Bhatta', phone: '98510-44332', boarding: 'Tamghas', drop: 'Kathmandu', payment: 'Paid' },
+                        { id: '6A', status: 'vacant' },
+                        { id: '6B', status: 'vacant' },
+                        { id: '7A', status: 'occupied', name: 'Santosh Neupane', phone: '98415-88990', boarding: 'Bartung', drop: 'Kathmandu', payment: 'Paid' },
+                        { id: '7B', status: 'occupied', name: 'Pooja Thapa', phone: '98011-22334', boarding: 'Butwal', drop: 'Kathmandu', payment: 'Paid' }
+                    ],
+                    smsLogs: [
+                        { time: '13:05', recipient: 'Passengers', message: 'Departure confirmed. Reg Ba 2 Kha 4012. Track live: http://codedeb.np/track/EV101', status: 'Delivered' },
+                        { time: '15:00', recipient: 'Owner', message: 'EV-101 passed Bartung on schedule. Batt: 84%, Temp: OK.', status: 'Delivered' },
+                        { time: '17:50', recipient: 'Dispatcher', message: 'System alert: Speed limit exceeded at Bartung bypass. Incident flagged.', status: 'Sent' }
+                    ]
+                },
+                {
+                    id: 'EV-102',
+                    regNo: 'Ba 3 Cha 9811',
+                    model: 'King Long e-Traveler',
+                    capacity: 16,
+                    driver: 'Hari Bahadur Shrestha',
+                    driverPhone: '98412-88776',
+                    conductor: 'Bikram Thapa',
+                    conductorPhone: '98034-11223',
+                    owner: 'Mid-Western Electric Trans',
+                    route: 'KTM-TMS',
+                    routeName: 'Kathmandu ⇄ Tamghas',
+                    currentLocation: 'Dumre Charging Terminal',
+                    currentAddress: 'Prithvi Highway, Dumre Counter Stop, Nepal',
+                    lat: '27.9692',
+                    long: '84.4061',
+                    status: 'In Transit',
+                    battery: 14,
+                    range: 35,
+                    speed: 0, // Charging right now
+                    maxSpeed: 70,
+                    avgSpeed: 40,
+                    delay: 25,
+                    eta: '19:15',
+                    nextStop: 'Damauli Bazaar',
+                    continuousDriving: '3h 40m',
+                    idleDuration: '12m (Charging)',
+                    runtime: '4h 05m',
+                    brakes: 'Fair (78%)',
+                    tyres: 'Check Pressure',
+                    mechanical: 'Orange',
+                    driverScore: 82,
+                    overspeedCount: 0,
+                    harshBrakingCount: 2,
+                    departureTime: '14:30',
+                    destination: 'Tamghas',
+                    origin: 'Kathmandu',
+                    timeline: [
+                        { name: 'Kathmandu Counter', scheduled: '14:30', actual: '14:40', status: 'Departed', delay: 10, dist: '0 km' },
+                        { name: 'Mugling Stop', scheduled: '16:45', actual: '17:05', status: 'Departed', delay: 20, dist: '110 km' },
+                        { name: 'Dumre Charging Stop', scheduled: '17:40', actual: '18:05', status: 'Current', delay: 25, dist: '145 km' },
+                        { name: 'Butwal Counter', scheduled: '19:50', actual: '20:15', status: 'Pending', delay: 25, dist: '275 km' },
+                        { name: 'Tamghas Terminal', scheduled: '21:30', actual: '21:55', status: 'Pending', delay: 25, dist: '350 km' }
+                    ],
+                    seats: [
+                        { id: '1A', status: 'occupied', name: 'Krishna Magar', phone: '98511-23456', boarding: 'Kathmandu', drop: 'Tamghas', payment: 'Paid' },
+                        { id: '1B', status: 'occupied', name: 'Anil Koirala', phone: '98412-55667', boarding: 'Kathmandu', drop: 'Butwal', payment: 'Paid' },
+                        { id: '2A', status: 'vacant' },
+                        { id: '2B', status: 'occupied', name: 'Sunita KC', phone: '98011-44556', boarding: 'Kathmandu', drop: 'Tamghas', payment: 'Paid' },
+                        { id: '3A', status: 'vacant' },
+                        { id: '3B', status: 'vacant' },
+                        { id: '4A', status: 'occupied', name: 'Pawan Shrestha', phone: '98122-88990', boarding: 'Mugling', drop: 'Tamghas', payment: 'Paid' },
+                        { id: '4B', status: 'occupied', name: 'Maya Adhikari', phone: '98510-77665', boarding: 'Kathmandu', drop: 'Tamghas', payment: 'Paid' },
+                        { id: '5A', status: 'reserved', name: 'Shyam Sundar', phone: '98415-44332', boarding: 'Kathmandu', drop: 'Butwal', payment: 'Pending' },
+                        { id: '5B', status: 'vacant' },
+                        { id: '6A', status: 'vacant' },
+                        { id: '6B', status: 'vacant' },
+                        { id: '7A', status: 'vacant' },
+                        { id: '7B', status: 'vacant' },
+                        { id: '8A', status: 'vacant' },
+                        { id: '8B', status: 'vacant' }
+                    ],
+                    smsLogs: [
+                        { time: '14:40', recipient: 'Passengers', message: 'Departed Kathmandu Gongabu. Battery: 100%. Reg Ba 3 Cha 9811.', status: 'Delivered' },
+                        { time: '17:05', recipient: 'Owner', message: 'Departed Mugling segment, heading to Dumre for rapid recharge.', status: 'Delivered' }
+                    ]
+                },
+                {
+                    id: 'EV-103',
+                    regNo: 'Lu 2 Kha 5502',
+                    model: 'Joylong e-Commuter',
+                    capacity: 19,
+                    driver: 'Niranjan Shrestha',
+                    driverPhone: '98012-99881',
+                    conductor: 'Prem Chaudhari',
+                    conductorPhone: '98110-22334',
+                    owner: 'Lumbini Green Mobility',
+                    route: 'TMS-BTW',
+                    routeName: 'Tamghas ⇄ Butwal',
+                    currentLocation: 'Bartung Counter Stop',
+                    currentAddress: 'Siddhartha Highway, Bartung, Palpa, Nepal',
+                    lat: '27.7667',
+                    long: '83.5500',
+                    status: 'Boarding',
+                    battery: 88,
+                    range: 220,
+                    speed: 0,
+                    maxSpeed: 65,
+                    avgSpeed: 38,
+                    delay: 0,
+                    eta: '17:00',
+                    nextStop: 'Butwal Buspark Terminal',
+                    continuousDriving: '1h 10m',
+                    idleDuration: '10m (Boarding)',
+                    runtime: '1h 20m',
+                    brakes: 'Excellent (95%)',
+                    tyres: 'Safe',
+                    mechanical: 'Green',
+                    driverScore: 98,
+                    overspeedCount: 0,
+                    harshBrakingCount: 0,
+                    departureTime: '15:15',
+                    destination: 'Butwal',
+                    origin: 'Tamghas',
+                    timeline: [
+                        { name: 'Tamghas Terminal', scheduled: '15:15', actual: '15:15', status: 'Departed', delay: 0, dist: '0 km' },
+                        { name: 'Bartung Junction (Tansen)', scheduled: '16:15', actual: '16:15', status: 'Current', delay: 0, dist: '45 km' },
+                        { name: 'Butwal Terminal', scheduled: '17:15', actual: '17:15', status: 'Pending', delay: 0, dist: '85 km' }
+                    ],
+                    seats: Array.from({length: 19}, (_, i) => ({
+                        id: `${Math.floor(i/2) + 1}${String.fromCharCode(65 + (i%2))}`,
+                        status: i < 14 ? 'occupied' : 'vacant',
+                        name: i < 14 ? `Passenger Name ${i+1}` : '',
+                        phone: i < 14 ? `98412-000${i}` : '',
+                        boarding: 'Tamghas',
+                        drop: 'Butwal',
+                        payment: 'Paid'
+                    })),
+                    smsLogs: [
+                        { time: '15:15', recipient: 'Passengers', message: 'Boarding initiated at Tamghas terminal. Departure strictly at 15:15.', status: 'Delivered' }
+                    ]
+                },
+                {
+                    id: 'EV-104',
+                    regNo: 'Ba 1 Kha 8823',
+                    model: 'Foton e-View Pro',
+                    capacity: 14,
+                    driver: 'Bikash Tamang',
+                    driverPhone: '98510-44990',
+                    conductor: 'Rajesh Thapa',
+                    conductorPhone: '98011-55667',
+                    owner: 'Sajha Yatayat Ltd.',
+                    route: 'KTM-BTW',
+                    routeName: 'Kathmandu ⇄ Butwal',
+                    currentLocation: 'Malekhu Segment',
+                    currentAddress: 'Prithvi Highway, Malekhu, Dhading, Nepal',
+                    lat: '27.8105',
+                    long: '84.8252',
+                    status: 'In Transit',
+                    battery: 48,
+                    range: 120,
+                    speed: 58,
+                    maxSpeed: 80,
+                    avgSpeed: 46,
+                    delay: 5,
+                    eta: '19:50',
+                    nextStop: 'Mugling Junction',
+                    continuousDriving: '1h 45m',
+                    idleDuration: '0m',
+                    runtime: '1h 45m',
+                    brakes: 'Good',
+                    tyres: 'Safe',
+                    mechanical: 'Green',
+                    driverScore: 89,
+                    overspeedCount: 0,
+                    harshBrakingCount: 1,
+                    departureTime: '13:30',
+                    destination: 'Butwal',
+                    origin: 'Kathmandu',
+                    timeline: [
+                        { name: 'Kathmandu Terminal', scheduled: '13:30', actual: '13:35', status: 'Departed', delay: 5, dist: '0 km' },
+                        { name: 'Malekhu Stop', scheduled: '15:15', actual: '15:20', status: 'Current', delay: 5, dist: '70 km' },
+                        { name: 'Mugling Counter', scheduled: '16:45', actual: '16:50', status: 'Pending', delay: 5, dist: '140 km' },
+                        { name: 'Butwal Terminal', scheduled: '19:45', actual: '19:50', status: 'Pending', delay: 5, dist: '280 km' }
+                    ],
+                    seats: Array.from({length: 14}, (_, i) => ({
+                        id: `${Math.floor(i/2) + 1}${String.fromCharCode(65 + (i%2))}`,
+                        status: i < 8 ? 'occupied' : 'vacant',
+                        name: i < 8 ? `KTM Passenger ${i+1}` : '',
+                        phone: `98012-4040${i}`,
+                        boarding: 'Kathmandu',
+                        drop: 'Butwal',
+                        payment: 'Paid'
+                    })),
+                    smsLogs: []
+                },
+                {
+                    id: 'EV-105',
+                    regNo: 'Lu 1 Kha 1204',
+                    model: 'King Long e-Traveler',
+                    capacity: 16,
+                    driver: 'Anup Kaji Shrestha',
+                    driverPhone: '98413-77443',
+                    conductor: 'Som Bahadur Thapa',
+                    conductorPhone: '98012-66442',
+                    owner: 'Lumbini Green Mobility',
+                    route: 'BTW-TMS',
+                    routeName: 'Butwal ⇄ Tamghas',
+                    currentLocation: 'Palpa Buspark Sector',
+                    currentAddress: 'Siddhartha Highway, Tansen, Palpa, Nepal',
+                    lat: '27.8694',
+                    long: '83.5482',
+                    status: 'Delayed',
+                    battery: 36,
+                    range: 90,
+                    speed: 12, // Slow driving due to local traffic/construction
+                    maxSpeed: 60,
+                    avgSpeed: 30,
+                    delay: 45,
+                    eta: '17:30',
+                    nextStop: 'Bartung Counter Stop',
+                    continuousDriving: '2h 10m',
+                    idleDuration: '5m',
+                    runtime: '2h 15m',
+                    brakes: 'Good',
+                    tyres: 'Safe',
+                    mechanical: 'Red', // Mechanical warning active
+                    driverScore: 76,
+                    overspeedCount: 0,
+                    harshBrakingCount: 3,
+                    departureTime: '12:15',
+                    destination: 'Tamghas',
+                    origin: 'Butwal',
+                    timeline: [
+                        { name: 'Butwal Terminal', scheduled: '12:15', actual: '12:15', status: 'Departed', delay: 0, dist: '0 km' },
+                        { name: 'Tansen Sector', scheduled: '13:45', actual: '14:30', status: 'Current', delay: 45, dist: '40 km' },
+                        { name: 'Tamghas Terminal', scheduled: '15:30', actual: '16:15', status: 'Pending', delay: 45, dist: '85 km' }
+                    ],
+                    seats: Array.from({length: 16}, (_, i) => ({
+                        id: `${Math.floor(i/2) + 1}${String.fromCharCode(65 + (i%2))}`,
+                        status: i < 11 ? 'occupied' : 'vacant',
+                        name: i < 11 ? `Seat Occupant ${i+1}` : '',
+                        phone: `98510-3030${i}`,
+                        boarding: 'Butwal',
+                        drop: 'Tamghas',
+                        payment: 'Paid'
+                    })),
+                    smsLogs: []
+                },
+                {
+                    id: 'EV-106',
+                    regNo: 'Ba 5 Kha 3099',
+                    model: 'Joylong e-Commuter',
+                    capacity: 19,
+                    driver: 'Prem Bahadur Karki',
+                    driverPhone: '98411-99887',
+                    conductor: 'Sunil Magar',
+                    conductorPhone: '98033-22110',
+                    owner: 'Mid-Western Electric Trans',
+                    route: 'KTM-TMS',
+                    routeName: 'Kathmandu ⇄ Tamghas (Direct Service)',
+                    currentLocation: 'Kalanki Counter Gate',
+                    currentAddress: 'Ring Road Kalanki Outbound, Kathmandu, Nepal',
+                    lat: '27.6938',
+                    long: '85.2811',
+                    status: 'Parked',
+                    battery: 98,
+                    range: 245,
+                    speed: 0,
+                    maxSpeed: 0,
+                    avgSpeed: 0,
+                    delay: 0,
+                    eta: 'Scheduled 16:30',
+                    nextStop: 'Naubise Outpost',
+                    continuousDriving: '0h 00m',
+                    idleDuration: '45m (At Gate)',
+                    runtime: '0h 00m',
+                    brakes: 'Excellent',
+                    tyres: 'Safe',
+                    mechanical: 'Green',
+                    driverScore: 99,
+                    overspeedCount: 0,
+                    harshBrakingCount: 0,
+                    departureTime: '16:30',
+                    destination: 'Tamghas',
+                    origin: 'Kathmandu',
+                    timeline: [
+                        { name: 'Kathmandu Counter', scheduled: '16:30', actual: '16:30', status: 'Pending', delay: 0, dist: '0 km' },
+                        { name: 'Mugling Counter', scheduled: '19:00', actual: '19:00', status: 'Pending', delay: 0, dist: '110 km' },
+                        { name: 'Butwal Terminal', scheduled: '22:00', actual: '22:00', status: 'Pending', delay: 0, dist: '275 km' },
+                        { name: 'Tamghas Terminal', scheduled: '23:45', actual: '23:45', status: 'Pending', delay: 0, dist: '350 km' }
+                    ],
+                    seats: Array.from({length: 19}, (_, i) => ({
+                        id: `${Math.floor(i/2) + 1}${String.fromCharCode(65 + (i%2))}`,
+                        status: i < 3 ? 'occupied' : 'vacant',
+                        name: i < 3 ? `Advance Booker ${i+1}` : '',
+                        phone: `98412-555${i}1`,
+                        boarding: 'Kathmandu',
+                        drop: 'Tamghas',
+                        payment: 'Paid'
+                    })),
+                    smsLogs: []
+                }
+            ]
+        };
+
+        // Real-Time Clock Functionality
+        function updateClock() {
+            const clockEl = document.getElementById('live-clock');
+            if (clockEl) {
+                const now = new Date();
+                let hrs = now.getHours();
+                let mins = now.getMinutes();
+                let secs = now.getSeconds();
+                let ampm = hrs >= 12 ? 'PM' : 'AM';
+                hrs = hrs % 12;
+                hrs = hrs ? hrs : 12; // key '0' conversion
+                mins = mins < 10 ? '0' + mins : mins;
+                secs = secs < 10 ? '0' + secs : secs;
+                clockEl.textContent = `${hrs}:${mins}:${secs} ${ampm}`;
+            }
+        }
+        setInterval(updateClock, 1000);
+
+        // Core App Initializer
+        window.addEventListener('load', () => {
+            initApp();
+        });
+
+        function initApp() {
+            lucide.createIcons();
+            switchPage('dashboard');
+        }
+
+        // Display Success Notification Toast
+        function showToast(title, desc) {
+            const toast = document.getElementById('success-toast');
+            const toastTitle = document.getElementById('toast-title');
+            const toastDesc = document.getElementById('toast-desc');
+            
+            toastTitle.textContent = title;
+            toastDesc.textContent = desc;
+
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 3500);
+        }
+
+        // Router & Sidebar Controller
+        function switchPage(pageId) {
+            appState.currentPage = pageId;
+            
+            // Toggle sidebar active highlights
+            const sidebarButtons = document.querySelectorAll('aside nav button');
+            sidebarButtons.forEach(btn => {
+                btn.classList.remove('bg-brand-50', 'text-brand-700', 'font-semibold', 'border-l-4', 'border-brand-600');
+                btn.classList.add('text-slate-700', 'hover:bg-slate-50');
+            });
+
+            const activeBtn = document.getElementById(`nav-${pageId}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-700', 'hover:bg-slate-50');
+                activeBtn.classList.add('bg-brand-50', 'text-brand-700', 'font-semibold', 'border-l-4', 'border-brand-600');
+            }
+
+            // Route execution
+            renderActivePage();
+            lucide.createIcons();
+        }
+
+        // Quick Global Dropdown Filter Action
+        function filterTerminalContext(val) {
+            appState.countersFilter = val;
+            showToast('Counter Context Updated', `System switched context views to match: ${val}`);
+            renderActivePage();
+            lucide.createIcons();
+        }
+
+        // Compute Dynamic Real-time Calculations
+        function getCalculatedMetrics() {
+            let totalPassengers = 0;
+            let occupiedCount = 0;
+            let totalCapacity = 0;
+            let totalRevenue = 0;
+            let inTransitCount = 0;
+            let boardingCount = 0;
+            let delayedCount = 0;
+            let parkedCount = 0;
+            let overspeedCount = 0;
+
+            const baseFarePerPassenger = 1550; // NPR
+
+            appState.vehicles.forEach(v => {
+                // Counter context filtering logic
+                if (appState.countersFilter !== 'all' && v.origin !== appState.countersFilter && v.destination !== appState.countersFilter) {
+                    return;
+                }
+
+                totalCapacity += v.capacity;
+                v.seats.forEach(s => {
+                    if (s.status === 'occupied' || s.status === 'reserved') {
+                        occupiedCount++;
+                        totalRevenue += baseFarePerPassenger;
+                    }
+                });
+
+                if (v.status === 'In Transit') inTransitCount++;
+                if (v.status === 'Boarding') boardingCount++;
+                if (v.status === 'Delayed') delayedCount++;
+                if (v.status === 'Parked') parkedCount++;
+                overspeedCount += v.overspeedCount;
+            });
+
+            return {
+                occupiedCount,
+                totalCapacity,
+                totalRevenue,
+                inTransitCount,
+                boardingCount,
+                delayedCount,
+                parkedCount,
+                overspeedCount
+            };
+        }
+
+        // Master Route View Generator
+        function renderActivePage() {
+            const viewport = document.getElementById('main-content-viewport');
+            const metrics = getCalculatedMetrics();
+
+            // Auto sync sidebar stats indicators with calculated state values
+            const departureBadge = document.getElementById('sidebar-departure-badge');
+            if (departureBadge) {
+                departureBadge.textContent = `${metrics.boardingCount} Boarding`;
+            }
+
+            switch (appState.currentPage) {
+                case 'dashboard':
+                    viewport.innerHTML = getDashboardHTML(metrics);
+                    break;
+                case 'departure':
+                    viewport.innerHTML = getDepartureBoardHTML(metrics);
+                    break;
+                case 'vehicles':
+                    viewport.innerHTML = getLiveVehiclesHTML();
+                    break;
+                case 'routes':
+                    viewport.innerHTML = getRoutesHTML();
+                    break;
+                case 'drivers':
+                    viewport.innerHTML = getDriversHTML();
+                    break;
+                case 'trips':
+                    viewport.innerHTML = getTripsHTML();
+                    break;
+                case 'notifications':
+                    viewport.innerHTML = getNotificationsHTML();
+                    break;
+                case 'reports':
+                    viewport.innerHTML = getReportsHTML();
+                    break;
+                case 'settings':
+                    viewport.innerHTML = getSettingsHTML();
+                    break;
+                default:
+                    viewport.innerHTML = `<div class="p-6">Page under construction</div>`;
+            }
+        }
+    </script>
+
+    <!-- HTML CONTENT COMPONENT GENERATORS -->
+    <script>
+        // PAGE 1: OPERATIONAL MAIN DASHBOARD
+        function getDashboardHTML(m) {
+            // Live weather card indicators
+            const ktmWeather = appState.weather.Kathmandu;
+            const btwWeather = appState.weather.Butwal;
+            const tmsWeather = appState.weather.Tamghas;
+
+            return `
+                <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                    <!-- Dashboard Header Title -->
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-200 pb-3">
+                        <div>
+                            <h1 class="text-lg font-bold text-slate-900 tracking-tight">Fleet Operations Command Center</h1>
+                            <p class="text-[11px] text-slate-500 font-medium">Real-time terminal logistics and safety status telemetry feed.</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="switchPage('departure')" class="px-2.5 py-1.5 bg-brand-600 text-white font-semibold rounded text-xs flex items-center space-x-1 hover:bg-brand-700 transition">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                <span>Add Passenger Booking</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- METRICS GRID -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="bg-white border border-slate-200 rounded p-3 flex items-center space-x-3 shadow-sm">
+                            <div class="p-2 bg-sky-50 text-sky-600 rounded">
+                                <i data-lucide="activity" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Active Run</div>
+                                <div class="text-lg font-bold text-slate-800">${m.inTransitCount} / ${appState.vehicles.length}</div>
+                                <div class="text-[9px] text-slate-500 font-medium">${m.boardingCount} Boarding · ${m.parkedCount} Parked</div>
+                            </div>
+                        </div>
+                        <div class="bg-white border border-slate-200 rounded p-3 flex items-center space-x-3 shadow-sm">
+                            <div class="p-2 bg-emerald-50 text-emerald-600 rounded">
+                                <i data-lucide="users-round" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Passengers</div>
+                                <div class="text-lg font-bold text-slate-800">${m.occupiedCount} Passengers</div>
+                                <div class="text-[9px] text-emerald-600 font-semibold">${Math.round((m.occupiedCount / m.totalCapacity) * 100)}% Average Seat Load</div>
+                            </div>
+                        </div>
+                        <div class="bg-white border border-slate-200 rounded p-3 flex items-center space-x-3 shadow-sm">
+                            <div class="p-2 bg-amber-50 text-amber-600 rounded">
+                                <i data-lucide="wallet" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Revenue Today</div>
+                                <div class="text-lg font-bold text-slate-800">NPR ${m.totalRevenue.toLocaleString()}</div>
+                                <div class="text-[9px] text-slate-500 font-medium">From ticket checkouts</div>
+                            </div>
+                        </div>
+                        <div class="bg-white border border-slate-200 rounded p-3 flex items-center space-x-3 shadow-sm">
+                            <div class="p-2 bg-red-50 text-red-600 rounded">
+                                <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Safety Flags</div>
+                                <div class="text-lg font-bold text-slate-800">${appState.alerts.length} Incidents</div>
+                                <div class="text-[9px] text-red-600 font-semibold">${m.overspeedCount} Active Speed Violations</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TWO COLUMN MAIN OVERVIEW -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        
+                        <!-- COLUMN 1 & 2: RECENT EVENTS & ACTIVE DEPARTURES -->
+                        <div class="lg:col-span-2 space-y-4">
+                            <!-- Quick Action Board -->
+                            <div class="bg-white border border-slate-200 rounded shadow-sm">
+                                <div class="border-b border-slate-200 bg-slate-50 px-3 py-2 flex justify-between items-center">
+                                    <div class="text-xs font-bold text-slate-700 flex items-center space-x-1.5">
+                                        <i data-lucide="zap" class="w-4 h-4 text-amber-500"></i>
+                                        <span>Dispatch Dashboard & Terminal Statuses</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-400 font-mono">Terminal Gateway Active</span>
+                                </div>
+                                <div class="p-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <div class="border border-slate-100 rounded p-2 bg-slate-50/50">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="text-[10px] font-bold text-slate-500">Kathmandu Gongabu</span>
+                                            <span class="text-[9px] bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded-full font-bold">Terminal HQ</span>
+                                        </div>
+                                        <div class="text-sm font-bold text-slate-800">2 Active Departures</div>
+                                        <div class="text-[10px] text-slate-500 mt-1 flex items-center justify-between">
+                                            <span>Weather: ${ktmWeather.temp} (${ktmWeather.cond})</span>
+                                            <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                                        </div>
+                                    </div>
+                                    <div class="border border-slate-100 rounded p-2 bg-slate-50/50">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="text-[10px] font-bold text-slate-500">Butwal Buspark</span>
+                                            <span class="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold">Charging Hub</span>
+                                        </div>
+                                        <div class="text-sm font-bold text-slate-800">1 Active Departure</div>
+                                        <div class="text-[10px] text-slate-500 mt-1 flex items-center justify-between">
+                                            <span>Weather: ${btwWeather.temp} (${btwWeather.cond})</span>
+                                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                        </div>
+                                    </div>
+                                    <div class="border border-slate-100 rounded p-2 bg-slate-50/50">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="text-[10px] font-bold text-slate-500">Tamghas Desk</span>
+                                            <span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-bold">Mountain Depot</span>
+                                        </div>
+                                        <div class="text-sm font-bold text-slate-800">3 Active Departures</div>
+                                        <div class="text-[10px] text-slate-500 mt-1 flex items-center justify-between">
+                                            <span>Weather: ${tmsWeather.temp} (${tmsWeather.cond})</span>
+                                            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Live Fleet Departures Quick Table -->
+                            <div class="bg-white border border-slate-200 rounded shadow-sm">
+                                <div class="border-b border-slate-200 bg-slate-50 px-3 py-2 flex justify-between items-center">
+                                    <div class="text-xs font-bold text-slate-700 flex items-center space-x-1.5">
+                                        <i data-lucide="navigation" class="w-4 h-4 text-blue-500"></i>
+                                        <span>Current Fleet Position Monitor</span>
+                                    </div>
+                                    <button onclick="switchPage('departure')" class="text-xs text-brand-600 font-bold hover:underline">View Departure Board →</button>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left text-xs">
+                                        <thead class="bg-slate-100 text-slate-600 font-bold border-b border-slate-200 uppercase tracking-wider text-[10px]">
+                                            <tr>
+                                                <th class="p-3">Vehicle</th>
+                                                <th class="p-3">Route Segment</th>
+                                                <th class="p-3">Status</th>
+                                                <th class="p-3">Battery & Range</th>
+                                                <th class="p-3 text-right">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100">
+                                            ${appState.vehicles.map(v => {
+                                                const statusStyles = {
+                                                    'In Transit': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                                    'Boarding': 'bg-sky-50 text-sky-700 border-sky-200',
+                                                    'Delayed': 'bg-red-50 text-red-700 border-red-200',
+                                                    'Parked': 'bg-slate-100 text-slate-600 border-slate-300'
+                                                };
+
+                                                const batteryColor = v.battery < 20 ? 'text-red-600' : v.battery < 50 ? 'text-amber-600' : 'text-emerald-600';
+
+                                                return `
+                                                    <tr class="hover:bg-slate-50/70 transition">
+                                                        <td class="p-3 font-semibold text-slate-900">
+                                                            <div class="text-xs">${v.regNo}</div>
+                                                            <div class="text-[10px] text-slate-400 font-medium">${v.model}</div>
+                                                        </td>
+                                                        <td class="p-3">
+                                                            <div class="font-medium">${v.routeName}</div>
+                                                            <div class="text-[10px] text-slate-400 font-mono">Loc: ${v.currentLocation}</div>
+                                                        </td>
+                                                        <td class="p-3">
+                                                            <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${statusStyles[v.status]}">${v.status}</span>
+                                                        </td>
+                                                        <td class="p-3">
+                                                            <div class="flex items-center space-x-1.5 font-mono">
+                                                                <i data-lucide="battery" class="w-4 h-4 ${batteryColor}"></i>
+                                                                <span class="font-bold ${batteryColor}">${v.battery}%</span>
+                                                                <span class="text-slate-400">(${v.range} km range)</span>
+                                                            </div>
+                                                        </td>
+                                                        <td class="p-3 text-right">
+                                                            <button onclick="inspectVehicleDeparture('${v.id}')" class="px-2 py-1 bg-slate-100 text-slate-700 border border-slate-200 rounded font-semibold text-[10px] hover:bg-slate-200">Inspect Log</button>
+                                                        </td>
+                                                    </tr>
+                                                `;
+                                            }).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- COLUMN 3: LIVE SAFETY INCIDENTS & RECENT ALERTS FEED -->
+                        <div class="space-y-4">
+                            <!-- Alert Incident Desk -->
+                            <div class="bg-white border border-slate-200 rounded shadow-sm">
+                                <div class="border-b border-slate-200 bg-slate-50 px-3 py-2 flex justify-between items-center">
+                                    <div class="text-xs font-bold text-slate-700 flex items-center space-x-1.5">
+                                        <i data-lucide="alert-octagon" class="w-4 h-4 text-red-500"></i>
+                                        <span>Live Operational Warnings</span>
+                                    </div>
+                                    <span class="text-[9px] bg-red-100 text-red-700 font-bold px-1.5 py-0.5 rounded">Active</span>
+                                </div>
+                                <div class="p-3 divide-y divide-slate-100 max-h-[280px] overflow-y-auto">
+                                    ${appState.alerts.map(a => `
+                                        <div class="py-2.5 first:pt-0 last:pb-0 flex items-start space-x-2.5">
+                                            <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500 shrink-0 mt-0.5"></i>
+                                            <div class="space-y-0.5">
+                                                <div class="text-xs font-bold text-slate-800">
+                                                    ${appState.vehicles.find(v => v.id === a.vehicle)?.regNo} (${a.type.toUpperCase()})
+                                                </div>
+                                                <p class="text-[10px] text-slate-500 leading-tight">${a.detail}</p>
+                                                <span class="text-[9px] text-slate-400 font-mono">${a.time}</span>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <!-- Live Dispatch Event Feed -->
+                            <div class="bg-white border border-slate-200 rounded shadow-sm">
+                                <div class="border-b border-slate-200 bg-slate-50 px-3 py-2 flex justify-between items-center">
+                                    <div class="text-xs font-bold text-slate-700 flex items-center space-x-1.5">
+                                        <i data-lucide="history" class="w-4 h-4 text-slate-500"></i>
+                                        <span>Counter Checkout Log</span>
+                                    </div>
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                </div>
+                                <div class="p-3 space-y-3 text-xs max-h-[220px] overflow-y-auto font-mono">
+                                    <div class="border-l-2 border-emerald-500 pl-2">
+                                        <span class="text-slate-400">[15:12]</span> <span class="font-bold text-slate-700">Ba 2 Kha 4012</span> checked in Bartung with 10 passengers.
+                                    </div>
+                                    <div class="border-l-2 border-sky-500 pl-2">
+                                        <span class="text-slate-400">[14:50]</span> <span class="font-bold text-slate-700">Lu 2 Kha 5502</span> booked seat 3B from Tamghas counter.
+                                    </div>
+                                    <div class="border-l-2 border-amber-500 pl-2">
+                                        <span class="text-slate-400">[14:40]</span> <span class="font-bold text-slate-700">Ba 3 Cha 9811</span> delayed 25m due to battery charging.
+                                    </div>
+                                    <div class="border-l-2 border-emerald-500 pl-2">
+                                        <span class="text-slate-400">[13:30]</span> <span class="font-bold text-slate-700">Ba 1 Kha 8823</span> checked out KTM Gongabu terminal.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            `;
+        }
+
+        // Action routing helper for quick inspector navigation
+        function inspectVehicleDeparture(id) {
+            appState.activeVehicleId = id;
+            switchPage('departure');
+        }
+
+        // PAGE 2: DEPARTURE BOARD WORKSPACE (DUAL-PANE WORKSPACE)
+        function getDepartureBoardHTML(metrics) {
+            const activeVeh = appState.vehicles.find(v => v.id === appState.activeVehicleId) || appState.vehicles[0];
+
+            // Generate list dynamically based on counters filter and search criteria
+            let filteredVehicles = appState.vehicles;
+            if (appState.countersFilter !== 'all') {
+                filteredVehicles = filteredVehicles.filter(v => v.origin === appState.countersFilter || v.destination === appState.countersFilter);
+            }
+            if (appState.searchQuery) {
+                const query = appState.searchQuery.toLowerCase();
+                filteredVehicles = filteredVehicles.filter(v => 
+                    v.regNo.toLowerCase().includes(query) || 
+                    v.driver.toLowerCase().includes(query) ||
+                    v.model.toLowerCase().includes(query)
+                );
+            }
+
+            return `
+                <div class="flex-1 flex overflow-hidden">
+                    <!-- LEFT WORKSPACE: DEP TABLE LIST -->
+                    <div class="flex-1 overflow-y-auto p-4 flex flex-col space-y-3">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-200 pb-3">
+                            <div>
+                                <h1 class="text-base font-bold text-slate-900 tracking-tight">Departure Board</h1>
+                                <p class="text-[11px] text-slate-500">Select active departures below to review passenger charts, telemetry, and live status checklists.</p>
+                            </div>
+                            <!-- Search filter inputs -->
+                            <div class="flex items-center space-x-2">
+                                <div class="relative">
+                                    <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2 top-2.5 text-slate-400"></i>
+                                    <input type="text" id="board-search" oninput="executeBoardSearch(this.value)" value="${appState.searchQuery}" placeholder="Search Reg, Driver..." class="w-48 text-xs pl-7 pr-3 py-1.5 bg-white border border-slate-200 rounded focus:outline-none focus:border-brand-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BOARD TABLE -->
+                        <div class="bg-white border border-slate-200 rounded shadow-sm flex-1 overflow-y-auto">
+                            <table class="w-full text-left text-xs relative">
+                                <thead class="bg-slate-100 text-slate-600 font-bold border-b border-slate-200 uppercase tracking-wider text-[10px] sticky top-0 z-10">
+                                    <tr>
+                                        <th class="p-3">Time</th>
+                                        <th class="p-3">Vehicle Number</th>
+                                        <th class="p-3">Route Segment</th>
+                                        <th class="p-3">Driver Name</th>
+                                        <th class="p-3">Capacity</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3">Delay</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    ${filteredVehicles.map(v => {
+                                        const isSelected = v.id === activeVeh.id;
+                                        const rowHighlightClass = isSelected ? 'bg-sky-50/80 border-l-4 border-brand-500 hover:bg-sky-50' : 'hover:bg-slate-50/50';
+
+                                        const statusColors = {
+                                            'In Transit': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                            'Boarding': 'bg-sky-50 text-sky-700 border-sky-200',
+                                            'Delayed': 'bg-red-50 text-red-700 border-red-200',
+                                            'Parked': 'bg-slate-100 text-slate-600 border-slate-300'
+                                        };
+
+                                        // Total booked calculations
+                                        const booked = v.seats.filter(s => s.status === 'occupied' || s.status === 'reserved').length;
+
+                                        return `
+                                            <tr onclick="selectInspectorVehicle('${v.id}')" class="cursor-pointer transition ${rowHighlightClass}">
+                                                <td class="p-3 font-mono font-bold text-slate-700">${v.departureTime}</td>
+                                                <td class="p-3">
+                                                    <div class="font-bold text-slate-900">${v.regNo}</div>
+                                                    <div class="text-[10px] text-slate-400 font-semibold">${v.model}</div>
+                                                </td>
+                                                <td class="p-3">
+                                                    <div class="font-medium">${v.routeName}</div>
+                                                    <div class="text-[10px] text-slate-400">Next stop: ${v.nextStop}</div>
+                                                </td>
+                                                <td class="p-3 font-medium text-slate-700">${v.driver}</td>
+                                                <td class="p-3 font-mono font-bold text-slate-800">
+                                                    ${v.capacity - booked} left <span class="text-slate-400 text-[10px] font-medium">(${booked}/${v.capacity} booked)</span>
+                                                </td>
+                                                <td class="p-3">
+                                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${statusColors[v.status]}">${v.status}</span>
+                                                </td>
+                                                <td class="p-3 font-mono font-bold ${v.delay > 0 ? 'text-red-500' : 'text-slate-400'}">
+                                                    ${v.delay > 0 ? `+${v.delay}m` : 'On Time'}
+                                                </td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT WORKSPACE: CORE SLIDING DETAILS INSPECTOR -->
+                    <div class="w-96 lg:w-[450px] xl:w-[480px] bg-white border-l border-slate-200 flex flex-col shrink-0 z-20">
+                        <!-- Inspector Header Title -->
+                        <div class="p-3 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                            <div>
+                                <span class="text-[10px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider font-mono">${activeVeh.id}</span>
+                                <h2 class="text-sm font-bold text-slate-800 mt-1">${activeVeh.regNo}</h2>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <span class="text-[10px] font-semibold text-slate-500">Live Telemetry Link</span>
+                            </div>
+                        </div>
+
+                        <!-- Mini Meta Telemetry Summary Panel -->
+                        <div class="p-3 bg-slate-50/50 border-b border-slate-200 grid grid-cols-3 gap-2">
+                            <div class="border border-slate-200 bg-white p-2 rounded text-center">
+                                <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Battery Level</div>
+                                <div class="text-sm font-bold font-mono mt-0.5 text-emerald-600">${activeVeh.battery}%</div>
+                                <div class="text-[9px] text-slate-400 mt-0.5">${activeVeh.range} km range</div>
+                            </div>
+                            <div class="border border-slate-200 bg-white p-2 rounded text-center">
+                                <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Current Speed</div>
+                                <div class="text-sm font-bold font-mono mt-0.5 text-slate-800">${activeVeh.speed} km/h</div>
+                                <div class="text-[9px] text-slate-400 mt-0.5">Limit: 80 km/h</div>
+                            </div>
+                            <div class="border border-slate-200 bg-white p-2 rounded text-center">
+                                <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Safety Score</div>
+                                <div class="text-sm font-bold font-mono mt-0.5 text-brand-600">${activeVeh.driverScore} / 100</div>
+                                <div class="text-[9px] text-slate-400 mt-0.5">Safety Class: A</div>
+                            </div>
+                        </div>
+
+                        <!-- INTERNAL TABS CONTROLLER -->
+                        <div class="flex border-b border-slate-200 text-xs font-semibold bg-white px-2">
+                            <button onclick="switchInspectorTab('seatmap')" class="py-2.5 px-3 border-b-2 hover:text-brand-600 transition ${appState.activeInspectorTab === 'seatmap' ? 'border-brand-600 text-brand-600' : 'border-transparent text-slate-500'}">Seat Booking Map</button>
+                            <button onclick="switchInspectorTab('telematics')" class="py-2.5 px-3 border-b-2 hover:text-brand-600 transition ${appState.activeInspectorTab === 'telematics' ? 'border-brand-600 text-brand-600' : 'border-transparent text-slate-500'}">EV Telemetry</button>
+                            <button onclick="switchInspectorTab('timeline')" class="py-2.5 px-3 border-b-2 hover:text-brand-600 transition ${appState.activeInspectorTab === 'timeline' ? 'border-brand-600 text-brand-600' : 'border-transparent text-slate-500'}">Route Timeline</button>
+                            <button onclick="switchInspectorTab('logs')" class="py-2.5 px-3 border-b-2 hover:text-brand-600 transition ${appState.activeInspectorTab === 'logs' ? 'border-brand-600 text-brand-600' : 'border-transparent text-slate-500'}">SMS Dispatch</button>
+                        </div>
+
+                        <!-- TAB VIEW VIEWER -->
+                        <div class="flex-1 overflow-y-auto p-4 bg-white">
+                            ${getInspectorTabHTML(activeVeh)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Live inspector key action routines
+        function selectInspectorVehicle(id) {
+            appState.activeVehicleId = id;
+            renderActivePage();
+            lucide.createIcons();
+        }
+
+        function switchInspectorTab(tabId) {
+            appState.activeInspectorTab = tabId;
+            renderActivePage();
+            lucide.createIcons();
+        }
+
+        function executeBoardSearch(query) {
+            appState.searchQuery = query;
+            renderActivePage();
+            lucide.createIcons();
+        }
+
+        // TAB COMPONENT TEMPLATE ENGINE FOR INSPECTOR
+        function getInspectorTabHTML(v) {
+            switch (appState.activeInspectorTab) {
+                case 'seatmap':
+                    return getSeatMapTabHTML(v);
+                case 'telematics':
+                    return getTelematicsTabHTML(v);
+                case 'timeline':
+                    return getTimelineTabHTML(v);
+                case 'logs':
+                    return getLogsTabHTML(v);
+                default:
+                    return ``;
+            }
+        }
+
+        // 1. SEAT BOOKING COMPONENT
+        function getSeatMapTabHTML(v) {
+            const bookedSeats = v.seats.filter(s => s.status === 'occupied' || s.status === 'reserved').length;
+            const openFormHTML = appState.quickBookingSeat ? `
+                <div class="border border-slate-200 bg-slate-50 rounded p-3 mb-4 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-800">Booking Desk: Seat ${appState.quickBookingSeat}</span>
+                        <button onclick="cancelBookingAction()" class="text-slate-400 hover:text-slate-600 text-xs">Cancel</button>
+                    </div>
+                    <form onsubmit="submitSeatBookingForm(event, '${v.id}')" class="space-y-2">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Passenger Name</label>
+                                <input type="text" id="bk-name" required class="w-full text-xs p-1.5 border border-slate-200 rounded focus:outline-none focus:border-brand-500">
+                            </div>
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Phone Number</label>
+                                <input type="text" id="bk-phone" required class="w-full text-xs p-1.5 border border-slate-200 rounded focus:outline-none focus:border-brand-500">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Boarding Stop</label>
+                                <select id="bk-boarding" class="w-full text-xs p-1.5 border border-slate-200 rounded">
+                                    <option value="${v.origin}">${v.origin}</option>
+                                    <option value="Bartung">Bartung</option>
+                                    <option value="Butwal">Butwal</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Drop Stop</label>
+                                <select id="bk-drop" class="w-full text-xs p-1.5 border border-slate-200 rounded">
+                                    <option value="${v.destination}">${v.destination}</option>
+                                    <option value="Butwal">Butwal</option>
+                                    <option value="Kathmandu">Kathmandu</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex justify-end space-x-2 pt-2">
+                            <button type="submit" class="px-3 py-1 bg-brand-600 text-white font-semibold rounded text-xs hover:bg-brand-700 transition shadow-sm">Confirm Booking Seat</button>
+                        </div>
+                    </form>
+                </div>
+            ` : `
+                <div class="bg-sky-50 border border-sky-100 rounded p-2 text-slate-600 text-[10px] mb-3 text-center font-medium">
+                    Select a vacant seat <span class="bg-white border px-1 rounded font-bold font-mono">Dashed</span> inside cabin to assign a new passenger.
+                </div>
+            `;
+
+            return `
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-400">Total Bookings: <strong class="text-slate-800">${bookedSeats} / ${v.capacity} Seats</strong></span>
+                        <div class="flex space-x-3 text-[10px] font-semibold text-slate-500">
+                            <div class="flex items-center space-x-1">
+                                <span class="w-2.5 h-2.5 bg-sky-500 rounded-sm"></span>
+                                <span>Booked</span>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <span class="w-2.5 h-2.5 border border-slate-300 rounded-sm bg-white"></span>
+                                <span>Vacant</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${openFormHTML}
+
+                    <!-- CABIN DESIGN LAYER -->
+                    <div class="border-2 border-slate-300 rounded-2xl p-4 bg-slate-50 max-w-xs mx-auto relative shadow-inner">
+                        <!-- Driver Cabin Header Block -->
+                        <div class="flex justify-between items-center border-b border-slate-200 pb-3 mb-4">
+                            <div class="text-[9px] text-slate-400 font-bold uppercase font-mono">Engine Space (EV)</div>
+                            <div class="flex items-center space-x-1.5 text-[9px] font-bold text-slate-500 font-mono">
+                                <span>Driver Dashboard</span>
+                                <i data-lucide="steering-wheel" class="w-4 h-4 text-slate-400"></i>
+                            </div>
+                        </div>
+
+                        <!-- Interactive Cabin Seating Grid -->
+                        <div class="grid grid-cols-3 gap-3">
+                            ${v.seats.map(s => {
+                                let seatClass = "";
+                                let content = "";
+                                let action = "";
+
+                                if (s.status === 'occupied') {
+                                    seatClass = "bg-sky-500 border-sky-600 text-white shadow-sm hover:bg-sky-600";
+                                    content = `<div class="text-[10px] font-bold font-mono">${s.id}</div><div class="text-[8px] truncate max-w-full px-0.5">${s.name.split(' ')[0]}</div>`;
+                                    action = `onclick="inspectSeatDetail('${v.id}', '${s.id}')"`;
+                                } else if (s.status === 'reserved') {
+                                    seatClass = "bg-amber-500 border-amber-600 text-white shadow-sm hover:bg-amber-600";
+                                    content = `<div class="text-[10px] font-bold font-mono">${s.id}</div><div class="text-[8px] truncate">RSVD</div>`;
+                                    action = `onclick="inspectSeatDetail('${v.id}', '${s.id}')"`;
+                                } else {
+                                    seatClass = "border border-dashed border-slate-300 bg-white text-slate-400 hover:border-brand-500 hover:text-brand-600 hover:bg-slate-50/50";
+                                    content = `<div class="text-[10px] font-bold font-mono">${s.id}</div><div class="text-[8px] text-slate-400 uppercase font-semibold tracking-wide">Add</div>`;
+                                    action = `onclick="triggerBookingAction('${s.id}')"`;
+                                }
+
+                                return `
+                                    <div ${action} class="h-10 border rounded-lg flex flex-col items-center justify-center cursor-pointer transition text-center select-none ${seatClass}">
+                                        ${content}
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Seating action handles
+        function triggerBookingAction(seatId) {
+            appState.quickBookingSeat = seatId;
+            renderActivePage();
+            lucide.createIcons();
+        }
+
+        function cancelBookingAction() {
+            appState.quickBookingSeat = null;
+            renderActivePage();
+            lucide.createIcons();
+        }
+
+        function submitSeatBookingForm(e, vehicleId) {
+            e.preventDefault();
+            const name = document.getElementById('bk-name').value;
+            const phone = document.getElementById('bk-phone').value;
+            const boarding = document.getElementById('bk-boarding').value;
+            const drop = document.getElementById('bk-drop').value;
+
+            const v = appState.vehicles.find(veh => veh.id === vehicleId);
+            if (v) {
+                const targetSeat = v.seats.find(s => s.id === appState.quickBookingSeat);
+                if (targetSeat) {
+                    targetSeat.status = 'occupied';
+                    targetSeat.name = name;
+                    targetSeat.phone = phone;
+                    targetSeat.boarding = boarding;
+                    targetSeat.drop = drop;
+                    targetSeat.payment = 'Paid';
+
+                    showToast('Seat Reserved Successfully', `Seat ${appState.quickBookingSeat} has been booked to ${name}.`);
+                    appState.quickBookingSeat = null;
+                    renderActivePage();
+                    lucide.createIcons();
+                }
+            }
+        }
+
+        function inspectSeatDetail(vehicleId, seatId) {
+            const v = appState.vehicles.find(veh => veh.id === vehicleId);
+            if (v) {
+                const s = v.seats.find(st => st.id === seatId);
+                if (s) {
+                    alert(`Seat Detail ${s.id}\n------------------\nName: ${s.name}\nPhone: ${s.phone}\nBoarding stop: ${s.boarding}\nDestination: ${s.drop}\nPayment Status: ${s.payment}`);
+                }
+            }
+        }
+
+        // 2. EV TELEMETRY COMPONENT
+        function getTelematicsTabHTML(v) {
+            return `
+                <div class="space-y-4">
+                    <div class="border border-slate-200 rounded p-3 bg-slate-50/50">
+                        <h4 class="text-xs font-bold text-slate-800 mb-2.5 flex items-center space-x-1.5">
+                            <i data-lucide="gauge" class="w-4 h-4 text-emerald-500"></i>
+                            <span>Live Performance Dashboard</span>
+                        </h4>
+                        <div class="grid grid-cols-2 gap-3 text-xs">
+                            <div class="bg-white border border-slate-200 p-2 rounded flex justify-between items-center">
+                                <span class="text-slate-500 font-medium">Avg Speed</span>
+                                <span class="font-bold font-mono text-slate-800">${v.avgSpeed} km/h</span>
+                            </div>
+                            <div class="bg-white border border-slate-200 p-2 rounded flex justify-between items-center">
+                                <span class="text-slate-500 font-medium">Max Speed Trip</span>
+                                <span class="font-bold font-mono text-slate-800">${v.maxSpeed} km/h</span>
+                            </div>
+                            <div class="bg-white border border-slate-200 p-2 rounded flex justify-between items-center col-span-2">
+                                <span class="text-slate-500 font-medium">Continuous Drive</span>
+                                <span class="font-bold font-mono text-slate-800">${v.continuousDriving}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border border-slate-200 rounded p-3 bg-slate-50/50">
+                        <h4 class="text-xs font-bold text-slate-800 mb-2.5 flex items-center space-x-1.5">
+                            <i data-lucide="shield-check" class="w-4 h-4 text-blue-500"></i>
+                            <span>Safety Telematics & Driving Behavior</span>
+                        </h4>
+                        <div class="space-y-2 text-xs">
+                            <div class="flex justify-between border-b border-slate-100 pb-1.5">
+                                <span class="text-slate-500 font-medium">Ignition Status</span>
+                                <span class="font-bold text-emerald-600">On</span>
+                            </div>
+                            <div class="flex justify-between border-b border-slate-100 pb-1.5">
+                                <span class="text-slate-500 font-medium">Braking Pressure</span>
+                                <span class="font-bold text-slate-800">${v.brakes}</span>
+                            </div>
+                            <div class="flex justify-between border-b border-slate-100 pb-1.5">
+                                <span class="text-slate-500 font-medium">Harsh Braking Incidents</span>
+                                <span class="font-bold text-amber-600 font-mono">${v.harshBrakingCount} events</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500 font-medium">Overspeed Alerts Today</span>
+                                <span class="font-bold text-red-600 font-mono">${v.overspeedCount} flags</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 3. VERTICAL TIMELINE COMPONENT
+        function getTimelineTabHTML(v) {
+            return `
+                <div class="space-y-4">
+                    <div class="bg-slate-50 border border-slate-200 rounded p-3">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400">Current Next Stop:</span>
+                            <span class="font-bold text-slate-800">${v.nextStop}</span>
+                        </div>
+                    </div>
+
+                    <!-- Vertical Timeline Element -->
+                    <div class="relative pl-8 space-y-4 route-timeline-line">
+                        ${v.timeline.map((stop, index) => {
+                            let bulletColor = "bg-slate-200 border-slate-300";
+                            let textColor = "text-slate-500";
+                            let icon = "circle";
+
+                            if (stop.status === 'Departed') {
+                                bulletColor = "bg-emerald-500 border-emerald-600 text-white";
+                                textColor = "text-slate-800";
+                                icon = "check";
+                            } else if (stop.status === 'Current') {
+                                bulletColor = "bg-sky-500 border-sky-600 text-white";
+                                textColor = "text-slate-900 font-bold";
+                                icon = "clock";
+                            }
+
+                            return `
+                                <div class="relative flex items-start space-x-3 text-xs leading-tight">
+                                    <!-- Dynamic Bullet -->
+                                    <div class="absolute -left-8 w-6 h-6 rounded-full flex items-center justify-center border z-10 ${bulletColor}">
+                                        <i data-lucide="${icon}" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <div class="flex-1 space-y-0.5">
+                                        <div class="flex justify-between items-center">
+                                            <span class="font-semibold ${textColor}">${stop.name}</span>
+                                            <span class="font-mono text-[10px] text-slate-400">${stop.dist}</span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-500 flex justify-between">
+                                            <span>Sched: ${stop.scheduled} | Actual: ${stop.actual}</span>
+                                            ${stop.delay > 0 ? `<span class="text-red-500 font-bold">+${stop.delay}m</span>` : '<span class="text-emerald-600 font-medium">On-time</span>'}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // 4. SMS LOGS COMPONENT
+        function getLogsTabHTML(v) {
+            return `
+                <div class="space-y-4">
+                    <!-- Dynamic Send Log Interface Form -->
+                    <form onsubmit="submitInspectorSms(event, '${v.id}')" class="space-y-2 border border-slate-200 p-3 rounded bg-slate-50/50">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Custom Customer Dispatch SMS</label>
+                        <textarea id="sms-msg-text" required placeholder="Type SMS message update here..." class="w-full text-xs p-2 border border-slate-200 rounded h-16 focus:outline-none focus:border-brand-500"></textarea>
+                        <div class="flex justify-end pt-1">
+                            <button type="submit" class="px-3 py-1 bg-brand-600 text-white font-semibold rounded text-xs hover:bg-brand-700 transition shadow-sm">Send Dispatch Broadcast</button>
+                        </div>
+                    </form>
+
+                    <!-- SMS Logs Timeline -->
+                    <div class="space-y-2">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Communication Logs</div>
+                        <div class="space-y-2 max-h-[180px] overflow-y-auto">
+                            ${v.smsLogs.map(log => `
+                                <div class="border border-slate-100 rounded p-2.5 space-y-1 bg-slate-50/20">
+                                    <div class="flex justify-between items-center text-[10px]">
+                                        <span class="font-bold text-slate-700">${log.recipient}</span>
+                                        <span class="text-slate-400 font-mono">${log.time}</span>
+                                    </div>
+                                    <p class="text-[10px] text-slate-600 italic leading-tight">"${log.message}"</p>
+                                    <div class="flex justify-end">
+                                        <span class="text-[9px] bg-emerald-100 text-emerald-700 font-semibold px-1 py-0.2 rounded font-mono">${log.status}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function submitInspectorSms(e, vehicleId) {
+            e.preventDefault();
+            const txt = document.getElementById('sms-msg-text').value;
+            const v = appState.vehicles.find(veh => veh.id === vehicleId);
+            if (v) {
+                v.smsLogs.unshift({
+                    time: 'Just Now',
+                    recipient: 'Passengers',
+                    message: txt,
+                    status: 'Delivered'
+                });
+                showToast('SMS Broadcast Queued', 'Message delivered cleanly to passenger array.');
+                renderActivePage();
+                lucide.createIcons();
+            }
+        }
+
+        // PAGE 3: MAP VIEW (HIGH-FIDELITY VECTOR HIGHWAY VISUALIZER)
+        function getLiveVehiclesHTML() {
+            return `
+                <div class="flex-1 overflow-hidden flex flex-col p-4 space-y-3">
+                    <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                        <div>
+                            <h1 class="text-base font-bold text-slate-900 tracking-tight">Real-time EV Highway Tracking Map</h1>
+                            <p class="text-[11px] text-slate-500">Live coordinates of all Sajha EV fleet units along Siddhartha and Prithvi Highways.</p>
+                        </div>
+                        <span class="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-bold">6 Active Global Trackers</span>
+                    </div>
+
+                    <!-- MAP DESIGN LAYOUT WRAPPER -->
+                    <div class="flex-1 bg-slate-100 border border-slate-200 rounded-lg relative overflow-hidden flex shadow-inner">
+                        <!-- Simulated Interactive Map Controls Layer -->
+                        <div class="absolute top-3 left-3 bg-white border border-slate-200 rounded p-2 z-10 space-y-1 shadow-md">
+                            <button class="w-7 h-7 bg-slate-50 hover:bg-slate-100 border rounded flex items-center justify-center font-bold text-sm">+</button>
+                            <button class="w-7 h-7 bg-slate-50 hover:bg-slate-100 border rounded flex items-center justify-center font-bold text-sm">-</button>
+                        </div>
+
+                        <!-- Sidebar Quick Tracker Stats Info Board -->
+                        <div class="absolute bottom-3 right-3 bg-white border border-slate-200 rounded p-3 z-10 w-60 shadow-lg space-y-2">
+                            <h4 class="text-xs font-bold text-slate-800 flex items-center space-x-1.5 border-b border-slate-100 pb-1.5">
+                                <i data-lucide="compass" class="w-4 h-4 text-brand-600 animate-spin-slow"></i>
+                                <span>Tracker Diagnostics</span>
+                            </h4>
+                            <div class="space-y-1.5 text-[10px]">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400 font-medium">GPS Signal Strength:</span>
+                                    <span class="text-emerald-600 font-bold">Excellent (98%)</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400 font-medium">Avg Satellites Linked:</span>
+                                    <span class="text-slate-800 font-bold font-mono">14 / 16 GPS</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400 font-medium">Data Expiry Threshold:</span>
+                                    <span class="text-slate-800 font-bold font-mono">3 secs</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- MAP SVG CANVAS GRAPHICAL SCHEMATIC VIEW -->
+                        <div class="flex-1 relative flex items-center justify-center">
+                            <svg viewBox="0 0 1000 600" class="w-full h-full text-slate-300" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Define highway linear graphics -->
+                                <defs>
+                                    <linearGradient id="roadGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#cbd5e1" />
+                                        <stop offset="100%" stop-color="#94a3b8" />
+                                    </linearGradient>
+                                </defs>
+                                
+                                <!-- Background terrain mountains curves -->
+                                <path d="M 50 150 Q 250 50 450 150 T 850 150" fill="none" stroke="#f1f5f9" stroke-width="12" />
+                                <path d="M 150 450 Q 350 350 550 450 T 950 450" fill="none" stroke="#f1f5f9" stroke-width="12" />
+
+                                <!-- Main Prithvi & Siddhartha Highways Polyline Path -->
+                                <!-- Route: Tamghas (100, 500) -> Palpa/Bartung (300, 420) -> Butwal (300, 320) -> Mugling (600, 250) -> Kathmandu (900, 150) -->
+                                <path d="M 100 500 L 300 420 L 300 320 L 600 250 L 900 150" fill="none" stroke="url(#roadGrad)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M 100 500 L 300 420 L 300 320 L 600 250 L 900 150" fill="none" stroke="#64748b" stroke-width="2" stroke-dasharray="8 6" stroke-linecap="round" stroke-linejoin="round" />
+
+                                <!-- Stop Node Terminals Icons on Map -->
+                                <!-- Tamghas Counter Node -->
+                                <circle cx="100" cy="500" r="10" fill="#ffffff" stroke="#0284c7" stroke-width="3" />
+                                <text x="100" y="525" font-size="11" font-weight="bold" fill="#334155" text-anchor="middle">Tamghas Terminal</text>
+
+                                <!-- Bartung Node -->
+                                <circle cx="300" cy="420" r="8" fill="#ffffff" stroke="#0284c7" stroke-width="3" />
+                                <text x="325" y="425" font-size="10" font-weight="bold" fill="#475569">Bartung Stop</text>
+
+                                <!-- Butwal Node -->
+                                <circle cx="300" cy="320" r="10" fill="#ffffff" stroke="#0284c7" stroke-width="3" />
+                                <text x="250" y="325" font-size="11" font-weight="bold" fill="#334155">Butwal Counter</text>
+
+                                <!-- Mugling Node -->
+                                <circle cx="600" cy="250" r="8" fill="#ffffff" stroke="#0284c7" stroke-width="3" />
+                                <text x="600" y="235" font-size="10" font-weight="bold" fill="#475569" text-anchor="middle">Mugling Rest Stop</text>
+
+                                <!-- Kathmandu Node -->
+                                <circle cx="900" cy="150" r="12" fill="#ffffff" stroke="#0284c7" stroke-width="4" />
+                                <text x="900" y="130" font-size="11" font-weight="bold" fill="#334155" text-anchor="middle">Kathmandu HQ (Gongabu)</text>
+
+                                <!-- Active vehicles plotted coordinate indicators -->
+                                <!-- EV-101 near Mugling (600, 250) roughly at (650, 230) -->
+                                <circle cx="680" cy="223" r="14" fill="#0284c7" class="animate-pulse" opacity="0.15" />
+                                <circle cx="680" cy="223" r="6" fill="#0284c7" />
+                                <text x="680" y="210" font-size="9" font-weight="bold" fill="#0369a1" text-anchor="middle">EV-101</text>
+
+                                <!-- EV-102 near Dumre charging (500, 280) roughly at (530, 260) -->
+                                <circle cx="530" cy="265" r="14" fill="#f59e0b" class="animate-pulse" opacity="0.15" />
+                                <circle cx="530" cy="265" r="6" fill="#f59e0b" />
+                                <text x="530" y="252" font-size="9" font-weight="bold" fill="#b45309" text-anchor="middle">EV-102</text>
+
+                                <!-- EV-103 at Bartung counter stop (300, 420) -->
+                                <circle cx="300" cy="420" r="14" fill="#10b981" class="animate-pulse" opacity="0.15" />
+                                <circle cx="300" cy="420" r="6" fill="#10b981" />
+                                <text x="300" y="405" font-size="9" font-weight="bold" fill="#047857" text-anchor="middle">EV-103</text>
+
+                                <!-- EV-105 at Palpa bypass segment (300, 360) -->
+                                <circle cx="300" cy="360" r="14" fill="#ef4444" class="animate-pulse" opacity="0.15" />
+                                <circle cx="300" cy="360" r="6" fill="#ef4444" />
+                                <text x="300" y="348" font-size="9" font-weight="bold" fill="#b91c1c" text-anchor="middle">EV-105</text>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // PAGE 4: ROUTE MAP & GEOFENCES
+        function getRoutesHTML() {
+            return `
+                <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                    <div class="border-b border-slate-200 pb-3">
+                        <h1 class="text-base font-bold text-slate-900 tracking-tight">Active Highway Routes Catalog</h1>
+                        <p class="text-[11px] text-slate-500">Logistics segment rules database configuration metrics.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white border border-slate-200 rounded p-3 space-y-2 shadow-sm">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-slate-800">Route KTM-TMS</span>
+                                <span class="text-[9px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded">Active</span>
+                            </div>
+                            <div class="text-sm font-semibold text-slate-900">Kathmandu ⇄ Tamghas</div>
+                            <p class="text-[10px] text-slate-500">Prithvi Highway ⇄ Siddhartha Highway. Est distance 350 km. Direct and intermediate services.</p>
+                            <div class="text-[10px] text-slate-600 border-t border-slate-100 pt-2 flex justify-between font-mono">
+                                <span>Est Duration: 8h 30m</span>
+                                <span>Total Stops: 5 Nodes</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white border border-slate-200 rounded p-3 space-y-2 shadow-sm">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-slate-800">Route TMS-BTW</span>
+                                <span class="text-[9px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded">Active</span>
+                            </div>
+                            <div class="text-sm font-semibold text-slate-900">Tamghas ⇄ Butwal</div>
+                            <p class="text-[10px] text-slate-500">Siddhartha Highway Mountain Segment. Est distance 85 km. Winding turns, heavy gear ratios.</p>
+                            <div class="text-[10px] text-slate-600 border-t border-slate-100 pt-2 flex justify-between font-mono">
+                                <span>Est Duration: 2h 45m</span>
+                                <span>Total Stops: 3 Nodes</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white border border-slate-200 rounded p-3 space-y-2 shadow-sm">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-slate-800">Route KTM-BTW</span>
+                                <span class="text-[9px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded">Active</span>
+                            </div>
+                            <div class="text-sm font-semibold text-slate-900">Kathmandu ⇄ Butwal</div>
+                            <p class="text-[10px] text-slate-500">Prithvi Highway ⇄ East-West Link Segment. Est distance 280 km. Optimal EV efficiency sector.</p>
+                            <div class="text-[10px] text-slate-600 border-t border-slate-100 pt-2 flex justify-between font-mono">
+                                <span>Est Duration: 6h 15m</span>
+                                <span>Total Stops: 4 Nodes</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // PAGE 5: DRIVERS DIRECTORY
+        function getDriversHTML() {
+            return `
+                <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                    <div class="border-b border-slate-200 pb-3">
+                        <h1 class="text-base font-bold text-slate-900 tracking-tight">Drivers Management Directory</h1>
+                        <p class="text-[11px] text-slate-500">Profiles, license compliance status, and safety history trackers.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        ${appState.vehicles.map(v => `
+                            <div class="bg-white border border-slate-200 rounded p-4 flex flex-col justify-between space-y-3 shadow-sm hover:border-slate-300 transition">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-600">
+                                        ${v.driver.charAt(0)}
+                                    </div>
+                                    <div class="space-y-0.5">
+                                        <h3 class="text-xs font-bold text-slate-900">${v.driver}</h3>
+                                        <p class="text-[10px] text-slate-400 font-medium">Assigned: ${v.regNo}</p>
+                                        <p class="text-[10px] text-slate-500 font-mono">Phone: ${v.driverPhone}</p>
+                                    </div>
+                                </div>
+                                <div class="border-t border-slate-100 pt-2.5 flex justify-between items-center text-[10px]">
+                                    <span class="text-slate-400 font-medium">Safety Score Rating:</span>
+                                    <span class="font-bold text-emerald-600">${v.driverScore} / 100 Class A</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // PAGE 6: TRIP MANIFESTS
+        function getTripsHTML() {
+            return `
+                <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                    <div class="border-b border-slate-200 pb-3">
+                        <h1 class="text-base font-bold text-slate-900 tracking-tight">Today's Operating Passenger Manifests</h1>
+                        <p class="text-[11px] text-slate-500">Logistics dispatch history profiles and operational checklists.</p>
+                    </div>
+
+                    <div class="bg-white border border-slate-200 rounded shadow-sm">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-100 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[10px]">
+                                <tr>
+                                    <th class="p-3">Reference</th>
+                                    <th class="p-3">Route Segment</th>
+                                    <th class="p-3">Driver Profile</th>
+                                    <th class="p-3">Status Checked</th>
+                                    <th class="p-3 text-right">Actions Manifest</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                ${appState.vehicles.map(v => `
+                                    <tr class="hover:bg-slate-50/50">
+                                        <td class="p-3 font-semibold text-slate-900">${v.id}</td>
+                                        <td class="p-3">
+                                            <div class="font-medium">${v.routeName}</div>
+                                            <div class="text-[10px] text-slate-400">Next Node: ${v.nextStop}</div>
+                                        </td>
+                                        <td class="p-3 font-medium text-slate-700">${v.driver}</td>
+                                        <td class="p-3">
+                                            <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${v.status === 'In Transit' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-slate-100 text-slate-600'}">${v.status}</span>
+                                        </td>
+                                        <td class="p-3 text-right">
+                                            <button onclick="inspectVehicleDeparture('${v.id}')" class="px-2.5 py-1 bg-slate-100 border border-slate-200 text-slate-700 font-semibold rounded text-[10px] hover:bg-slate-200">Load Manifest Seat</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // PAGE 7: INBOX ALERTS
+        function getNotificationsHTML() {
+            return `
+                <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                    <div class="border-b border-slate-200 pb-3">
+                        <h1 class="text-base font-bold text-slate-900 tracking-tight">Active System Alerts Dashboard</h1>
+                        <p class="text-[11px] text-slate-500">Warnings generated in real-time by dynamic on-board vehicle diagnostic devices.</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        ${appState.alerts.map(a => `
+                            <div class="bg-white border border-slate-200 rounded p-4 flex items-start space-x-3 shadow-sm">
+                                <div class="p-2 bg-red-50 text-red-600 rounded">
+                                    <i data-lucide="alert-octagon" class="w-5 h-5"></i>
+                                </div>
+                                <div class="space-y-1">
+                                    <h3 class="text-xs font-bold text-slate-900">Critical Incident Flag — Vehicle ${appState.vehicles.find(v => v.id === a.vehicle)?.regNo}</h3>
+                                    <p class="text-[11px] text-slate-500 font-medium">${a.detail}</p>
+                                    <div class="text-[10px] text-slate-400 font-mono mt-2">${a.time}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // PAGE 8: REPORTS & INTEL
+        function getReportsHTML() {
+            return `
+                <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                    <div class="border-b border-slate-200 pb-3">
+                        <h1 class="text-base font-bold text-slate-900 tracking-tight">ERP Fleet Analytical Reports</h1>
+                        <p class="text-[11px] text-slate-500">Review real-time EV efficiency, performance logs, and daily revenue statistics.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white border border-slate-200 rounded p-4 space-y-4 shadow-sm">
+                            <h3 class="text-xs font-bold text-slate-800 flex items-center space-x-1.5 border-b border-slate-100 pb-2">
+                                <i data-lucide="zap-off" class="w-4 h-4 text-emerald-500"></i>
+                                <span>EV Diagnostic Power Usage (km/kWh)</span>
+                            </h3>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex justify-between items-center border-b border-slate-50 pb-1.5">
+                                    <span class="text-slate-500">Best Vehicle Performance (EV-106)</span>
+                                    <span class="font-bold text-emerald-600 font-mono">4.2 km/kWh</span>
+                                </div>
+                                <div class="flex justify-between items-center border-b border-slate-50 pb-1.5">
+                                    <span class="text-slate-500">Average Performance Level</span>
+                                    <span class="font-bold text-slate-700 font-mono">3.8 km/kWh</span>
+                                </div>
+                                <div class="flex justify-between items-center pb-1.5">
+                                    <span class="text-slate-500">Worst Route Segment (Mountain Climbs)</span>
+                                    <span class="font-bold text-red-600 font-mono">2.9 km/kWh</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white border border-slate-200 rounded p-4 space-y-4 shadow-sm">
+                            <h3 class="text-xs font-bold text-slate-800 flex items-center space-x-1.5 border-b border-slate-100 pb-2">
+                                <i data-lucide="trending-up" class="w-4 h-4 text-blue-500"></i>
+                                <span>Daily Terminal Load Profiles</span>
+                            </h3>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex justify-between items-center border-b border-slate-50 pb-1.5">
+                                    <span class="text-slate-500">Kathmandu Outbound Load Factor</span>
+                                    <span class="font-bold text-blue-600 font-mono">92% Average</span>
+                                </div>
+                                <div class="flex justify-between items-center border-b border-slate-50 pb-1.5">
+                                    <span class="text-slate-500">Butwal Load Factor Segment</span>
+                                    <span class="font-bold text-slate-700 font-mono">78% Average</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-slate-500">Tamghas Return Outbound Factor</span>
+                                    <span class="font-bold text-slate-700 font-mono">84% Average</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // PAGE 9: CONFIGURATION RULES
+        function getSettingsHTML() {
+            return `
+                <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                    <div class="border-b border-slate-200 pb-3">
+                        <h1 class="text-base font-bold text-slate-900 tracking-tight">ERP Fleet Logistics Control Settings</h1>
+                        <p class="text-[11px] text-slate-500">Configuring thresholds, safety rule bounds, and terminal parameters.</p>
+                    </div>
+
+                    <div class="bg-white border border-slate-200 rounded p-4 space-y-4 shadow-sm max-w-2xl">
+                        <h3 class="text-xs font-bold text-slate-800 flex items-center space-x-1.5 border-b border-slate-100 pb-2.5">
+                            <i data-lucide="settings-2" class="w-4 h-4 text-brand-600"></i>
+                            <span>Safety Alerts Configuration</span>
+                        </h3>
+                        <div class="space-y-3.5 text-xs">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="font-bold text-slate-600 block mb-1.5">Overspeed Limit Threshold (Highway)</label>
+                                    <input type="text" value="80 km/h" class="w-full text-xs p-2 border border-slate-200 rounded font-semibold bg-slate-50/50">
+                                </div>
+                                <div>
+                                    <label class="font-bold text-slate-600 block mb-1.5">Low Battery Alert Level</label>
+                                    <input type="text" value="20%" class="w-full text-xs p-2 border border-slate-200 rounded font-semibold bg-slate-50/50">
+                                </div>
+                            </div>
+                            <div class="pt-2">
+                                <button onclick="showToast('Configurations Saved', 'Global telemetry diagnostic bounds have been updated inside state.')" class="px-3.5 py-1.5 bg-brand-600 text-white font-semibold rounded text-xs hover:bg-brand-700 transition">Save System Rules</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
