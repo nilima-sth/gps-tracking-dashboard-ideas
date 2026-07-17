@@ -1,5 +1,5 @@
 /**
- * Shared Sales Leaflet Configurations
+ * Shared Sales Leaflet Configurations - Production Ready
  */
 window.UnileverSalesMapLib = {
   stationLocations: [
@@ -13,15 +13,21 @@ window.UnileverSalesMapLib = {
   ],
   
   getMarkerIcon(statusClass) {
-    let color = '#1D9E75'; 
-    if (statusClass === 'red') color = '#EF4444';
-    if (statusClass === 'orange') color = '#F0A500';
+    let color = '#1D9E75'; // Odoo Teal
+    if (statusClass === 'red') color = '#EF4444'; // Red Alert[cite: 9]
+    if (statusClass === 'orange') color = '#F0A500'; // Amber Alert[cite: 9]
     
     return L.divIcon({
-      html: `<div title="Fix Time&#10;04/03/2026, 08:01:08 AM" style="background-color: ${color}; width: 26px; height: 26px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: help;">Description: 🚛</div>`,
+      html: `
+        <div style="position: relative; width: 28px; height: 28px;">
+          <div style="position: absolute; top: -2px; left: -2px; width: 32px; height: 32px; border-radius: 50%; border: 3px solid ${color}; animation: ringPulse 1.8s ease-out infinite; pointer-events: none;"></div>
+          <div title="Fix Time&#10;04/03/2026, 08:01:08 AM" style="background-color: ${color}; width: 28px; height: 28px; border-radius: 50%; border: 2.5px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; color: #fff; cursor: help;">
+            <i class="fa-solid fa-truck-ramp-box" style="font-size: 11px;"></i>
+          </div>
+        </div>`,
       className: 'custom-map-marker',
-      iconSize: [26, 26],
-      iconAnchor: [13, 13]
+      iconSize: [28, 28],
+      iconAnchor: [14, 14]
     });
   }
 };

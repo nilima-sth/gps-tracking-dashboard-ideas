@@ -1,0 +1,77 @@
+<div class="o-breadcrumb">
+  <a href="#" onclick="loadComponent('live_tracking')">Fleet</a> › 
+  <a href="#" onclick="loadComponent('live_tracking')">Sales Dashboard</a> › 
+  <span>Bagmati Province</span>
+</div>
+<div class="o-page-title">
+  My Territory — Live View
+  <span class="scope-pill"><i class="fa-solid fa-lock"></i> Scoped: Bagmati Region Only</span>
+</div>
+
+<div class="scope-note">
+  <i class="fa-solid fa-circle-info"></i> &nbsp; You are viewing data scoped exclusively to distributors assigned to your sales team (Bagmati Province). Fleet-wide data and driver behavior metrics are not visible at this access level. · <strong>ir.rule: user_id = current_user</strong>
+</div>
+
+<!-- KPI ROW -->
+<div class="kpi-row">
+  <div class="kpi-card">
+    <div class="kpi-icon teal"><i class="fa-solid fa-box-open"></i></div>
+    <div>
+      <div class="kpi-val">12</div>
+      <div class="kpi-label">Deliveries – My Territory Today</div>
+      <div class="kpi-sub"><i class="fa-solid fa-arrow-trend-up"></i> 3 vs. yesterday</div>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon danger"><i class="fa-solid fa-clock"></i></div>
+    <div>
+      <div class="kpi-val" style="color:var(--red)">1</div>
+      <div class="kpi-label">Delayed Orders</div>
+      <div class="kpi-sub red">Pokhara Valley Dist. · +1h 20m</div>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon purple"><i class="fa-solid fa-scale-balanced"></i></div>
+    <div>
+      <div class="kpi-val">850 <span style="font-size:13px; font-weight:400; color:var(--text-muted)">kg</span></div>
+      <div class="kpi-label">Total Volume in Transit</div>
+      <div class="kpi-sub">Across 5 active trucks</div>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon success"><i class="fa-solid fa-circle-check"></i></div>
+    <div>
+      <div class="kpi-val" style="color:var(--teal)">91.7%</div>
+      <div class="kpi-label">On-Time Rate – This Week</div>
+      <div class="kpi-sub">11 of 12 orders on schedule</div>
+    </div>
+  </div>
+</div>
+
+<div class="map-card">
+  <div class="map-toolbar">
+    <span class="scoped-badge"><i class="fa-solid fa-shield-halved"></i> Filtered View — Active Operations</span>
+    <select id="station-navigator" onchange="window.navigateToStation(this.value)" style="margin-left: auto; padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 11.5px; background: white; cursor: pointer; color: var(--text);">
+      <option value="">🗺️ Navigate to Station...</option>
+      <option value="ktm">🏢 Kathmandu HQ (Origin)</option>
+      <option value="het">🏢 Hetauda Station</option>
+      <option value="bgr">🏢 Birgunj Station</option>
+    </select>
+  </div>
+  <div class="map-area">
+    <div id="map" style="width: 100%; height: 100%; z-index: 1;"></div>
+    
+    <div class="map-info-overlay">
+      <div class="info-title">
+        <span class="info-dot active" id="overlay-dot"></span>
+        <span id="overlay-truck-id">Select a shipment marker</span>
+      </div>
+      <div class="info-details" id="overlay-body">
+        <p id="overlay-route">Route Context</p>
+        <p id="overlay-speed">Telemetry Status</p>
+        <p id="overlay-distributor">Click marker to stream telemetry feeds.</p>
+      </div>
+    </div>
+    <div class="privacy-note"><i class="fa-solid fa-eye-slash"></i> No driver behavior data · ETA only</div>
+  </div>
+</div>
