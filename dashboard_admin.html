@@ -718,22 +718,22 @@ function dashboardHTML() {
       <div class="page-body" style="display:flex;flex-direction:column;gap:14px;">
         <!-- KPI CARDS -->
         <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-icon teal"><i class="fa-solid fa-truck text-teal"></i></div>
+          <div class="kpi-card"><div class="kpi-icon teal">🚛</div>
             <div><div class="kpi-val">${m.active}<span style="font-size:13px;font-weight:400;color:var(--text-muted);"> / ${m.total}</span></div>
             <div class="kpi-label">Active Trucks</div>
             <div class="kpi-sub">${m.delayed} delayed · ${m.total-m.active-m.delayed} flagged</div></div>
           </div>
-          <div class="kpi-card"><div class="kpi-icon red"><i class="fa-solid fa-clock text-danger"></i></div>
+          <div class="kpi-card"><div class="kpi-icon red">⏰</div>
             <div><div class="kpi-val" style="color:var(--red);">${m.delayed}</div>
             <div class="kpi-label">Delayed Dispatches</div>
             <div class="kpi-sub">Needs immediate attention</div></div>
           </div>
-          <div class="kpi-card"><div class="kpi-icon amber"><i class="fa-solid fa-triangle-exclamation text-warning"></i></div>
+          <div class="kpi-card"><div class="kpi-icon amber">🔔</div>
             <div><div class="kpi-val" style="color:var(--amber);">${m.alerts}</div>
             <div class="kpi-label">Active Safety Alerts</div>
             <div class="kpi-sub">Overspeed, geofence, idle flags</div></div>
           </div>
-          <div class="kpi-card"><div class="kpi-icon purple"><i class="fa-solid fa-boxes-stacked text-primary"></i></div>
+          <div class="kpi-card"><div class="kpi-icon purple">⚖️</div>
             <div><div class="kpi-val">${m.totalKg}<span style="font-size:12px;font-weight:400;color:var(--text-muted);"> kg</span></div>
             <div class="kpi-label">Cargo In Transit</div>
             <div class="kpi-sub">Across all active dispatches</div></div>
