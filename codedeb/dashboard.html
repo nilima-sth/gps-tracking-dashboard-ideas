@@ -17,34 +17,66 @@
     <div class="flex-1 flex overflow-hidden">
         <aside id="sidebar-target" class="w-60 bg-white border-r border-slate-200 flex flex-col shrink-0 z-30"></aside>
 
-        <!-- MAIN DASHBOARD SCROLL GRID -->
+        <!-- MAIN DASHBOARD CONTENT -->
         <main class="flex-1 overflow-y-auto p-4 space-y-4">
             <div class="border-b border-slate-200 pb-3 flex justify-between items-center">
                 <div>
-                    <h1 class="text-sm font-bold text-slate-900 tracking-tight">Operational Management Dashboard</h1>
-                    <p class="text-[11px] text-slate-400">Consolidated analytics showing revenue, occupancy loads, and active transit progress.</p>
+                    <h1 class="text-sm font-bold text-slate-900 tracking-tight">Fleet Operations Command Center</h1>
+                    <p class="text-[11px] text-slate-400">Real-time terminal logistics, schedules, and active mechanical checklists.</p>
                 </div>
             </div>
 
-            <!-- KPI DATA STRIP -->
+            <!-- KEY OPERATIONAL KPI METRICS -->
             <div id="kpi-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-3"></div>
 
+            <!-- TERMINAL DISPATCH CARDS -->
+            <div class="space-y-1.5">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Terminal Gateway Statuses</span>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="bg-white border border-slate-200 rounded p-3 shadow-sm space-y-1">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[11px] font-bold text-slate-900">Kathmandu Gongabu</span>
+                            <span class="text-[10px] bg-slate-100 text-slate-500 font-bold px-1.5 py-0.5 rounded uppercase">Terminal HQ</span>
+                        </div>
+                        <div class="text-xs font-semibold text-slate-800" id="ktm-departures-count">Loading...</div>
+                        <span class="text-[9px] text-slate-400 block font-medium">Weather: 24°C (Light Rain)</span>
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded p-3 shadow-sm space-y-1">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[11px] font-bold text-slate-900">Butwal Buspark</span>
+                            <span class="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-1.5 py-0.5 rounded uppercase">Charging Hub</span>
+                        </div>
+                        <div class="text-xs font-semibold text-slate-800" id="butwal-departures-count">Loading...</div>
+                        <span class="text-[9px] text-slate-400 block font-medium">Weather: 32°C (Sunny & Dry)</span>
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded p-3 shadow-sm space-y-1">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[11px] font-bold text-slate-900">Tamghas Desk</span>
+                            <span class="text-[10px] bg-amber-50 text-amber-700 font-bold px-1.5 py-0.5 rounded uppercase">Mountain Depot</span>
+                        </div>
+                        <div class="text-xs font-semibold text-slate-800" id="tamghas-departures-count">Loading...</div>
+                        <span class="text-[9px] text-slate-400 block font-medium">Weather: 19°C (Mountain Fog)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CORE OPERATIONS GRIDS -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 <!-- LEADING TRACKING FEED TABLE -->
                 <div class="lg:col-span-2 bg-white border border-slate-200 rounded-md shadow-sm">
                     <div class="border-b border-slate-200 bg-slate-50 px-3 py-2 flex justify-between items-center">
-                        <span class="text-xs font-bold text-slate-800">High Capacity Active Fleet Logs</span>
-                        <a href="departures.html" class="text-[11px] text-sky-600 font-bold hover:underline">Launch Departure Console →</a>
+                        <span class="text-xs font-bold text-slate-800">Current Fleet Position Monitor</span>
+                        <a href="departures.html" class="text-[11px] text-sky-600 font-bold hover:underline">Inspect Seating Manifests →</a>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs">
                             <thead class="bg-slate-50 border-b border-slate-200 text-[10px] text-slate-500 uppercase tracking-wider font-bold">
                                 <tr>
                                     <th class="p-3">Vehicle Details</th>
-                                    <th class="p-3">Staff Assignment</th>
-                                    <th class="p-3">Active Location</th>
-                                    <th class="p-3">Battery Metrics</th>
-                                    <th class="p-3">Occupancy</th>
+                                    <th class="p-3">Route Segment</th>
+                                    <th class="p-3">Status</th>
+                                    <th class="p-3">Battery & Range</th>
+                                    <th class="p-3">Timing ETA</th>
                                 </tr>
                             </thead>
                             <tbody id="active-rows" class="divide-y divide-slate-100"></tbody>
@@ -52,22 +84,13 @@
                     </div>
                 </div>
 
-                <!-- RIGHT ALARMS & FINANCIAL WORKINGS -->
+                <!-- RIGHT PANELS: LIVE WARNINGS FEED -->
                 <div class="space-y-4">
                     <div class="bg-white border border-slate-200 rounded-md shadow-sm">
-                        <div class="border-b border-slate-200 bg-slate-50 px-3 py-2 flex justify-between items-center">
-                            <span class="text-xs font-bold text-slate-800">Enterprise Alerts Hub</span>
-                            <span class="text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded uppercase font-mono">System Priority</span>
-                        </div>
-                        <div id="alerts-strip" class="p-3 divide-y divide-slate-100"></div>
-                    </div>
-
-                    <!-- REVENUE BREAKDOWN BY OWNER -->
-                    <div class="bg-white border border-slate-200 rounded-md shadow-sm">
                         <div class="border-b border-slate-200 bg-slate-50 px-3 py-2">
-                            <span class="text-xs font-bold text-slate-800">Fleet Owner Revenue (Today)</span>
+                            <span class="text-xs font-bold text-slate-800">Live Operational Warnings</span>
                         </div>
-                        <div id="revenue-strip" class="p-3 space-y-2"></div>
+                        <div id="warnings-feed" class="p-3 divide-y divide-slate-100 space-y-2 max-h-[340px] overflow-y-auto"></div>
                     </div>
                 </div>
             </div>
@@ -82,118 +105,113 @@
         });
 
         function renderDashboard(db) {
-            let totalRevenue = 0;
-            let occupiedSeats = 0;
-            let totalSeats = 0;
-            let inTransitCount = 0;
+            let activeRun = 0;
+            let totalPassengers = 0;
+            let totalCapacity = 0;
+            let totalWarnings = db.alerts.length;
 
-            const ownerRev = {};
+            let ktmCount = 0;
+            let butwalCount = 0;
+            let tamghasCount = 0;
 
             db.vehicles.forEach(v => {
-                totalRevenue += v.revenue;
-                totalSeats += v.capacity;
-                const occ = v.seats.filter(s => s.status === "occupied").length;
-                occupiedSeats += occ;
-                
-                if (v.status === "In Transit") inTransitCount++;
+                if (v.status === "In Transit") activeRun++;
+                if (v.status === "Boarding") {
+                    if (v.currentLocation.includes("Kathmandu")) ktmCount++;
+                    if (v.currentLocation.includes("Butwal")) butwalCount++;
+                    if (v.currentLocation.includes("Tamghas")) tamghasCount++;
+                }
 
-                // Track revenue per owner
-                if (!ownerRev[v.owner]) ownerRev[v.owner] = 0;
-                ownerRev[v.owner] += v.revenue;
+                const occupiedSeats = v.seats.filter(s => s.status === "occupied").length;
+                totalPassengers += occupiedSeats;
+                totalCapacity += v.capacity;
             });
 
-            // Draw KPIs
+            // Populate KPIs
             document.getElementById("kpi-grid").innerHTML = `
                 <div class="bg-white border border-slate-200 p-3 rounded-md shadow-sm flex items-center space-x-3">
-                    <div class="p-2.5 bg-slate-100 border border-slate-200 rounded text-slate-700">
+                    <div class="p-2.5 bg-sky-50 border border-sky-100 rounded text-sky-700">
                         <i data-lucide="truck" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Network Fleet Scale</span>
-                        <span class="text-base font-extrabold text-slate-900 font-mono-data">${db.vehicles.length} EVs</span>
-                        <span class="text-[10px] text-slate-500 block">6 High-Capacity (19S)</span>
-                    </div>
-                </div>
-                <div class="bg-white border border-slate-200 p-3 rounded-md shadow-sm flex items-center space-x-3">
-                    <div class="p-2.5 bg-sky-50 border border-sky-100 rounded text-sky-700">
-                        <i data-lucide="users" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Average Occupancy Load</span>
-                        <span class="text-base font-extrabold text-slate-900 font-mono-data">${Math.round((occupiedSeats/totalSeats)*100)}%</span>
-                        <span class="text-[10px] text-slate-500 block">${occupiedSeats} Seats Booked Today</span>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Active Run</span>
+                        <span class="text-xs font-extrabold text-slate-900 font-mono-data">${activeRun} / ${db.vehicles.length}</span>
+                        <span class="text-[10px] text-slate-500 block">Units on Highway</span>
                     </div>
                 </div>
                 <div class="bg-white border border-slate-200 p-3 rounded-md shadow-sm flex items-center space-x-3">
                     <div class="p-2.5 bg-emerald-50 border border-emerald-100 rounded text-emerald-700">
-                        <i data-lucide="credit-card" class="w-5 h-5"></i>
+                        <i data-lucide="users" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Revenue Log</span>
-                        <span class="text-base font-extrabold text-slate-900 font-mono-data">NPR ${totalRevenue.toLocaleString()}</span>
-                        <span class="text-[10px] text-slate-500 block">From checkouts</span>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Total Passengers</span>
+                        <span class="text-xs font-extrabold text-slate-900 font-mono-data">${totalPassengers}</span>
+                        <span class="text-[10px] text-emerald-600 block">${Math.round((totalPassengers/totalCapacity)*100)}% Avg Seat Load</span>
                     </div>
                 </div>
                 <div class="bg-white border border-slate-200 p-3 rounded-md shadow-sm flex items-center space-x-3">
-                    <div class="p-2.5 bg-rose-50 border border-rose-100 rounded text-rose-700">
-                        <i data-lucide="bell" class="w-5 h-5"></i>
+                    <div class="p-2.5 bg-amber-50 border border-amber-100 rounded text-amber-700">
+                        <i data-lucide="battery-charging" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">High Priority Flags</span>
-                        <span class="text-base font-extrabold text-slate-900 font-mono-data">${db.alerts.length} Warnings</span>
-                        <span class="text-[10px] text-rose-600 font-semibold block">Action Required</span>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Battery Readiness</span>
+                        <span class="text-xs font-extrabold text-slate-900 font-mono-data">94%</span>
+                        <span class="text-[10px] text-slate-500 block">Charging Stalls Normal</span>
+                    </div>
+                </div>
+                <div class="bg-white border border-slate-200 p-3 rounded-md shadow-sm flex items-center space-x-3">
+                    <div class="p-2.5 bg-red-50 border border-red-100 rounded text-red-700">
+                        <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Safety Flags</span>
+                        <span class="text-xs font-extrabold text-red-600 font-mono-data">${totalWarnings} Active</span>
+                        <span class="text-[10px] text-slate-500 block">Immediate Actions</span>
                     </div>
                 </div>
             `;
 
-            // Draw Table
-            const container = document.getElementById("active-rows");
-            // Show first 10 for dashboard readability
-            container.innerHTML = db.vehicles.slice(0, 10).map(v => {
-                const occ = v.seats.filter(s => s.status === "occupied").length;
-                return `
-                    <tr class="hover:bg-slate-50/50 transition">
-                        <td class="p-3">
-                            <span class="font-bold text-slate-900 block">${v.regNo}</span>
-                            <span class="text-[9px] font-bold font-mono-data text-slate-400 uppercase tracking-wide">${v.id} — ${v.model.split(' ')[0]}</span>
-                        </td>
-                        <td class="p-3">
-                            <span class="font-semibold text-slate-800 block">${v.driver}</span>
-                            <span class="text-[9px] font-mono-data text-slate-400">${v.driverPhone}</span>
-                        </td>
-                        <td class="p-3">
-                            <span class="font-medium text-slate-700 block">${v.currentLocation}</span>
-                            <span class="text-[9px] text-slate-400 block font-semibold">[ Next: ${v.nextStop} ]</span>
-                        </td>
-                        <td class="p-3">
-                            <span class="font-bold block ${v.battery < 30 ? 'text-red-600' : 'text-emerald-600'}">${v.battery}%</span>
-                            <span class="text-[9px] font-mono-data text-slate-400">${v.range} KM range</span>
-                        </td>
-                        <td class="p-3">
-                            <span class="font-bold block text-slate-800 font-mono-data">${occ} / ${v.capacity}</span>
-                            <span class="text-[9px] text-slate-500 font-semibold uppercase tracking-wider">${occ === v.capacity ? '[ FULL ]' : '[ Vacancy ]'}</span>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+            // Terminal status
+            document.getElementById("ktm-departures-count").innerText = `${ktmCount} Active Boarding EV`;
+            document.getElementById("butwal-departures-count").innerText = `${butwalCount} Active Boarding EV`;
+            document.getElementById("tamghas-departures-count").innerText = `${tamghasCount} Active Boarding EV`;
 
-            // Draw Alerts
-            document.getElementById("alerts-strip").innerHTML = db.alerts.map(a => `
-                <div class="py-2 first:pt-0 last:pb-0 flex items-start space-x-2">
-                    <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0 mt-0.5 ${a.level === 'critical' ? 'text-rose-500' : 'text-amber-500'}"></i>
-                    <div>
-                        <span class="font-bold text-slate-800 text-[11px] block">${a.vehicle} — Alert</span>
-                        <p class="text-[10px] text-slate-500 leading-tight">${a.msg}</p>
-                        <span class="text-[9px] text-slate-400 font-mono-data block mt-0.5">${a.time}</span>
-                    </div>
-                </div>
+            // Draw operational table rows
+            document.getElementById("active-rows").innerHTML = db.vehicles.slice(0, 10).map(v => `
+                <tr class="hover:bg-slate-50/50 transition">
+                    <td class="p-3">
+                        <span class="font-bold text-slate-900 block">${v.regNo}</span>
+                        <span class="text-[9px] font-mono-data text-slate-400 uppercase">[ ${v.id} ] — ${v.model.split(' ')[0]}</span>
+                    </td>
+                    <td class="p-3 text-slate-600 font-semibold truncate max-w-[180px]">
+                        ${v.route}
+                        <span class="text-[9px] text-slate-400 block font-normal">Loc: ${v.currentLocation}</span>
+                    </td>
+                    <td class="p-3">
+                        <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border ${v.status === 'In Transit' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-slate-100 text-slate-600 border-slate-200'}">${v.status}</span>
+                    </td>
+                    <td class="p-3 font-mono-data font-semibold">
+                        <span class="${v.battery < 30 ? 'text-red-500' : 'text-emerald-500'}">${v.battery}%</span>
+                        <span class="text-[9px] text-slate-400 block font-normal">${v.range} km range</span>
+                    </td>
+                    <td class="p-3 font-mono-data text-slate-900 font-semibold">
+                        ${v.eta}
+                        <span class="text-[9px] text-rose-500 block font-normal">${v.delay > 0 ? `+${v.delay}m delay` : 'on schedule'}</span>
+                    </td>
+                </tr>
             `).join('');
 
-            // Draw Revenue
-            document.getElementById("revenue-strip").innerHTML = Object.entries(ownerRev).map(([owner, rev]) => `
-                <div class="flex justify-between items-center text-xs pb-1.5 border-b border-slate-100 last:border-none last:pb-0">
-                    <span class="font-semibold text-slate-600">${owner}</span>
-                    <span class="font-bold text-slate-900 font-mono-data">NPR ${rev.toLocaleString()}</span>
+            // Draw warnings list
+            document.getElementById("warnings-feed").innerHTML = db.alerts.map(a => `
+                <div class="py-2.5 first:pt-0 flex items-start space-x-2.5">
+                    <div class="p-1 rounded bg-red-50 text-red-600 mt-0.5">
+                        <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                    </div>
+                    <div class="space-y-0.5">
+                        <div class="text-xs font-extrabold text-slate-900">${a.vehicle}</div>
+                        <p class="text-[10px] text-slate-500 leading-normal">${a.msg}</p>
+                        <span class="text-[9px] text-slate-400 font-mono-data block">${a.time}</span>
+                    </div>
                 </div>
             `).join('');
         }

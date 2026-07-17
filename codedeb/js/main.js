@@ -1,13 +1,8 @@
-/**
- * CodeDeb Vehicle/Fleet Management System - Unified Header & Sidebar UI Engine
- */
-
 document.addEventListener("DOMContentLoaded", () => {
     const db = getDatabase();
     injectHeader(db);
     injectSidebar();
     highlightActivePage();
-    startClock();
 });
 
 function injectHeader(db) {
@@ -40,7 +35,7 @@ function injectHeader(db) {
                 <div class="text-xs font-semibold text-slate-950">${db.manager}</div>
                 <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">${db.role}</div>
             </div>
-            <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-800 font-bold text-xs flex items-center justify-center">
+            <div class="w-8 h-8 rounded bg-slate-100 border border-slate-200 text-slate-800 font-bold text-xs flex items-center justify-center">
                 HM
             </div>
         </div>
@@ -52,9 +47,9 @@ function injectSidebar() {
     if (!sidebarEl) return;
 
     sidebarEl.innerHTML = `
-        <div class="p-3">
+        <div class="p-3 flex-1 overflow-y-auto">
             <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2">Operations Portal</div>
-            <nav class="space-y-0.5">
+            <nav class="space-y-0.5 mb-6">
                 <a href="dashboard.html" class="flex items-center space-x-2.5 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-950 rounded transition-colors" id="nav-dashboard">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
                     <span>Management Console</span>
@@ -67,9 +62,29 @@ function injectSidebar() {
                     <i data-lucide="map" class="w-4 h-4"></i>
                     <span>Live Tracking Map</span>
                 </a>
+            </nav>
+
+            <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2">Staff & Ownership</div>
+            <nav class="space-y-0.5 mb-6">
                 <a href="drivers.html" class="flex items-center space-x-2.5 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-950 rounded transition-colors" id="nav-drivers">
+                    <i data-lucide="user" class="w-4 h-4"></i>
+                    <span>Drivers Registry</span>
+                </a>
+                <a href="conductors.html" class="flex items-center space-x-2.5 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-950 rounded transition-colors" id="nav-conductors">
                     <i data-lucide="users" class="w-4 h-4"></i>
-                    <span>Drivers & Conductors</span>
+                    <span>Conductors Registry</span>
+                </a>
+                <a href="owners.html" class="flex items-center space-x-2.5 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-950 rounded transition-colors" id="nav-owners">
+                    <i data-lucide="award" class="w-4 h-4"></i>
+                    <span>Owners Directory</span>
+                </a>
+            </nav>
+
+            <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2">Financials & Intel</div>
+            <nav class="space-y-0.5">
+                <a href="finances.html" class="flex items-center space-x-2.5 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-950 rounded transition-colors" id="nav-finances">
+                    <i data-lucide="banknote" class="w-4 h-4"></i>
+                    <span>Financial Ledger</span>
                 </a>
                 <a href="reports.html" class="flex items-center space-x-2.5 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-950 rounded transition-colors" id="nav-reports">
                     <i data-lucide="trending-up" class="w-4 h-4"></i>
@@ -78,6 +93,7 @@ function injectSidebar() {
             </nav>
         </div>
     `;
+    lucide.createIcons();
 }
 
 function highlightActivePage() {
@@ -88,14 +104,13 @@ function highlightActivePage() {
     if (filename.includes("departures")) activeId = "nav-departures";
     if (filename.includes("vehicles")) activeId = "nav-vehicles";
     if (filename.includes("drivers")) activeId = "nav-drivers";
+    if (filename.includes("conductors")) activeId = "nav-conductors";
+    if (filename.includes("owners")) activeId = "nav-owners";
+    if (filename.includes("finances")) activeId = "nav-finances";
     if (filename.includes("reports")) activeId = "nav-reports";
 
     const activeEl = document.getElementById(activeId);
     if (activeEl) {
         activeEl.classList.add("active-nav-item");
     }
-}
-
-function startClock() {
-    // Basic dynamic clock sync if dashboard clocks are on screen
 }

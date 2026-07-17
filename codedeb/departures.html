@@ -18,61 +18,60 @@
     <div class="flex-1 flex overflow-hidden">
         <aside id="sidebar-target" class="w-60 bg-white border-r border-slate-200 flex flex-col shrink-0 z-30"></aside>
 
-        <!-- SPLIT PANEL WORKSPACE -->
+        <!-- SPLIT PANEL VIEWPORTS -->
         <main class="flex-1 flex overflow-hidden">
-            
-            <!-- LEFT LIST VIEW WITH MULTI-FILTERS -->
+            <!-- LEFT LIST CHANNELS -->
             <div class="flex-1 overflow-hidden flex flex-col p-4 space-y-3">
                 <div class="border-b border-slate-200 pb-2">
-                    <h1 class="text-sm font-bold text-slate-900 tracking-tight">Active Departures Board</h1>
-                    <p class="text-[11px] text-slate-400">Manage seating manifests, view specs, and monitor on-board cameras from active dispatches.</p>
+                    <h1 class="text-sm font-bold text-slate-900 tracking-tight">Active Departures Console</h1>
+                    <p class="text-[11px] text-slate-400">Manage real-time seating manifests, distance pricing options, and trip expenses.</p>
                 </div>
 
-                <!-- FILTER DOCK -->
+                <!-- DENSE MULTI-FILTERS -->
                 <div class="bg-white border border-slate-200 rounded p-2.5 grid grid-cols-1 md:grid-cols-4 gap-2 text-xs">
                     <div>
-                        <label class="text-[9px] font-bold text-slate-400 block mb-0.5 uppercase tracking-wider">Search Registration / ID</label>
-                        <input type="text" id="search-input" oninput="applyFilters()" placeholder="Search..." class="w-full p-1.5 border border-slate-200 rounded focus:outline-none">
+                        <label class="text-[9px] font-bold text-slate-400 block mb-0.5 uppercase tracking-wider">Search Registration</label>
+                        <input type="text" id="search-input" oninput="applyFilters()" placeholder="Search license plate..." class="w-full p-1.5 border border-slate-200 rounded focus:outline-none">
                     </div>
                     <div>
-                        <label class="text-[9px] font-bold text-slate-400 block mb-0.5 uppercase tracking-wider">Filter by Destination</label>
-                        <select id="filter-destination" onchange="applyFilters()" class="w-full p-1.5 border border-slate-200 rounded focus:outline-none">
-                            <option value="all">All Destinations</option>
-                            <option value="Kathmandu">Kathmandu</option>
-                            <option value="Tamghas">Tamghas</option>
-                            <option value="Butwal">Butwal</option>
+                        <label class="text-[9px] font-bold text-slate-400 block mb-0.5 uppercase tracking-wider">Operational Status</label>
+                        <select id="filter-status" onchange="applyFilters()" class="w-full p-1.5 border border-slate-200 rounded focus:outline-none">
+                            <option value="all">All States</option>
+                            <option value="In Transit">In Transit</option>
+                            <option value="Boarding">Boarding</option>
+                            <option value="Charging">Charging</option>
                         </select>
                     </div>
                     <div>
-                        <label class="text-[9px] font-bold text-slate-400 block mb-0.5 uppercase tracking-wider">Filter by Owner</label>
+                        <label class="text-[9px] font-bold text-slate-400 block mb-0.5 uppercase tracking-wider">Seating Capacity</label>
+                        <select id="filter-capacity" onchange="applyFilters()" class="w-full p-1.5 border border-slate-200 rounded focus:outline-none">
+                            <option value="all">All Capacities</option>
+                            <option value="19">19-Seater King Long</option>
+                            <option value="15">15-Seater Mini-EV</option>
+                            <option value="14">14-Seater Mini-EV</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-bold text-slate-400 block mb-0.5 uppercase tracking-wider">Target Owner</label>
                         <select id="filter-owner" onchange="applyFilters()" class="w-full p-1.5 border border-slate-200 rounded focus:outline-none">
-                            <option value="all">All Owners</option>
-                            <option value="Chandra Bhandari">Chandra Bhandari</option>
-                            <option value="Ganesh Transport">Ganesh Transport</option>
-                            <option value="Lumbini Green Mobility">Lumbini Green Mobility</option>
-                            <option value="CodeDeb Logistics">CodeDeb Logistics</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-[9px] font-bold text-slate-400 block mb-0.5 uppercase tracking-wider">Filter Occupancy</label>
-                        <select id="filter-occupancy" onchange="applyFilters()" class="w-full p-1.5 border border-slate-200 rounded focus:outline-none">
-                            <option value="all">All Occupancy</option>
-                            <option value="full">Show Full Only</option>
-                            <option value="available">Show with Vacancies</option>
+                            <option value="all">All Enterprise Owners</option>
+                            <option value="Arjun Prasad Acharya">Arjun Prasad Acharya</option>
+                            <option value="Aayush Acharya">Aayush Acharya</option>
+                            <option value="Maitree Multipurpose Cooperative">Maitree Cooperative</option>
                         </select>
                     </div>
                 </div>
 
-                <!-- DEPARTURES GRID -->
+                <!-- BOARD TABLE -->
                 <div class="flex-1 bg-white border border-slate-200 rounded-md overflow-y-auto">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-50 border-b border-slate-200 text-[10px] text-slate-500 uppercase tracking-wider font-bold">
                             <tr>
                                 <th class="p-3">Vehicle details</th>
                                 <th class="p-3">Staff Assignment</th>
-                                <th class="p-3">Current Location</th>
-                                <th class="p-3">Status</th>
+                                <th class="p-3">Active Location</th>
                                 <th class="p-3">Occupancy</th>
+                                <th class="p-3">Status</th>
                             </tr>
                         </thead>
                         <tbody id="departure-rows" class="divide-y divide-slate-100"></tbody>
@@ -80,8 +79,8 @@
                 </div>
             </div>
 
-            <!-- RIGHT DETAILED INSPECTOR PANEL -->
-            <div class="w-96 lg:w-[420px] bg-white border-l border-slate-200 flex flex-col shrink-0">
+            <!-- RIGHT DETAILS INSPECTOR PANEL -->
+            <div class="w-96 lg:w-[420px] bg-white border-l border-slate-200 flex flex-col shrink-0 overflow-y-auto">
                 <div class="p-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
                     <div>
                         <span id="insp-id" class="text-[9px] font-mono-data bg-slate-900 text-white font-bold px-1.5 py-0.5 rounded">EV-101</span>
@@ -90,73 +89,65 @@
                     <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Vehicle Profile</span>
                 </div>
 
-                <!-- INSPECTOR TABS -->
                 <div class="flex border-b border-slate-200 text-xs font-semibold bg-slate-50">
                     <button onclick="toggleTab('profile')" id="tab-profile-btn" class="flex-1 py-2 text-center border-b-2 border-slate-900 text-slate-900">Profile Specs</button>
                     <button onclick="toggleTab('seating')" id="tab-seating-btn" class="flex-1 py-2 text-center border-b-2 border-transparent text-slate-400">Seating Map</button>
+                    <button onclick="toggleTab('expenses')" id="tab-expenses-btn" class="flex-1 py-2 text-center border-b-2 border-transparent text-slate-400">Trip Expenses</button>
                     <button onclick="toggleTab('cctv')" id="tab-cctv-btn" class="flex-1 py-2 text-center border-b-2 border-transparent text-slate-400">CCTV Stream</button>
                 </div>
 
-                <div class="flex-1 overflow-y-auto p-4 space-y-4">
-                    <!-- PROFILE DETAILS (DNC, SPECS, HEALTH, PROGRESS) -->
+                <div class="flex-1 p-4 space-y-4">
+                    <!-- PROFILE DETAILS -->
                     <div id="panel-profile" class="space-y-4 text-xs">
-                        <!-- ROUTE PROGRESS -->
+                        <!-- PROGRESS -->
                         <div class="border border-slate-100 rounded bg-slate-50/50 p-3 space-y-2">
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Route Progress</span>
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <span class="text-[9px] text-slate-400 uppercase block font-semibold">Current Location</span>
-                                    <span id="insp-curr" class="font-bold text-slate-800">Mugling Junction</span>
+                                    <span id="insp-curr" class="font-bold text-slate-800">-</span>
                                 </div>
                                 <div>
                                     <span class="text-[9px] text-slate-400 uppercase block font-semibold">Next Stop</span>
-                                    <span id="insp-next" class="font-bold text-slate-800">Naubise Checkpoint</span>
+                                    <span id="insp-next" class="font-bold text-slate-800">-</span>
                                 </div>
                                 <div class="col-span-2 pt-1 border-t border-slate-100">
                                     <span class="text-[9px] text-slate-400 uppercase block font-semibold">ETA / Delay</span>
-                                    <span id="insp-eta" class="font-bold text-slate-900">18:45 PM (On Schedule)</span>
+                                    <span id="insp-eta" class="font-bold text-slate-900">-</span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- CONTACT INFORMATION -->
+                        <!-- CONTACTS -->
                         <div class="border border-slate-100 rounded bg-slate-50/50 p-3 space-y-2">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Contact Information</span>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Crew Assignment</span>
                             <div class="grid grid-cols-1 gap-2">
                                 <div class="flex justify-between border-b border-slate-100 pb-1.5">
                                     <span class="text-slate-500">Driver:</span>
-                                    <span id="insp-driver" class="font-bold text-slate-800">Ram Bahadur Gurung (9851012345)</span>
+                                    <span id="insp-driver" class="font-bold text-slate-800">-</span>
                                 </div>
                                 <div class="flex justify-between border-b border-slate-100 pb-1.5">
                                     <span class="text-slate-500">Conductor:</span>
-                                    <span id="insp-conductor" class="font-bold text-slate-800">Hari Prasad Shrestha (9841354321)</span>
+                                    <span id="insp-conductor" class="font-bold text-slate-800">-</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span class="text-slate-500">Owner:</span>
-                                    <span id="insp-owner" class="font-bold text-slate-800">Chandra Bhandari</span>
+                                    <span class="text-slate-500">Fleet Owner:</span>
+                                    <span id="insp-owner" class="font-bold text-slate-800">-</span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- HEALTH & SPECS -->
+                        <!-- VEHICLE HEALTH -->
                         <div class="border border-slate-100 rounded bg-slate-50/50 p-3 space-y-2">
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Fleet Health & Specs</span>
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <span class="text-[9px] text-slate-400 uppercase block font-semibold">Vehicle Model</span>
-                                    <span id="insp-model" class="font-bold text-slate-800">King Long Mini-EV</span>
+                                    <span id="insp-model" class="font-bold text-slate-800">-</span>
                                 </div>
                                 <div>
-                                    <span class="text-[9px] text-slate-400 uppercase block font-semibold">Battery / Range</span>
-                                    <span id="insp-battery" class="font-bold text-slate-800">62% / 185 KM</span>
-                                </div>
-                                <div>
-                                    <span class="text-[9px] text-slate-400 uppercase block font-semibold">Max Charging Rate</span>
-                                    <span id="insp-rate" class="font-bold text-slate-800">60kW Input max</span>
-                                </div>
-                                <div>
-                                    <span class="text-[9px] text-slate-400 uppercase block font-semibold">Mechanical</span>
-                                    <span id="insp-mech" class="font-bold text-emerald-600 font-mono-data">TYRES OK | BRAKES OK</span>
+                                    <span class="text-[9px] text-slate-400 uppercase block font-semibold">Battery Rate Limit</span>
+                                    <span id="insp-rate" class="font-bold text-slate-800">-</span>
                                 </div>
                             </div>
                         </div>
@@ -165,24 +156,63 @@
                     <!-- SEATING MATRIX -->
                     <div id="panel-seating" class="hidden space-y-4">
                         <div class="bg-slate-50 border border-slate-200 rounded p-3 space-y-2 text-xs">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Quick Seat Registration</span>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Record New Checkout Ticket</span>
                             <form id="booking-form" onsubmit="bookSelectedSeat(event)" class="space-y-2">
                                 <div class="grid grid-cols-2 gap-2">
                                     <div>
                                         <input type="text" id="seat-id" readonly placeholder="Click a seat..." class="w-full p-1.5 border border-slate-200 rounded bg-slate-100 font-bold font-mono-data">
                                     </div>
                                     <div>
-                                        <input type="text" id="passenger-phone" placeholder="98XXXXXXXX" required class="w-full p-1.5 border border-slate-200 rounded focus:outline-none">
+                                        <select id="passenger-fare-type" class="w-full p-1.5 border border-slate-200 rounded bg-white">
+                                            <option value="Fixed" data-fare="1650">KTM Outbound Ticket (NPR 1,650)</option>
+                                            <option value="Conditional Butwal" data-fare="650">Conditional Butwal Share (NPR 650)</option>
+                                            <option value="Midway Boarder" data-fare="800">Midway Distance-Based Ticket (NPR 800)</option>
+                                        </select>
                                     </div>
                                 </div>
-                                <input type="text" id="passenger-name" placeholder="Passenger Name" required class="w-full p-1.5 border border-slate-200 rounded focus:outline-none">
-                                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-1.5 rounded text-[11px] transition">Record Seat Checkout</button>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="text" id="passenger-name" placeholder="Passenger Name" required class="p-1.5 border border-slate-200 rounded focus:outline-none">
+                                    <input type="text" id="passenger-phone" placeholder="98XXXXXXXX" required class="p-1.5 border border-slate-200 rounded focus:outline-none">
+                                </div>
+                                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-1.5 rounded text-[11px] transition">Log Checked-In Ticket</button>
                             </form>
                         </div>
 
                         <div class="border-2 border-slate-200 bg-slate-50 rounded-xl p-3 max-w-[240px] mx-auto">
-                            <div class="text-[9px] font-bold text-slate-400 border-b border-slate-200 pb-1.5 text-center mb-3 uppercase">Driver Cabin Space</div>
+                            <div class="text-[9px] font-bold text-slate-400 border-b border-slate-200 pb-1.5 text-center mb-3 uppercase">Driver Cabin Area</div>
                             <div id="seating-grid" class="grid grid-cols-2 gap-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- EXPENSE MATRIX -->
+                    <div id="panel-expenses" class="hidden space-y-4 text-xs">
+                        <div class="bg-slate-50 border border-slate-200 rounded p-3 space-y-2">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Add Unexpected Highway Expenses</span>
+                            <form id="expense-form" onsubmit="addHighwayExpense(event)" class="space-y-2">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <select id="expense-type" class="w-full p-1.5 border border-slate-200 rounded bg-white">
+                                            <option value="meals">Meal Fees</option>
+                                            <option value="hotel">Driver Hotel Stay</option>
+                                            <option value="charging">Fast Charging Cost</option>
+                                            <option value="maintenance">Unscheduled Parts Maintenance</option>
+                                            <option value="tolls">Highway Toll Cost</option>
+                                            <option value="bribery">Unscheduled Fine/Bribery</option>
+                                            <option value="misc">Miscellaneous</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <input type="number" id="expense-amount" placeholder="Amount (NPR)" required class="w-full p-1.5 border border-slate-200 rounded focus:outline-none">
+                                    </div>
+                                </div>
+                                <input type="text" id="expense-comment" placeholder="Unscheduled cost comment details..." required class="w-full p-1.5 border border-slate-200 rounded focus:outline-none">
+                                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-1.5 rounded text-[11px] transition">Record Unexpected Expense</button>
+                            </form>
+                        </div>
+
+                        <div class="border border-slate-200 rounded p-3 space-y-2 bg-white">
+                            <h4 class="font-bold text-slate-800">Current Trip Ledger Summary</h4>
+                            <div id="insp-exp-list" class="space-y-1 text-[11px] text-slate-600"></div>
                         </div>
                     </div>
 
@@ -202,6 +232,35 @@
         </main>
     </div>
 
+    <!-- IN-APP BEAUTIFUL SLIDE-OVER NOTIFICATION MODAL -->
+    <div id="manifest-modal" class="fixed inset-0 bg-slate-950/60 z-50 flex items-center justify-center hidden">
+        <div class="bg-white p-5 rounded-lg shadow-xl w-80 space-y-3.5 border border-slate-200">
+            <h3 class="text-xs font-bold text-slate-900 border-b border-slate-100 pb-2 flex items-center space-x-1.5">
+                <i data-lucide="ticket" class="w-4.5 h-4.5 text-emerald-600"></i>
+                <span>Passenger Manifest Verified</span>
+            </h3>
+            <div class="text-xs space-y-1 text-slate-700">
+                <div class="flex justify-between">
+                    <span class="text-slate-400">Passenger Seat:</span>
+                    <span id="manifest-seat" class="font-bold font-mono-data">N/A</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-400">Passenger Name:</span>
+                    <span id="manifest-name" class="font-bold">N/A</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-400">Phone Contact:</span>
+                    <span id="manifest-phone" class="font-bold font-mono-data">N/A</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-400">Ticket Fare Rate:</span>
+                    <span id="manifest-fare" class="font-bold text-emerald-600">N/A</span>
+                </div>
+            </div>
+            <button onclick="closeManifestModal()" class="w-full bg-slate-950 hover:bg-slate-800 text-white font-bold py-1.5 rounded text-xs transition">Dismiss Ticket</button>
+        </div>
+    </div>
+
     <script>
         let db = getDatabase();
         let activeVehicleId = "EV-101";
@@ -210,35 +269,31 @@
         let activeCamera = "Cabin Front";
 
         document.addEventListener("DOMContentLoaded", () => {
-            renderDeparturePage();
+            applyFilters();
             selectVehicle("EV-101");
             lucide.createIcons();
         });
 
-        function renderDeparturePage() {
-            applyFilters();
-        }
-
         function applyFilters() {
             const query = document.getElementById("search-input").value.toLowerCase();
-            const dest = document.getElementById("filter-destination").value;
+            const status = document.getElementById("filter-status").value;
+            const cap = document.getElementById("filter-capacity").value;
             const owner = document.getElementById("filter-owner").value;
-            const occ = document.getElementById("filter-occupancy").value;
 
             const filtered = db.vehicles.filter(v => {
                 const matchesSearch = v.regNo.toLowerCase().includes(query) || v.id.toLowerCase().includes(query);
-                const matchesDest = dest === "all" || v.destination === dest;
-                const matchesOwner = owner === "all" || v.owner === owner;
+                const matchesStatus = status === "all" || v.status === status;
                 
-                const bookedCount = v.seats.filter(s => s.status === "occupied").length;
-                let matchesOccupancy = true;
-                if (occ === "full") {
-                    matchesOccupancy = bookedCount === v.capacity;
-                } else if (occ === "available") {
-                    matchesOccupancy = bookedCount < v.capacity;
+                let matchesCap = true;
+                if (cap !== "all") {
+                    if (cap === "19") matchesCap = v.capacity === 19;
+                    if (cap === "15") matchesCap = v.capacity === 15;
+                    if (cap === "14") matchesCap = v.capacity === 14;
                 }
 
-                return matchesSearch && matchesDest && matchesOwner && matchesOccupancy;
+                const matchesOwner = owner === "all" || v.owner === owner;
+
+                return matchesSearch && matchesStatus && matchesCap && matchesOwner;
             });
 
             const rowsContainer = document.getElementById("departure-rows");
@@ -261,12 +316,9 @@
                             <span class="font-medium text-slate-700 block">${v.currentLocation}</span>
                             <span class="text-[9px] text-slate-400 block font-semibold">[ Next: ${v.nextStop} ]</span>
                         </td>
+                        <td class="p-3 font-mono-data font-bold">${bookedCount} / ${v.capacity}</td>
                         <td class="p-3">
                             <span class="text-[10px] font-bold px-1.5 py-0.5 rounded border ${v.status === 'In Transit' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-slate-100 text-slate-600 border-slate-200'}">[ ${v.status} ]</span>
-                        </td>
-                        <td class="p-3">
-                            <span class="font-bold block font-mono-data">${bookedCount} / ${v.capacity}</span>
-                            <span class="text-[9px] font-semibold text-slate-400 uppercase">${bookedCount === v.capacity ? '[ FULL ]' : '[ Vacancy ]'}</span>
                         </td>
                     </tr>
                 `;
@@ -280,27 +332,29 @@
             const v = db.vehicles.find(veh => veh.id === id);
             if (!v) return;
 
-            // Update Header specs
             document.getElementById("insp-id").innerText = v.id;
             document.getElementById("insp-reg").innerText = v.regNo;
 
-            // Progress Panel
+            // Route details update
             document.getElementById("insp-curr").innerText = v.currentLocation;
             document.getElementById("insp-next").innerText = v.nextStop;
             document.getElementById("insp-eta").innerText = `${v.eta} ${v.delay > 0 ? `(+${v.delay}m delay)` : '(On Schedule)'}`;
 
-            // Contacts
+            // Personnel contacts
             document.getElementById("insp-driver").innerText = `${v.driver} (${v.driverPhone})`;
             document.getElementById("insp-conductor").innerText = `${v.conductor} (${v.conductorPhone})`;
             document.getElementById("insp-owner").innerText = v.owner;
 
-            // Specs
+            // Health parameters
             document.getElementById("insp-model").innerText = v.model;
-            document.getElementById("insp-battery").innerText = `${v.battery}% / ${v.range} KM`;
-            document.getElementById("insp-rate").innerText = `${v.chargeLimit} Input limit`;
-            document.getElementById("insp-mech").innerText = `TYRES ${v.checklist.tyres} | BRAKES ${v.checklist.brakes} | LIGHTS ${v.checklist.lights}`;
+            document.getElementById("insp-rate").innerText = `${v.chargeLimit} Max limit`;
 
-            // Seat Matrix
+            // Clear seating inputs
+            document.getElementById("seat-id").value = "";
+            document.getElementById("passenger-name").value = "";
+            document.getElementById("passenger-phone").value = "";
+
+            // Populate Seating plan
             const grid = document.getElementById("seating-grid");
             grid.innerHTML = v.seats.map(s => {
                 const isOcc = s.status === "occupied";
@@ -312,7 +366,35 @@
                 `;
             }).join('');
 
-            document.getElementById("seat-id").value = "";
+            // Populate Expense list
+            const expList = document.getElementById("insp-exp-list");
+            expList.innerHTML = `
+                <div class="flex justify-between border-b border-slate-50 py-1.5">
+                    <span>Hotel Room Cost:</span>
+                    <span class="font-bold">NPR ${v.expenses.hotel.toLocaleString()}</span>
+                </div>
+                <div class="flex justify-between border-b border-slate-50 py-1.5">
+                    <span>Trip Meal cost:</span>
+                    <span class="font-bold">NPR ${v.expenses.meals.toLocaleString()}</span>
+                </div>
+                <div class="flex justify-between border-b border-slate-50 py-1.5">
+                    <span>Charging Cost:</span>
+                    <span class="font-bold">NPR ${v.expenses.charging.toLocaleString()}</span>
+                </div>
+                <div class="flex justify-between border-b border-slate-50 py-1.5">
+                    <span>Maintenance Expenses:</span>
+                    <span class="font-bold">NPR ${v.expenses.maintenance.toLocaleString()}</span>
+                </div>
+                <div class="flex justify-between border-b border-slate-50 py-1.5">
+                    <span>Bribery / Compliance:</span>
+                    <span class="font-bold">NPR ${v.expenses.bribery.toLocaleString()}</span>
+                </div>
+                <div class="flex justify-between py-1.5 text-slate-900 font-extrabold font-mono-data">
+                    <span>Total Trip Costs:</span>
+                    <span>NPR ${v.totalExpenses.toLocaleString()}</span>
+                </div>
+                <p class="text-[9px] text-slate-400 italic mt-1.5">Comment log: ${v.expenses.miscComment}</p>
+            `;
 
             if (activeTab === "cctv") {
                 startCameraStream();
@@ -323,12 +405,14 @@
             activeTab = tab;
             document.getElementById("tab-profile-btn").className = "flex-1 py-2 text-center border-b-2 border-transparent text-slate-400";
             document.getElementById("tab-seating-btn").className = "flex-1 py-2 text-center border-b-2 border-transparent text-slate-400";
+            document.getElementById("tab-expenses-btn").className = "flex-1 py-2 text-center border-b-2 border-transparent text-slate-400";
             document.getElementById("tab-cctv-btn").className = "flex-1 py-2 text-center border-b-2 border-transparent text-slate-400";
 
             document.getElementById(`tab-${tab}-btn`).className = "flex-1 py-2 text-center border-b-2 border-slate-900 text-slate-900 font-bold";
 
             document.getElementById("panel-profile").classList.add("hidden");
             document.getElementById("panel-seating").classList.add("hidden");
+            document.getElementById("panel-expenses").classList.add("hidden");
             document.getElementById("panel-cctv").classList.add("hidden");
 
             document.getElementById(`panel-${tab}`).classList.remove("hidden");
@@ -344,10 +428,21 @@
             if (status === "occupied") {
                 const v = db.vehicles.find(veh => veh.id === activeVehicleId);
                 const s = v.seats.find(st => st.id === id);
-                alert(`Checked manifest:\nPassenger: ${s.name}\nContact: ${s.phone}`);
+                
+                // Populating beautiful in-app layout elements rather than throwing bad browser dialog alerts
+                document.getElementById("manifest-seat").innerText = id;
+                document.getElementById("manifest-name").innerText = s.name;
+                document.getElementById("manifest-phone").innerText = s.phone || "N/A";
+                document.getElementById("manifest-fare").innerText = `NPR ${s.fare ? s.fare.toLocaleString() : "1,650"}`;
+
+                document.getElementById("manifest-modal").classList.remove("hidden");
                 return;
             }
             document.getElementById("seat-id").value = id;
+        }
+
+        function closeManifestModal() {
+            document.getElementById("manifest-modal").classList.add("hidden");
         }
 
         function bookSelectedSeat(e) {
@@ -355,9 +450,12 @@
             const seatId = document.getElementById("seat-id").value;
             const name = document.getElementById("passenger-name").value;
             const phone = document.getElementById("passenger-phone").value;
+            const fareSelect = document.getElementById("passenger-fare-type");
+            const fareType = fareSelect.value;
+            const fareAmt = parseInt(fareSelect.options[fareSelect.selectedIndex].getAttribute("data-fare"));
 
             if (!seatId) {
-                alert("Please click on a vacant seat model in the floor plan first.");
+                alert("Click a vacant seat layout in the visual grid first.");
                 return;
             }
 
@@ -366,13 +464,41 @@
             s.status = "occupied";
             s.name = name;
             s.phone = phone;
+            s.fareType = fareType;
+            s.fare = fareAmt;
 
-            // Commit to database storage
+            // Recalculate financial state totals
+            v.passengerRevenue = v.seats.reduce((acc, curr) => acc + curr.fare, 0);
+            v.netRevenue = (v.passengerRevenue + v.cargoRevenue) - v.totalExpenses;
+
             updateDatabase(db);
-            alert(`Booking saved to ${seatId} for passenger: ${name}`);
-            
-            // Reload inspector view
             selectVehicle(activeVehicleId);
+        }
+
+        function addHighwayExpense(e) {
+            e.preventDefault();
+            const expType = document.getElementById("expense-type").value;
+            const amount = parseInt(document.getElementById("expense-amount").value);
+            const comment = document.getElementById("expense-comment").value;
+
+            const v = db.vehicles.find(veh => veh.id === activeVehicleId);
+            if (!v) return;
+
+            // Update sub-category cost
+            v.expenses[expType] += amount;
+            v.expenses.miscComment = comment;
+
+            // Recalculate totals
+            v.totalExpenses = Object.values(v.expenses).reduce((acc, val) => {
+                return typeof val === "number" ? acc + val : acc;
+            }, 0);
+            v.netRevenue = (v.passengerRevenue + v.cargoRevenue) - v.totalExpenses;
+
+            updateDatabase(db);
+            selectVehicle(activeVehicleId);
+
+            document.getElementById("expense-amount").value = "";
+            document.getElementById("expense-comment").value = "";
         }
 
         function startCameraStream() {
