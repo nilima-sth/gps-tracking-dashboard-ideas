@@ -21,8 +21,8 @@ window.UnileverSalesMapLib = {
       html: `
         <div style="position: relative; width: 28px; height: 28px;">
           <div style="position: absolute; top: -2px; left: -2px; width: 32px; height: 32px; border-radius: 50%; border: 3px solid ${color}; animation: ringPulse 1.8s ease-out infinite; pointer-events: none;"></div>
-          <div title="Fix Time&#10;04/03/2026, 08:01:08 AM" style="background-color: ${color}; width: 28px; height: 28px; border-radius: 50%; border: 2.5px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; color: #fff; cursor: help;">
-            <i class="fa-solid fa-truck-ramp-box" style="font-size: 11px;"></i>
+          <div style="background-color: ${color}; width: 28px; height: 28px; border-radius: 50%; border: 2.5px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; color: #fff;">
+            <i class="fa-solid fa-truck" style="font-size: 11px;"></i>
           </div>
         </div>`,
       className: 'custom-map-marker',

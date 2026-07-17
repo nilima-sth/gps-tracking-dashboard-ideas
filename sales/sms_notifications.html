@@ -1,15 +1,15 @@
 <div class="o-breadcrumb">
   <a href="#" onclick="loadComponent('live_tracking')">Fleet</a> › 
   <a href="#" onclick="loadComponent('live_tracking')">Sales Dashboard</a> › 
-  <span>SMS Gateway</span>
+  <span>Message Center</span>
 </div>
 <div class="o-page-title">
-  Communication Logs & SMS Dispatch
+  Communication Logs & Message Dispatch
 </div>
 
 <div class="list-card" style="max-width: 600px; margin: 0 auto; padding: 20px;">
   <div class="sms-box" style="border: 1px solid var(--border); box-shadow: none; display: block; width: 100%;">
-    <div class="sms-header" style="background: var(--teal);"><i class="fa-solid fa-comment-sms"></i> Manual System Notification</div>
+    <div class="sms-header" style="background: var(--purple-mid);"><i class="fa-solid fa-envelope-open-text"></i> Manual Message Dispatch</div>
     <div class="sms-body">
       <div class="sms-field">
         <label>Distributor Stream Selection</label>
@@ -21,8 +21,10 @@
         <textarea id="sms-body-preview" style="width: 100%; height: 120px; padding: 10px; border: 1px solid var(--border); border-radius: 5px; font-family: sans-serif; resize: none;"></textarea>
       </div>
     </div>
-    <div class="sms-footer" style="margin-top: 15px; border-top: none; padding: 0; background: transparent;">
-      <button class="btn-send" style="width: 100%; padding: 10px;" onclick="alert('SMS queued for dispatch via Odoo.')"><i class="fa-solid fa-paper-plane"></i> Execute SMS Broadcast</button>
+    <div class="sms-footer" style="margin-top: 20px; border-top: none; padding: 0; background: transparent; display: flex; gap: 8px; justify-content: stretch;">
+      <button class="btn-send" style="flex: 1; padding: 10px 6px; background: var(--purple-mid); font-size: 11px;" onclick="window.executeMessageBroadcast('Email')"><i class="fa-solid fa-envelope"></i> Send via Email</button>
+      <button class="btn-send" style="flex: 1; padding: 10px 6px; background: var(--teal); font-size: 11px;" onclick="window.executeMessageBroadcast('SMS')"><i class="fa-solid fa-comment-sms"></i> Send via SMS</button>
+      <button class="btn-send" style="flex: 1; padding: 10px 6px; background: #25D366; font-size: 11px;" onclick="window.executeMessageBroadcast('WhatsApp')"><i class="fa-brands fa-whatsapp"></i> Send via WhatsApp</button>
     </div>
   </div>
 </div>

@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="css/unilever_enterprise.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <style>
     /* Framework structural positions */
@@ -39,8 +40,121 @@
     .nav-item.active .nav-icon { color: var(--purple); }
     .nav-badge { margin-left: auto; background: var(--red); color: #fff; font-size: 9.5px; font-weight: 700; padding: 1px 6px; border-radius: 10px; }
     
-    .o-main { margin-left: var(--sidebar-w); padding-top: var(--topbar-h); min-height: 100vh; }
+    .o-main { margin-left: var(--sidebar-w); padding-top: var(--topbar-h); min-height: 100vh; display: flex; }
+    .o-content-wrapper { flex: 1; overflow-y: auto; height: calc(100vh - var(--topbar-h)); }
     .o-content { padding: 14px 18px 24px; }
+    
+    /* Sales Team Switcher Select */
+    .role-pill-select {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      outline: none;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .role-pill-select option {
+      background: var(--purple-dark);
+      color: #fff;
+    }
+    
+    /* Distributor Quick-Reference Panel */
+    .o-right-sidebar {
+      width: 290px;
+      background: var(--white);
+      border-left: 1px solid var(--border);
+      padding: 16px;
+      overflow-y: auto;
+      height: calc(100vh - var(--topbar-h));
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .quick-ref-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--purple);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .quick-ref-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .quick-ref-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: all 0.2s ease;
+    }
+    .quick-ref-item:hover {
+      border-color: var(--purple-mid);
+      background: var(--purple-light);
+    }
+    .quick-ref-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .quick-ref-name {
+      font-weight: 600;
+      font-size: 11.5px;
+      color: var(--text);
+    }
+    .quick-ref-status {
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .quick-ref-status.receiving {
+      background: var(--teal-light);
+      color: var(--teal-dark);
+    }
+    .quick-ref-status.delayed {
+      background: var(--red-light);
+      color: var(--red);
+    }
+    .quick-ref-status.no-dispatch {
+      background: #F3F4F6;
+      color: var(--text-muted);
+    }
+    .quick-ref-meta {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .quick-ref-btn {
+      background: transparent;
+      border: none;
+      color: var(--teal);
+      cursor: pointer;
+      font-size: 12px;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    .quick-ref-btn:hover {
+      background: var(--teal-light);
+    }
     
     /* Interactive Wizard Styling */
     .sms-modal { display: none; position: fixed; inset: 0; background: rgba(31, 41, 55, .5); z-index: 2000; align-items: center; justify-content: center; }
@@ -56,6 +170,68 @@
     .btn-cancel { border: 1px solid var(--border); background: var(--white); padding: 6px 14px; border-radius: 5px; font-size: 12px; cursor: pointer; color: var(--text-muted); }
     .btn-send { background: var(--teal); color: #fff; border: none; padding: 6px 14px; border-radius: 5px; font-size: 12px; font-weight: 600; cursor: pointer; }
     .toast { position: fixed; bottom: 20px; right: 20px; background: var(--teal); color: #fff; padding: 10px 16px; border-radius: 7px; font-size: 12.5px; font-weight: 600; box-shadow: 0 4px 16px rgba(0, 0, 0, .2); display: none; z-index: 3000; }
+    
+    /* User Dropdown Menu */
+    .user-dropdown {
+      position: absolute;
+      top: 48px;
+      right: 20px;
+      width: 240px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      z-index: 2000;
+      display: none;
+      flex-direction: column;
+      padding: 6px 0;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .user-dropdown.active {
+      display: flex;
+    }
+    .user-dropdown .dropdown-header {
+      padding: 10px 16px;
+      text-align: left;
+    }
+    .user-dropdown .dropdown-header .user-name {
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text);
+    }
+    .user-dropdown .dropdown-header .user-role {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .user-dropdown .dropdown-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 0;
+    }
+    .user-dropdown .dropdown-item {
+      padding: 8px 16px;
+      font-size: 12px;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.15s ease;
+      cursor: pointer;
+      text-align: left;
+    }
+    .user-dropdown .dropdown-item:hover {
+      background: var(--purple-light);
+      color: var(--purple);
+    }
+    .user-dropdown .dropdown-item.logout {
+      color: var(--red);
+    }
+    .user-dropdown .dropdown-item.logout:hover {
+      background: #FEF2F2;
+      color: var(--red);
+    }
   </style>
 </head>
 <body>
@@ -70,11 +246,33 @@
       Odoo <span class="badge">19</span>
     </div>
     <div class="app-name">📊 Sales – Fleet Tracking</div>
-    <span class="role-pill" id="scoped-label">Loading Session...</span>
-    <div class="topbar-right">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span class="role-pill" id="scoped-label">Loading Session...</span>
+      <select id="salesperson-switcher" class="role-pill-select" onchange="window.switchSalesperson(this.value)" style="display: none;">
+        <option value="A">Rep A: Saurav Pradhan (Bagmati)</option>
+        <option value="B">Rep B: Anil Gurung (Gandaki/Madhesh)</option>
+      </select>
+    </div>
+    <div class="topbar-right" style="position: relative;">
       <div class="icon-btn"><i class="fa-solid fa-bell"></i></div>
       <div class="icon-btn"><i class="fa-solid fa-gear"></i></div>
-      <div class="avatar" id="avatar-initials">--</div>
+      <div class="avatar" id="avatar-initials" onclick="window.toggleUserProfileDropdown(event)" style="cursor: pointer;">--</div>
+      
+      <!-- User Profile Dropdown -->
+      <div class="user-dropdown" id="user-profile-dropdown">
+        <div class="dropdown-header">
+          <div class="user-name" id="dropdown-user-name">Saurav Pradhan</div>
+          <div class="user-role" id="dropdown-user-role">Sales Manager · Bagmati</div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a href="#" onclick="window.switchUserProfile(event); return false;" class="dropdown-item" id="dropdown-switch-action">
+          <i class="fa-solid fa-user-gear"></i> Switch to Rep B (Anil Gurung)
+        </a>
+        <div class="dropdown-divider"></div>
+        <a href="#" onclick="window.switchUserProfile(event); return false;" class="dropdown-item logout">
+          <i class="fa-solid fa-right-from-bracket"></i> Switch User / Log Out
+        </a>
+      </div>
     </div>
   </div>
 
@@ -95,26 +293,37 @@
       <div class="nav-item active" onclick="loadComponent('live_tracking')"><span class="nav-icon"><i class="fa-solid fa-map-location-dot"></i></span> Live Tracking</div>
       <div class="nav-item" onclick="loadComponent('my_distributors')"><span class="nav-icon"><i class="fa-solid fa-users"></i></span> My Distributors</div>
       <div class="nav-item" onclick="loadComponent('my_deliveries')"><span class="nav-icon"><i class="fa-solid fa-box"></i></span> My Deliveries <span class="nav-badge" id="badge-alert-count">0</span></div>
-      <div class="nav-item" onclick="loadComponent('sms_notifications')"><span class="nav-icon"><i class="fa-solid fa-comment-sms"></i></span> SMS Notifications</div>
+      <div class="nav-item" onclick="loadComponent('sms_notifications')"><span class="nav-icon"><i class="fa-solid fa-envelope"></i></span> Message Dispatch</div>
     </div>
     <div class="nav-section">
       <div class="nav-label">Sales</div>
       <div class="nav-item" onclick="loadComponent('sales_orders')"><span class="nav-icon"><i class="fa-solid fa-file-invoice"></i></span> Sales Orders</div>
-      <div class="nav-item" onclick="loadComponent('revenue_territory')"><span class="nav-icon"><i class="fa-solid fa-hand-holding-dollar"></i></span> Revenue – Territory</div>
       <div class="nav-item" onclick="loadComponent('performance_kpis')"><span class="nav-icon"><i class="fa-solid fa-chart-line"></i></span> Performance KPIs</div>
     </div>
   </div>
 
   <!-- COMPONENT APP VIEWPORT CONTAINER -->
   <div class="o-main">
-    <div class="o-content" id="app-viewport">
+    <div class="o-content-wrapper">
+      <div class="o-content" id="app-viewport">
+      </div>
+    </div>
+    
+    <!-- Distributor Quick-Reference Panel -->
+    <div class="o-right-sidebar">
+      <div class="quick-ref-title">
+        <i class="fa-solid fa-users-gear"></i> Distributor Quick-Ref
+      </div>
+      <div class="quick-ref-list" id="quick-ref-list">
+        <!-- Will be populated dynamically -->
+      </div>
     </div>
   </div>
 
   <!-- MODAL WIZARDS -->
-  <div class="sms-modal" id="smsModal">
-    <div class="sms-box">
-      <div class="sms-header"><i class="fa-solid fa-comment-sms"></i> Notify Distributor via SMS — Odoo SMS Wizard</div>
+    <div class="sms-modal" id="smsModal">
+      <div class="sms-box">
+        <div class="sms-header"><i class="fa-solid fa-envelope-open-text"></i> Send Message Notification — Odoo Dispatch Center</div>
       <div class="sms-body">
         <div class="sms-field">
           <label>Recipient (Distributor)</label>
@@ -125,14 +334,16 @@
           <textarea id="smsMessage"></textarea>
         </div>
       </div>
-      <div class="sms-footer">
-        <button class="btn-cancel" onclick="closeSmsModal()">Cancel</button>
-        <button class="btn-send" onclick="sendSms()"><i class="fa-solid fa-paper-plane"></i> Send SMS via Odoo</button>
-      </div>
+        <div class="sms-footer" style="display: flex; gap: 8px; justify-content: flex-end;">
+          <button class="btn-cancel" onclick="closeSmsModal()">Cancel</button>
+          <button class="btn-send" style="background: var(--purple-mid);" onclick="sendSms('Email')"><i class="fa-solid fa-envelope"></i> Email</button>
+          <button class="btn-send" style="background: var(--teal);" onclick="sendSms('SMS')"><i class="fa-solid fa-comment-sms"></i> SMS</button>
+          <button class="btn-send" style="background: #25D366;" onclick="sendSms('WhatsApp')"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+        </div>
     </div>
   </div>
 
-  <div class="toast" id="toast"><i class="fa-solid fa-check"></i> SMS sent successfully via Odoo</div>
+  <div class="toast" id="toast"><i class="fa-solid fa-check"></i> Message sent successfully</div>
 
   <!-- THIRD PARTY DEPENDENCIES -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -151,9 +362,33 @@
           const db = window.UNILEVER_GLOBAL_DB;
           if (!db) return;
 
+          // Copy initial profile properties to root database object before initial render
+          const initialId = db.session.salespersonId || 'A';
+          const profile = db.salespersons[initialId];
+          if (profile) {
+            db.session.user = profile.user;
+            db.session.role = profile.role;
+            db.session.scope = profile.scope;
+            db.session.rule = profile.rule;
+            db.session.salespersonId = initialId;
+            db.metrics = profile.metrics;
+            db.distributors = profile.distributors;
+            db.dispatches = profile.dispatches;
+            db.salesOrders = profile.salesOrders;
+            db.revenue = profile.revenue;
+            db.kpis = profile.kpis;
+            db.mapCenter = profile.mapCenter;
+            db.mapZoom = profile.mapZoom;
+          }
+
           this.cacheDOM();
           this.bindInitialState(db);
           this.routeDefaultView();
+          
+          // Render Right-Hand Quick-Reference Panel
+          if (window.renderQuickRefPanel) {
+            window.renderQuickRefPanel();
+          }
         },
 
         cacheDOM() {
@@ -175,10 +410,24 @@
           this.sidebarUser.textContent = `Rep: ${db.session.user}`;
           this.avatarInitials.textContent = db.session.user.split(' ').map(n => n[0]).join('');
           
-          this.statDist.textContent = db.distributors.filter(d => d.status !== 'pending').length;
+          this.statDist.textContent = db.distributors.length;
           this.statDeliv.textContent = db.metrics.deliveriesToday;
           this.statDelay.textContent = db.metrics.delayedOrders;
           this.badgeAlertCount.textContent = db.metrics.delayedOrders;
+
+          // Update dropdown details dynamically
+          const dropName = document.getElementById('dropdown-user-name');
+          const dropRole = document.getElementById('dropdown-user-role');
+          const dropAction = document.getElementById('dropdown-switch-action');
+          
+          if (dropName) dropName.textContent = db.session.user;
+          if (dropRole) dropRole.textContent = `${db.session.role} · ${db.session.scope}`;
+          
+          if (dropAction) {
+            const nextRepName = db.session.salespersonId === 'A' ? 'Anil Gurung' : 'Saurav Pradhan';
+            const nextRepId = db.session.salespersonId === 'A' ? 'B' : 'A';
+            dropAction.innerHTML = `<i class="fa-solid fa-arrow-rotate-left"></i> Switch to Rep ${nextRepId} (${nextRepName})`;
+          }
         },
 
         routeDefaultView() {
@@ -210,25 +459,180 @@
         }
       };
 
+      // Expose PortalShell to window so switchSalesperson can trigger mounts
+      window.PortalShell = PortalShell;
+
       window.loadComponent = (componentName) => {
         PortalShell.mountComponent(componentName, window.event?.currentTarget);
       };
 
+      // Switch Salesperson logic
+      window.switchSalesperson = function(id) {
+        const db = window.UNILEVER_GLOBAL_DB;
+        const profile = db.salespersons[id];
+        if (!profile) return;
+        
+        db.session.user = profile.user;
+        db.session.role = profile.role;
+        db.session.scope = profile.scope;
+        db.session.rule = profile.rule;
+        db.session.salespersonId = id;
+        
+        db.metrics = profile.metrics;
+        db.distributors = profile.distributors;
+        db.dispatches = profile.dispatches;
+        db.salesOrders = profile.salesOrders;
+        db.revenue = profile.revenue;
+        db.kpis = profile.kpis;
+        db.mapCenter = profile.mapCenter;
+        db.mapZoom = profile.mapZoom;
+        
+        // Re-bind sidebar and topbar labels
+        PortalShell.bindInitialState(db);
+        
+        // Render the quick-reference sidebar panel
+        if (window.renderQuickRefPanel) {
+          window.renderQuickRefPanel();
+        }
+        
+        // Reload current active viewport component
+        const activeItem = document.querySelector('.nav-section .nav-item.active');
+        if (activeItem) {
+          const onclickAttr = activeItem.getAttribute('onclick');
+          const match = onclickAttr ? onclickAttr.match(/'([^']+)'/) : null;
+          const currentComp = match ? match[1] : 'live_tracking';
+          PortalShell.mountComponent(currentComp, activeItem);
+        } else {
+          PortalShell.mountComponent('live_tracking');
+        }
+      };
+
+      // Distributor Quick-Reference list rendering
+      window.renderQuickRefPanel = function() {
+        const db = window.UNILEVER_GLOBAL_DB;
+        const container = document.getElementById('quick-ref-list');
+        if (!container) return;
+
+        container.innerHTML = '';
+        
+        const distributors = db.distributors || [];
+        distributors.forEach(d => {
+          const item = document.createElement('div');
+          item.className = 'quick-ref-item';
+          
+          let statusClass = 'no-dispatch';
+          let statusText = 'No Dispatch';
+          
+          if (d.status === 'active' || d.status === 'arriving') {
+            statusClass = 'receiving';
+            statusText = 'Receiving Today';
+          } else if (d.status === 'delayed') {
+            statusClass = 'delayed';
+            statusText = 'Delayed Alert';
+          } else if (d.status === 'pending') {
+            statusClass = 'no-dispatch';
+            statusText = d.lastDispatch ? `Last: ${d.lastDispatch}` : 'No Dispatch';
+          }
+          
+          // Find matching active dispatch
+          let actionBtnHtml = '';
+          const activeDispatch = Object.values(db.dispatches).find(disp => disp.distributor === d.name);
+          if (activeDispatch) {
+            actionBtnHtml = `
+              <button class="quick-ref-btn" onclick="openSmsWizard('${d.name}', '${activeDispatch.id}', '${activeDispatch.eta.split(' · ')[0]}')" title="Notify via SMS">
+                <i class="fa-solid fa-comment-sms"></i>
+              </button>
+            `;
+          }
+          
+          item.innerHTML = `
+            <div class="quick-ref-header">
+              <span class="quick-ref-name">${d.name}</span>
+              <span class="quick-ref-status ${statusClass}">${statusText}</span>
+            </div>
+            <div class="quick-ref-meta">
+              <span>Contact: ${d.contact}</span>
+              ${actionBtnHtml}
+            </div>
+          `;
+          container.appendChild(item);
+        });
+      };
+
       // Modal helpers
-      window.openSmsWizard = function(dist, order, eta) {
-        document.getElementById('smsRecipient').value = dist;
-        document.getElementById('smsMessage').value = `Dear Partner,\n\nYour Unilever Nepal delivery (Ref: ${order}) is en route and expected to arrive by ${eta}.\n\nTrack progress: https://unilevernepal.com/track/xz7k9m2q`;
+      window.openSmsWizard = function(distName, orderId, etaTime) {
+        const db = window.UNILEVER_GLOBAL_DB;
+        const d = Object.values(db.dispatches).find(disp => disp.id === orderId);
+        
+        let msg = "";
+        let recipient = distName;
+        
+        if (d) {
+          recipient = `${d.distributor} - ${d.contact}`;
+          if (d.statusClass === 'red') {
+            msg = `Dear Partner,\n\nWe apologize for the delay. Your Unilever Nepal delivery (Ref: ${d.id}) has been delayed and is now expected to arrive by ${etaTime}.\n\nTrack real-time: http://127.0.0.1:8000/dashboard_distributor.html`;
+          } else {
+            msg = `Dear Partner,\n\nYour Unilever Nepal delivery (Ref: ${d.id}) is en route and expected to arrive by ${etaTime}.\n\nTrack: http://127.0.0.1:8000/dashboard_distributor.html`;
+          }
+        } else {
+          msg = `Dear Partner,\n\nYour delivery (Ref: ${orderId}) is expected by ${etaTime}.\n\nTrack: http://127.0.0.1:8000/dashboard_distributor.html`;
+        }
+
+        document.getElementById('smsRecipient').value = recipient;
+        document.getElementById('smsMessage').value = msg;
         document.getElementById('smsModal').classList.add('active');
       };
+      
       window.closeSmsModal = function() {
         document.getElementById('smsModal').classList.remove('active');
       };
-      window.sendSms = function() {
+      
+      window.sendSms = function(channel = 'SMS') {
         closeSmsModal();
         const t = document.getElementById('toast');
-        t.style.display = 'block';
-        setTimeout(() => t.style.display = 'none', 3000);
+        if (t) {
+          t.innerHTML = `<i class="fa-solid fa-check"></i> Message sent successfully via ${channel}`;
+          t.style.display = 'block';
+          setTimeout(() => t.style.display = 'none', 3000);
+        }
       };
+
+      // User Profile Dropdown handlers
+      window.toggleUserProfileDropdown = function(event) {
+        if (event) event.stopPropagation();
+        const dropdown = document.getElementById('user-profile-dropdown');
+        if (dropdown) {
+          dropdown.classList.toggle('active');
+        }
+      };
+
+      window.switchUserProfile = function(event) {
+        if (event) event.stopPropagation();
+        const db = window.UNILEVER_GLOBAL_DB;
+        const currentId = db.session.salespersonId;
+        const nextId = currentId === 'A' ? 'B' : 'A';
+        
+        // Hide the dropdown
+        const dropdown = document.getElementById('user-profile-dropdown');
+        if (dropdown) dropdown.classList.remove('active');
+        
+        // Switch salesperson
+        window.switchSalesperson(nextId);
+        
+        // Update switcher select if present
+        const switcherSelect = document.getElementById('salesperson-switcher');
+        if (switcherSelect) {
+          switcherSelect.value = nextId;
+        }
+      };
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function() {
+        const dropdown = document.getElementById('user-profile-dropdown');
+        if (dropdown) {
+          dropdown.classList.remove('active');
+        }
+      });
 
       document.addEventListener("DOMContentLoaded", () => PortalShell.init());
     })();
