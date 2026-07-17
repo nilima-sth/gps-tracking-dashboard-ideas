@@ -1471,13 +1471,38 @@ function vehiclesHTML() {
   return vehiclerequestHTML();
 }
 
+function initFleetState() {
+  if (!S.fleet) {
+    S.fleet = {
+      vReqState: 'New Request',
+      vModel: '', vPlate: '', vTags: '',
+      vMobility: '', vFutureDriver: '', vAssignDate: '',
+      vCategory: '', vOrderDate: '', vChassis: '', vGpsDevice: '', vGpsStatus: '', vGpsPos: '', vGpsSync: '', vGpsAddr: '', vManager: '',
+      cState: 'New', cType: 'Leasing', cRef: '', cVendor: 'Select...', cKM: false, cServices: '', cDate: '',
+      rState: 'Draft', rTab: 'Distance',
+      rOdoStart: '0.00', rOdoEnd: '0.00', rFuelQty: '0.00', rEmp: '',
+      gps: [
+        { id: 'gps1', name: 'Samjana', status: 'Offline', ignition: false, sel: false, route: '' },
+        { id: 'gps2', name: 'moto', status: 'Offline', ignition: true, sel: false, route: 'Suzate Pension & Restaurant, Machhindra Marg, Lalitpur-20...' },
+        { id: 'gps3', name: 'moto2', status: 'Offline', ignition: false, sel: false, route: '' }
+      ]
+    };
+  }
+  return S.fleet;
+}
+
 function vehiclerequestHTML() {
+  const st = initFleetState();
+  const statusBtn = (status) => st.vReqState === status 
+    ? 'background:var(--teal);color:#fff;border-radius:4px;padding:4px 10px;font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.1);' 
+    : 'padding:4px 10px;color:var(--text-muted);cursor:pointer;';
+
   return `<div>
     <div class="page-header">
       <div>
         <div class="page-title" style="display:flex;align-items:center;gap:10px;">
           <span style="color:var(--teal);">Vehicles</span>
-          <span style="color:var(--text-muted);font-weight:400;font-size:14px;">// No Plate</span>
+          <span style="color:var(--text-muted);font-weight:400;font-size:14px;">// ${st.vPlate || 'No Plate'}</span>
         </div>
       </div>
       <div style="display:flex;gap:12px;">
@@ -1487,15 +1512,15 @@ function vehiclerequestHTML() {
       </div>
     </div>
     <div style="background:var(--white);padding:10px 18px;border-bottom:1px solid var(--border);display:flex;gap:8px;">
-      <button class="btn btn-primary" onclick="showToast('Action','Request Vehicle Triggered')">Request Vehicle</button>
-      <button class="btn btn-outline" onclick="showToast('Action','Assign Vehicle Triggered')">Assign Vehicle</button>
-      <button class="btn btn-outline" onclick="showToast('Action','Ready for Delivery Triggered')">Ready for Delivery</button>
-      <button class="btn btn-outline" onclick="showToast('Action','Delivered Triggered')">Delivered</button>
+      <button class="btn btn-primary" onclick="showToast('Request','Vehicle Request Sent'); S.fleet.vReqState='To Order'; render();">Request Vehicle</button>
+      <button class="btn btn-outline" onclick="showToast('Assign','Vehicle Assigned'); S.fleet.vReqState='Registered'; render();">Assign Vehicle</button>
+      <button class="btn btn-outline" onclick="showToast('Ready','Marked as Ready');">Ready for Delivery</button>
+      <button class="btn btn-outline" onclick="showToast('Delivered','Vehicle Delivered'); S.fleet.vReqState='Delivered'; render();">Delivered</button>
       <div style="margin-left:auto;display:flex;gap:4px;font-size:11.5px;align-items:center;background:var(--bg);padding:3px;border-radius:6px;border:1px solid var(--border);">
-        <div style="padding:4px 10px;color:var(--text-muted);cursor:pointer;" onclick="showToast('State','Changed to Delivered')">Delivered</div>
-        <div style="background:var(--teal);color:#fff;border-radius:4px;padding:4px 10px;font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.1);">New Request</div>
-        <div style="padding:4px 10px;color:var(--text-muted);cursor:pointer;" onclick="showToast('State','Changed to To Order')">To Order</div>
-        <div style="padding:4px 10px;color:var(--text-muted);cursor:pointer;" onclick="showToast('State','Changed to Registered')">Registered</div>
+        <div style="${statusBtn('Delivered')}" onclick="S.fleet.vReqState='Delivered'; render();">Delivered</div>
+        <div style="${statusBtn('New Request')}" onclick="S.fleet.vReqState='New Request'; render();">New Request</div>
+        <div style="${statusBtn('To Order')}" onclick="S.fleet.vReqState='To Order'; render();">To Order</div>
+        <div style="${statusBtn('Registered')}" onclick="S.fleet.vReqState='Registered'; render();">Registered</div>
       </div>
     </div>
     <div class="page-body">
@@ -1504,15 +1529,15 @@ function vehiclerequestHTML() {
           <div style="flex:1;">
             <div class="form-group">
               <label class="form-label">Model</label>
-              <input class="form-input" style="font-size:20px;font-weight:700;padding:8px 12px;border-color:var(--teal);" placeholder="e.g. Model S">
+              <input class="form-input" style="font-size:20px;font-weight:700;padding:8px 12px;border-color:var(--teal);" placeholder="e.g. Model S" value="${st.vModel}" onchange="S.fleet.vModel=this.value; render();">
             </div>
             <div class="form-group" style="margin-top:15px;">
               <label class="form-label">License Plate</label>
-              <input class="form-input" style="font-size:16px;" placeholder="e.g. PAE 326">
+              <input class="form-input" style="font-size:16px;" placeholder="e.g. PAE 326" value="${st.vPlate}" onchange="S.fleet.vPlate=this.value; render();">
             </div>
             <div class="form-group" style="margin-top:15px;">
               <label class="form-label">Tags</label>
-              <input class="form-input" placeholder="Add tags...">
+              <input class="form-input" placeholder="Add tags..." value="${st.vTags}" onchange="S.fleet.vTags=this.value; render();">
             </div>
           </div>
           <div style="width:120px;height:120px;background:var(--bg);border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:36px;border-radius:8px;margin-left:40px;cursor:pointer;" onclick="showToast('Upload','Image upload dialog opened')">
@@ -1523,26 +1548,26 @@ function vehiclerequestHTML() {
           <div>
             <div style="font-weight:800;font-size:11px;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:5px;margin-bottom:15px;letter-spacing:1px;">DRIVER</div>
             <div class="stat-row"><span class="stat-label">Driver</span><span class="stat-val"><a href="#" onclick="showToast('Link','Driver selected');return false;">Select...</a></span></div>
-            <div class="stat-row"><span class="stat-label">Mobility Card</span><span class="stat-val"></span></div>
-            <div class="stat-row"><span class="stat-label">Future Driver</span><span class="stat-val"></span></div>
-            <div class="stat-row"><span class="stat-label">Assignment Date</span><span class="stat-val"></span></div>
+            <div class="stat-row"><span class="stat-label">Mobility Card</span><span class="stat-val"><input class="form-input" style="padding:4px 8px;width:150px;" value="${st.vMobility}" onchange="S.fleet.vMobility=this.value; render();"></span></div>
+            <div class="stat-row"><span class="stat-label">Future Driver</span><span class="stat-val"><input class="form-input" style="padding:4px 8px;width:150px;" value="${st.vFutureDriver}" onchange="S.fleet.vFutureDriver=this.value; render();"></span></div>
+            <div class="stat-row"><span class="stat-label">Assignment Date</span><span class="stat-val"><input class="form-input" type="date" style="padding:4px 8px;width:150px;" value="${st.vAssignDate}" onchange="S.fleet.vAssignDate=this.value; render();"></span></div>
             <div class="stat-row"><span class="stat-label">Company</span><span class="stat-val">My Company</span></div>
           </div>
           <div>
             <div style="font-weight:800;font-size:11px;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:5px;margin-bottom:15px;letter-spacing:1px;">VEHICLE</div>
-            <div class="stat-row"><span class="stat-label">Category</span><span class="stat-val"></span></div>
-            <div class="stat-row"><span class="stat-label">Order Date</span><span class="stat-val"></span></div>
-            <div class="stat-row"><span class="stat-label">Chassis Number</span><span class="stat-val"></span></div>
-            <div class="stat-row"><span class="stat-label">GPS Device</span><span class="stat-val"></span></div>
-            <div class="stat-row"><span class="stat-label">GPS Status</span><span class="stat-val"></span></div>
-            <div class="stat-row"><span class="stat-label">GPS Last Position</span><span class="stat-val"></span></div>
-            <div class="stat-row"><span class="stat-label">GPS Last Sync</span><span class="stat-val"></span></div>
+            <div class="stat-row"><span class="stat-label">Category</span><span class="stat-val"><input class="form-input" style="padding:4px 8px;width:150px;" value="${st.vCategory}" onchange="S.fleet.vCategory=this.value; render();"></span></div>
+            <div class="stat-row"><span class="stat-label">Order Date</span><span class="stat-val"><input class="form-input" type="date" style="padding:4px 8px;width:150px;" value="${st.vOrderDate}" onchange="S.fleet.vOrderDate=this.value; render();"></span></div>
+            <div class="stat-row"><span class="stat-label">Chassis Number</span><span class="stat-val"><input class="form-input" style="padding:4px 8px;width:150px;" value="${st.vChassis}" onchange="S.fleet.vChassis=this.value; render();"></span></div>
+            <div class="stat-row"><span class="stat-label">GPS Device</span><span class="stat-val"><input class="form-input" style="padding:4px 8px;width:150px;" value="${st.vGpsDevice}" onchange="S.fleet.vGpsDevice=this.value; render();"></span></div>
+            <div class="stat-row"><span class="stat-label">GPS Status</span><span class="stat-val"><input class="form-input" style="padding:4px 8px;width:150px;" value="${st.vGpsStatus}" onchange="S.fleet.vGpsStatus=this.value; render();"></span></div>
+            <div class="stat-row"><span class="stat-label">GPS Last Position</span><span class="stat-val"><input class="form-input" style="padding:4px 8px;width:150px;" value="${st.vGpsPos}" onchange="S.fleet.vGpsPos=this.value; render();"></span></div>
+            <div class="stat-row"><span class="stat-label">GPS Last Sync</span><span class="stat-val"><input class="form-input" style="padding:4px 8px;width:150px;" value="${st.vGpsSync}" onchange="S.fleet.vGpsSync=this.value; render();"></span></div>
             <div class="stat-row"><span class="stat-label">GPS Speed</span><span class="stat-val">0.00</span></div>
-            <div class="stat-row"><span class="stat-label">GPS Address</span><span class="stat-val"></span></div>
+            <div class="stat-row"><span class="stat-label">GPS Address</span><span class="stat-val"><input class="form-input" style="padding:4px 8px;width:150px;" value="${st.vGpsAddr}" onchange="S.fleet.vGpsAddr=this.value; render();"></span></div>
             <div class="stat-row"><span class="stat-label" style="font-weight:700;color:var(--text);">Vehicle Availability</span><span class="stat-val badge badge-green">Available</span></div>
             <div class="stat-row"><span class="stat-label">Last Revenue Amount</span><span class="stat-val">0.00 Rs</span></div>
             <div class="stat-row"><span class="stat-label">Currency</span><span class="stat-val" style="color:var(--teal);">NPR</span></div>
-            <div class="stat-row"><span class="stat-label">Fleet Manager</span><span class="stat-val"></span></div>
+            <div class="stat-row"><span class="stat-label">Fleet Manager</span><span class="stat-val"><input class="form-input" style="padding:4px 8px;width:150px;" value="${st.vManager}" onchange="S.fleet.vManager=this.value; render();"></span></div>
           </div>
         </div>
       </div>
@@ -1551,36 +1576,51 @@ function vehiclerequestHTML() {
 }
 
 function contractsHTML() {
+  const st = initFleetState();
+  const statusBtn = (status) => st.cState === status 
+    ? 'background:var(--teal);color:#fff;border-radius:4px;padding:4px 10px;font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.1);' 
+    : 'padding:4px 10px;color:var(--text-muted);cursor:pointer;';
+  
   return `<div>
     <div class="page-header">
       <div>
         <div class="page-title" style="display:flex;align-items:center;gap:10px;">
           <span style="color:var(--teal);">Contracts</span>
-          <span style="color:var(--text-muted);font-weight:400;font-size:14px;">New</span>
+          <span style="color:var(--text-muted);font-weight:400;font-size:14px;">${st.cRef || 'New'}</span>
         </div>
       </div>
     </div>
     <div style="background:var(--white);padding:10px 18px;border-bottom:1px solid var(--border);display:flex;gap:8px;">
       <button class="btn btn-primary" onclick="showToast('Action','Create Vendor Bill Triggered')">Create Vendor Bill</button>
       <div style="margin-left:auto;display:flex;gap:4px;font-size:11.5px;align-items:center;background:var(--bg);padding:3px;border-radius:6px;border:1px solid var(--border);">
-        <div style="padding:4px 10px;color:var(--text-muted);cursor:pointer;" onclick="showToast('State','Changed to New')">New</div>
-        <div style="background:var(--teal);color:#fff;border-radius:4px;padding:4px 10px;font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.1);">Running</div>
-        <div style="padding:4px 10px;color:var(--text-muted);cursor:pointer;" onclick="showToast('State','Changed to Expired')">Expired</div>
-        <div style="padding:4px 10px;color:var(--text-muted);cursor:pointer;" onclick="showToast('State','Changed to Cancelled')">Cancelled</div>
+        <div style="${statusBtn('New')}" onclick="S.fleet.cState='New'; render();">New</div>
+        <div style="${statusBtn('Running')}" onclick="S.fleet.cState='Running'; render();">Running</div>
+        <div style="${statusBtn('Expired')}" onclick="S.fleet.cState='Expired'; render();">Expired</div>
+        <div style="${statusBtn('Cancelled')}" onclick="S.fleet.cState='Cancelled'; render();">Cancelled</div>
       </div>
     </div>
     <div class="page-body">
       <div class="card" style="padding:20px;max-width:900px;">
         <div class="form-group" style="margin-bottom:24px;">
-          <input class="form-input" style="font-size:20px;font-weight:700;padding:8px 12px;border-color:var(--teal);width:50%;" placeholder="Reference Title">
+          <input class="form-input" style="font-size:20px;font-weight:700;padding:8px 12px;border-color:var(--teal);width:50%;" placeholder="Reference Title" value="${st.cRef}" onchange="S.fleet.cRef=this.value; render();">
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;">
           <div>
             <div style="font-weight:800;font-size:11px;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:5px;margin-bottom:15px;letter-spacing:1px;">INFORMATION</div>
-            <div class="stat-row"><span class="stat-label">Reference</span><span class="stat-val"><input class="form-input" style="padding:4px 8px;width:150px;"></span></div>
-            <div class="stat-row"><span class="stat-label">Type</span><span class="stat-val"><select class="form-input" style="padding:4px 8px;width:150px;"><option>Leasing</option></select></span></div>
-            <div class="stat-row"><span class="stat-label">Vendor</span><span class="stat-val"><select class="form-input" style="padding:4px 8px;width:150px;"><option>Select...</option></select></span></div>
-            <div class="stat-row"><span class="stat-label">Included Services</span><span class="stat-val"></span></div>
+            <div class="stat-row"><span class="stat-label">Reference</span><span class="stat-val"><input class="form-input" style="padding:4px 8px;width:150px;" value="${st.cRef}" onchange="S.fleet.cRef=this.value; render();"></span></div>
+            <div class="stat-row"><span class="stat-label">Type</span><span class="stat-val">
+              <select class="form-input" style="padding:4px 8px;width:150px;" onchange="S.fleet.cType=this.value; render();">
+                <option value="Leasing" ${st.cType==='Leasing'?'selected':''}>Leasing</option>
+                <option value="Maintenance" ${st.cType==='Maintenance'?'selected':''}>Maintenance</option>
+              </select>
+            </span></div>
+            <div class="stat-row"><span class="stat-label">Vendor</span><span class="stat-val">
+              <select class="form-input" style="padding:4px 8px;width:150px;" onchange="S.fleet.cVendor=this.value; render();">
+                <option value="Select..." ${st.cVendor==='Select...'?'selected':''}>Select...</option>
+                <option value="Toyota" ${st.cVendor==='Toyota'?'selected':''}>Toyota Motors</option>
+              </select>
+            </span></div>
+            <div class="stat-row"><span class="stat-label">Included Services</span><span class="stat-val"><input class="form-input" style="padding:4px 8px;width:150px;" value="${st.cServices}" onchange="S.fleet.cServices=this.value; render();"></span></div>
           </div>
           <div>
             <div style="margin-top:33px;"></div>
@@ -1594,7 +1634,7 @@ function contractsHTML() {
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;">
           <div>
             <div class="stat-row"><span class="stat-label">Vehicle</span><span class="stat-val"><a href="#" onclick="showToast('Link','Vehicle selected');return false;">Select...</a></span></div>
-            <div class="stat-row"><span class="stat-label">Is Cost per KM</span><span class="stat-val"><input type="checkbox" onclick="showToast('Toggle','Cost per KM changed')"></span></div>
+            <div class="stat-row"><span class="stat-label">Is Cost per KM</span><span class="stat-val"><input type="checkbox" ${st.cKM?'checked':''} onchange="S.fleet.cKM=this.checked; render();"></span></div>
             <div class="stat-row"><span class="stat-label">KM</span><span class="stat-val">0.00</span></div>
             
             <div style="background:var(--blue-light);border-left:4px solid var(--blue);padding:10px;font-size:11.5px;margin-top:14px;border-radius:4px;color:var(--text);max-width:300px;box-shadow:0 1px 2px rgba(0,0,0,.05);">
@@ -1613,11 +1653,11 @@ function contractsHTML() {
             <div class="stat-row"><span class="stat-label">Recurring Cost</span><span class="stat-val">0.00 Rs &nbsp;&nbsp;<span style="color:var(--text-muted);font-weight:500;">Monthly</span></span></div>
           </div>
           <div>
-            <div class="stat-row"><span class="stat-label">Date</span><span class="stat-val"></span></div>
+            <div class="stat-row"><span class="stat-label">Date</span><span class="stat-val"><input class="form-input" type="date" style="padding:4px 8px;width:150px;" value="${st.cDate}" onchange="S.fleet.cDate=this.value; render();"></span></div>
           </div>
         </div>
         <div style="margin-top:20px;padding-top:15px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;">
-           <button class="btn btn-primary" onclick="showToast('Saved','Contract saved successfully')">Save Contract</button>
+           <button class="btn btn-primary" onclick="S.fleet.cState='Running'; showToast('Saved','Contract saved successfully'); render();">Save Contract</button>
         </div>
       </div>
     </div>
@@ -1625,6 +1665,38 @@ function contractsHTML() {
 }
 
 function revenuesHTML() {
+  const st = initFleetState();
+  const statusBtn = (status) => st.rState === status 
+    ? 'background:var(--teal);color:#fff;border-radius:4px;padding:4px 10px;font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.1);' 
+    : 'padding:4px 10px;color:var(--text-muted);cursor:pointer;';
+    
+  const tabBtn = (tab) => st.rTab === tab
+    ? 'padding:10px 15px;color:var(--purple);border-bottom:2.5px solid var(--purple);font-weight:700;font-size:12px;cursor:pointer;'
+    : 'padding:10px 15px;color:var(--text-muted);font-size:12px;font-weight:600;cursor:pointer;';
+
+  const odoStart = parseFloat(st.rOdoStart) || 0;
+  const odoEnd = parseFloat(st.rOdoEnd) || 0;
+  const dist = Math.max(0, odoEnd - odoStart).toFixed(2);
+  const cost = parseFloat(st.rFuelQty) * 165 || 0; // arbitrary 165 Rs per Liter
+
+  const tabContent = st.rTab === 'Distance' ? `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:20px;padding:15px;background:var(--bg);border-radius:8px;border:1px solid var(--border);">
+        <div>
+          <div style="font-weight:800;font-size:11px;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:5px;margin-bottom:15px;letter-spacing:1px;">DISTANCE INFORMATION</div>
+          <div class="stat-row"><span class="stat-label">Odometer Start</span><span class="stat-val"><input class="form-input" style="width:80px;padding:3px 6px;text-align:right;" value="${st.rOdoStart}" onchange="S.fleet.rOdoStart=this.value; render();"></span></div>
+          <div class="stat-row"><span class="stat-label">Odometer End</span><span class="stat-val"><input class="form-input" style="width:80px;padding:3px 6px;text-align:right;" value="${st.rOdoEnd}" onchange="S.fleet.rOdoEnd=this.value; render();"></span></div>
+          <div class="stat-row"><span class="stat-label">Distance (km)</span><span class="stat-val">${dist}</span></div>
+        </div>
+        <div>
+          <div style="font-weight:800;font-size:11px;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:5px;margin-bottom:15px;letter-spacing:1px;">FUEL INFORMATION</div>
+          <div class="stat-row"><span class="stat-label">Fuel Cost</span><span class="stat-val">${cost.toFixed(2)} Rs</span></div>
+          <div class="stat-row"><span class="stat-label">Fuel Quantity (L)</span><span class="stat-val"><input class="form-input" style="width:80px;padding:3px 6px;text-align:right;" value="${st.rFuelQty}" onchange="S.fleet.rFuelQty=this.value; render();"></span></div>
+          <div class="stat-row"><span class="stat-label">Net Revenue</span><span class="stat-val">0.00 Rs</span></div>
+          <div class="stat-row"><span class="stat-label">Revenue per KM</span><span class="stat-val">0.00 Rs</span></div>
+        </div>
+      </div>
+  ` : `<div style="padding:40px;text-align:center;color:var(--text-muted);font-size:14px;background:var(--bg);margin-top:20px;border-radius:8px;">No ${st.rTab} records found for this revenue entry.</div>`;
+
   return `<div>
     <div class="page-header">
       <div>
@@ -1635,12 +1707,12 @@ function revenuesHTML() {
       </div>
     </div>
     <div style="background:var(--white);padding:10px 18px;border-bottom:1px solid var(--border);display:flex;gap:8px;">
-      <button class="btn btn-primary" onclick="showToast('Action','Revenue Confirmed')">Confirm</button>
-      <button class="btn btn-outline" onclick="showToast('Action','Revenue Cancelled')">Cancel</button>
+      <button class="btn btn-primary" onclick="S.fleet.rState='Confirmed'; showToast('Confirmed','Revenue Confirmed'); render();">Confirm</button>
+      <button class="btn btn-outline" onclick="S.fleet.rState='Done'; showToast('Done','Revenue Marked as Done'); render();">Mark Done</button>
       <div style="margin-left:auto;display:flex;gap:4px;font-size:11.5px;align-items:center;background:var(--bg);padding:3px;border-radius:6px;border:1px solid var(--border);">
-        <div style="background:var(--teal);color:#fff;border-radius:4px;padding:4px 10px;font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.1);">Draft</div>
-        <div style="padding:4px 10px;color:var(--text-muted);cursor:pointer;" onclick="showToast('State','Changed to Confirmed')">Confirmed</div>
-        <div style="padding:4px 10px;color:var(--text-muted);cursor:pointer;" onclick="showToast('State','Changed to Done')">Done</div>
+        <div style="${statusBtn('Draft')}" onclick="S.fleet.rState='Draft'; render();">Draft</div>
+        <div style="${statusBtn('Confirmed')}" onclick="S.fleet.rState='Confirmed'; render();">Confirmed</div>
+        <div style="${statusBtn('Done')}" onclick="S.fleet.rState='Done'; render();">Done</div>
       </div>
     </div>
     <div class="page-body">
@@ -1659,37 +1731,37 @@ function revenuesHTML() {
             <div style="font-weight:800;font-size:11px;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:5px;margin-bottom:15px;letter-spacing:1px;">VEHICLE & DRIVER</div>
             <div class="stat-row"><span class="stat-label">Vehicle</span><span class="stat-val"><a href="#" onclick="showToast('Link','Vehicle selected');return false;">Select...</a></span></div>
             <div class="stat-row"><span class="stat-label">Driver</span><span class="stat-val"><a href="#" onclick="showToast('Link','Driver selected');return false;">Select...</a></span></div>
-            <div class="stat-row"><span class="stat-label">Employee (Driver)</span><span class="stat-val"></span></div>
+            <div class="stat-row"><span class="stat-label">Employee (Driver)</span><span class="stat-val"><input class="form-input" style="padding:4px 8px;width:150px;" value="${st.rEmp}" onchange="S.fleet.rEmp=this.value; render();"></span></div>
           </div>
         </div>
         
         <div style="display:flex;margin-top:30px;border-bottom:1px solid var(--border);">
-          <div style="padding:10px 15px;color:var(--purple);border-bottom:2.5px solid var(--purple);font-weight:700;font-size:12px;cursor:pointer;">Distance & Fuel</div>
-          <div style="padding:10px 15px;color:var(--text-muted);font-size:12px;font-weight:600;cursor:pointer;" onclick="showToast('Tab','Switched to Batch Pickings')">Batch Pickings</div>
-          <div style="padding:10px 15px;color:var(--text-muted);font-size:12px;font-weight:600;cursor:pointer;" onclick="showToast('Tab','Switched to Additional Info')">Additional Information</div>
+          <div style="${tabBtn('Distance')}" onclick="S.fleet.rTab='Distance'; render();">Distance & Fuel</div>
+          <div style="${tabBtn('Batch Pickings')}" onclick="S.fleet.rTab='Batch Pickings'; render();">Batch Pickings</div>
+          <div style="${tabBtn('Additional Information')}" onclick="S.fleet.rTab='Additional Information'; render();">Additional Information</div>
         </div>
-        
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:20px;padding:15px;background:var(--bg);border-radius:8px;border:1px solid var(--border);">
-          <div>
-            <div style="font-weight:800;font-size:11px;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:5px;margin-bottom:15px;letter-spacing:1px;">DISTANCE INFORMATION</div>
-            <div class="stat-row"><span class="stat-label">Odometer Start</span><span class="stat-val"><input class="form-input" style="width:80px;padding:3px 6px;text-align:right;" value="0.00"></span></div>
-            <div class="stat-row"><span class="stat-label">Odometer End</span><span class="stat-val"><input class="form-input" style="width:80px;padding:3px 6px;text-align:right;" value="0.00"></span></div>
-            <div class="stat-row"><span class="stat-label">Distance (km)</span><span class="stat-val">0.00</span></div>
-          </div>
-          <div>
-            <div style="font-weight:800;font-size:11px;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:5px;margin-bottom:15px;letter-spacing:1px;">FUEL INFORMATION</div>
-            <div class="stat-row"><span class="stat-label">Fuel Cost</span><span class="stat-val">0.00 Rs</span></div>
-            <div class="stat-row"><span class="stat-label">Fuel Quantity (L)</span><span class="stat-val"><input class="form-input" style="width:80px;padding:3px 6px;text-align:right;" value="0.00"></span></div>
-            <div class="stat-row"><span class="stat-label">Net Revenue</span><span class="stat-val">0.00 Rs</span></div>
-            <div class="stat-row"><span class="stat-label">Revenue per KM</span><span class="stat-val">0.00 Rs</span></div>
-          </div>
-        </div>
+        ${tabContent}
       </div>
     </div>
   </div>`;
 }
 
 function gpsdevicesHTML() {
+  const st = initFleetState();
+  const allSel = st.gps.length > 0 && st.gps.every(g => g.sel);
+
+  let rows = st.gps.map(g => `
+            <tr onclick="const f=S.fleet.gps.find(x=>x.id=='${g.id}'); f.sel=!f.sel; render();" style="cursor:pointer; background:${g.sel ? 'var(--blue-light)' : 'transparent'};">
+              <td onclick="event.stopPropagation();"><input type="checkbox" ${g.sel?'checked':''} onchange="const f=S.fleet.gps.find(x=>x.id=='${g.id}'); f.sel=this.checked; render();"></td>
+              <td style="font-weight:700;">${g.name}</td><td></td><td></td>
+              <td><span class="badge badge-red">${g.status}</span></td>
+              <td style="font-family:'DM Mono',monospace;">0 km/h</td>
+              <td style="font-size:10.5px;max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${g.route}">${g.route}</td>
+              <td onclick="event.stopPropagation(); const f=S.fleet.gps.find(x=>x.id=='${g.id}'); f.ignition=!f.ignition; render();"><i class="fa-solid fa-toggle-${g.ignition?'on':'off'}" style="color:var(--${g.ignition?'teal':'text-muted'});font-size:16px;cursor:pointer;"></i></td>
+              <td>N/A</td><td style="font-size:10.5px;">Jul 17, 4:09 PM</td>
+            </tr>
+  `).join('');
+
   return `<div>
     <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
       <div style="display:flex;align-items:center;gap:15px;">
@@ -1708,7 +1780,7 @@ function gpsdevicesHTML() {
         <table class="data-table">
           <thead>
             <tr>
-              <th style="width:40px;"><input type="checkbox" onclick="showToast('Select','Toggled all rows')"></th>
+              <th style="width:40px;"><input type="checkbox" ${allSel?'checked':''} onchange="const ch=this.checked; S.fleet.gps.forEach(g=>g.sel=ch); render();"></th>
               <th>Vehicle Name</th>
               <th>Category</th>
               <th>Vehicle Model</th>
@@ -1721,30 +1793,7 @@ function gpsdevicesHTML() {
             </tr>
           </thead>
           <tbody>
-            <tr onclick="showToast('Selected','Samjana clicked')" style="cursor:pointer;">
-              <td onclick="event.stopPropagation()"><input type="checkbox"></td>
-              <td style="font-weight:700;">Samjana</td><td></td><td></td>
-              <td><span class="badge badge-red">Offline</span></td>
-              <td style="font-family:'DM Mono',monospace;">0 km/h</td><td></td>
-              <td><i class="fa-solid fa-toggle-off" style="color:var(--text-muted);font-size:16px;"></i></td>
-              <td>N/A</td><td style="font-size:10.5px;">Jul 17, 4:09 PM</td>
-            </tr>
-            <tr onclick="showToast('Selected','moto clicked')" style="cursor:pointer;">
-              <td onclick="event.stopPropagation()"><input type="checkbox"></td>
-              <td style="font-weight:700;">moto</td><td></td><td></td>
-              <td><span class="badge badge-red">Offline</span></td>
-              <td style="font-family:'DM Mono',monospace;">0 km/h</td><td style="font-size:10.5px;max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="Suzate Pension & Restaurant, Machhindra Marg, Lalitpur">Suzate Pension & Restaurant, Machhindra Marg, Lalitpur-20...</td>
-              <td><i class="fa-solid fa-toggle-on" style="color:var(--teal);font-size:16px;"></i></td>
-              <td>N/A</td><td style="font-size:10.5px;">Jul 17, 4:09 PM</td>
-            </tr>
-            <tr onclick="showToast('Selected','moto2 clicked')" style="cursor:pointer;">
-              <td onclick="event.stopPropagation()"><input type="checkbox"></td>
-              <td style="font-weight:700;">moto2</td><td></td><td></td>
-              <td><span class="badge badge-red">Offline</span></td>
-              <td style="font-family:'DM Mono',monospace;">0 km/h</td><td></td>
-              <td><i class="fa-solid fa-toggle-off" style="color:var(--text-muted);font-size:16px;"></i></td>
-              <td>N/A</td><td style="font-size:10.5px;">Jul 17, 4:09 PM</td>
-            </tr>
+            ${rows}
           </tbody>
         </table>
         <div style="padding:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--bg);border-radius:0 0 8px 8px;">
