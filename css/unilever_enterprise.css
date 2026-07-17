@@ -1,0 +1,48 @@
+/* ================================================================
+   UNILEVER / ODOO ENTERPRISE SYSTEM COLOR PALETTE
+================================================================ */
+:root {
+  /* Odoo Enterprise Deep Purples */
+  --purple: #714B67;
+  --purple-dark: #5a3a52;
+  --purple-light: #f3eef1;
+  --purple-mid: #d9c8d4;
+
+  /* Odoo Functional Teals */
+  --teal: #1D9E75;
+  --teal-light: #e8f7f2;
+  --teal-dark: #157a5b;
+
+  /* Accent & Alert States */
+  --amber: #F0A500;
+  --amber-light: #fef7e6;
+  --blue: #3B82F6;
+  --blue-light: #EFF6FF;
+  --red: #EF4444;
+  --red-light: #FEF2F2;
+
+  /* System UI Neutrals */
+  --border: #E2E8F0;
+  --text: #1E293B;
+  --text-muted: #64748B;
+  --bg: #F1F5F9;
+  --white: #FFFFFF;
+  --sidebar-w: 220px;
+  --topbar-h: 48px;
+}
+
+/* Unified Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
