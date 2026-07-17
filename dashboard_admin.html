@@ -7,6 +7,8 @@
 <meta name="description" content="Unilever Nepal fleet operations command center – real-time truck dispatch, GPS tracking, and cargo management dashboard."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <style>
@@ -247,7 +249,7 @@ textarea.form-input{resize:vertical;min-height:60px;}
 <!-- ════════════════════════════════ TOPBAR ════════════════════════════════ -->
 <header class="topbar">
   <div class="topbar-logo">
-    <span>🚛</span>
+    <span><i class="fa-solid fa-truck-fast"></i></span>
     <span>Unilever Nepal</span>
     <span class="badge">Fleet ERP</span>
   </div>
@@ -264,7 +266,7 @@ textarea.form-input{resize:vertical;min-height:60px;}
       <div class="tc-date" id="live-date">Thursday, 17 July 2026</div>
     </div>
     <div class="icon-btn" onclick="switchPage('alerts')" title="Alerts Inbox">
-      🔔<span class="dot"></span>
+      <i class="fa-solid fa-bell"></i><span class="dot"></span>
     </div>
     <div class="topbar-avatar" title="Fleet Operations Manager">OPS</div>
   </div>
@@ -275,49 +277,49 @@ textarea.form-input{resize:vertical;min-height:60px;}
   <div class="sidebar-section">
     <div class="sidebar-label">Fleet Operations</div>
     <div class="nav-item active" id="nav-dashboard" onclick="switchPage('dashboard')">
-      <div class="nav-item-left"><span class="nav-icon">📊</span>Dashboard</div>
+      <div class="nav-item-left"><span class="nav-icon"><i class="fa-solid fa-chart-simple"></i></span>Dashboard</div>
       <span class="nbadge nbadge-outline">Live</span>
     </div>
     <div class="nav-item" id="nav-dispatch" onclick="switchPage('dispatch')">
-      <div class="nav-item-left"><span class="nav-icon">📋</span>Dispatch Board</div>
+      <div class="nav-item-left"><span class="nav-icon"><i class="fa-solid fa-list-check"></i></span>Dispatch Board</div>
       <span class="nbadge nbadge-blue" id="sb-dispatch-badge">7 Active</span>
     </div>
     <div class="nav-item" id="nav-map" onclick="switchPage('map')">
-      <div class="nav-item-left"><span class="nav-icon">🗺️</span>Live Map</div>
+      <div class="nav-item-left"><span class="nav-icon"><i class="fa-solid fa-map-location-dot"></i></span>Live Map</div>
       <span class="nbadge nbadge-green">Track</span>
     </div>
     <div class="nav-item" id="nav-routes" onclick="switchPage('routes')">
-      <div class="nav-item-left"><span class="nav-icon">🛣️</span>Routes</div>
+      <div class="nav-item-left"><span class="nav-icon"><i class="fa-solid fa-route"></i></span>Routes</div>
     </div>
     <div class="nav-item" id="nav-drivers" onclick="switchPage('drivers')">
-      <div class="nav-item-left"><span class="nav-icon">👤</span>Drivers</div>
+      <div class="nav-item-left"><span class="nav-icon"><i class="fa-solid fa-id-card"></i></span>Drivers</div>
     </div>
     <div class="nav-item" id="nav-trips" onclick="switchPage('trips')">
-      <div class="nav-item-left"><span class="nav-icon">📅</span>Today's Trips</div>
+      <div class="nav-item-left"><span class="nav-icon"><i class="fa-solid fa-calendar-day"></i></span>Today's Trips</div>
     </div>
   </div>
   <div class="sidebar-section" style="border-top:1px solid var(--border);margin-top:2px;padding-top:8px;">
     <div class="sidebar-label">Management &amp; Intel</div>
     <div class="nav-item" id="nav-alerts" onclick="switchPage('alerts')">
-      <div class="nav-item-left"><span class="nav-icon">🔔</span>Alerts Inbox</div>
+      <div class="nav-item-left"><span class="nav-icon"><i class="fa-solid fa-triangle-exclamation"></i></span>Alerts Inbox</div>
       <span class="nbadge nbadge-red" id="sb-alerts-badge">4 Active</span>
     </div>
     <div class="nav-item" id="nav-reports" onclick="switchPage('reports')">
-      <div class="nav-item-left"><span class="nav-icon">📈</span>Reports</div>
+      <div class="nav-item-left"><span class="nav-icon"><i class="fa-solid fa-chart-pie"></i></span>Reports</div>
     </div>
     <div class="nav-item" id="nav-settings" onclick="switchPage('settings')">
-      <div class="nav-item-left"><span class="nav-icon">⚙️</span>Settings</div>
+      <div class="nav-item-left"><span class="nav-icon"><i class="fa-solid fa-sliders"></i></span>Settings</div>
     </div>
   </div>
   <div class="sidebar-footer">
     <div class="sf-label">Depot Filter</div>
     <select id="depot-select" onchange="filterDepot(this.value)">
-      <option value="all">🌐 All Depots</option>
-      <option value="Kathmandu">🏢 Kathmandu HQ</option>
-      <option value="Hetauda">🏢 Hetauda Station</option>
-      <option value="Birgunj">🏢 Birgunj Station</option>
-      <option value="Pokhara">🏢 Pokhara Station</option>
-      <option value="Nepalgunj">🏢 Nepalgunj Station</option>
+      <option value="all">All Depots</option>
+      <option value="Kathmandu">Kathmandu HQ</option>
+      <option value="Hetauda">Hetauda Station</option>
+      <option value="Birgunj">Birgunj Station</option>
+      <option value="Pokhara">Pokhara Station</option>
+      <option value="Nepalgunj">Nepalgunj Station</option>
     </select>
   </div>
 </aside>
@@ -329,7 +331,7 @@ textarea.form-input{resize:vertical;min-height:60px;}
 
 <!-- TOAST -->
 <div class="toast" id="toast">
-  <div class="toast-icon">✓</div>
+  <div class="toast-icon"><i class="fa-solid fa-check"></i></div>
   <div>
     <div class="toast-title" id="toast-title">Success</div>
     <div class="toast-desc" id="toast-desc">Action completed.</div>
@@ -348,9 +350,9 @@ const S = {
   depot: 'all',
   q: '',
   weather: {
-    KTM:  { temp:'24°C', cond:'Light Rain',    icon:'🌧️' },
-    HET:  { temp:'29°C', cond:'Partly Cloudy', icon:'⛅' },
-    BGR:  { temp:'34°C', cond:'Sunny & Dry',   icon:'☀️' }
+    KTM:  { temp:'24°C', cond:'Light Rain',    icon:'<i class="fa-solid fa-cloud-showers-heavy text-info"></i>' },
+    HET:  { temp:'29°C', cond:'Partly Cloudy', icon:'<i class="fa-solid fa-cloud-sun text-muted"></i>' },
+    BGR:  { temp:'34°C', cond:'Sunny & Dry',   icon:'<i class="fa-solid fa-sun text-warning"></i>' }
   },
   alerts: [
     { id:'AL-001', type:'overspeed', truck:'TR-003', reg:'GA 3 PA 4412',
@@ -682,7 +684,7 @@ function dashboardHTML() {
   const fleetRows = recentTrucks.map(t => `
     <tr onclick="goDispatch('${t.id}')" style="cursor:pointer;">
       <td><div style="font-weight:700;">${t.reg}</div><div style="font-size:10px;color:var(--text-muted);">${t.model}</div></td>
-      <td><div style="font-weight:600;font-size:11.5px;">${t.routeName}</div><div style="font-size:10.5px;color:var(--text-muted);">📍 ${t.loc}</div></td>
+      <td><div style="font-weight:600;font-size:11.5px;">${t.routeName}</div><div style="font-size:10.5px;color:var(--text-muted);"><i class="fa-solid fa-location-dot text-danger"></i> ${t.loc}</div></td>
       <td>${sBadge(t)}</td>
       <td style="min-width:100px;">${fuelBar(t.fuel)}</td>
       <td style="font-family:'DM Mono',monospace;font-weight:700;font-size:11.5px;color:${t.delay>0?'var(--red)':'var(--teal)'};">${t.delay>0?`+${t.delay}m`:'On Time'}</td>
@@ -691,7 +693,7 @@ function dashboardHTML() {
   `).join('');
 
   const alertItems = S.alerts.slice(0,3).map(a => {
-    const cfg = {overspeed:{icon:'⚡',bg:'var(--red-light)'},geofence:{icon:'📍',bg:'var(--amber-light)'},idle:{icon:'⏸️',bg:'var(--amber-light)'},braking:{icon:'🛑',bg:'var(--red-light)'}}[a.type] || {icon:'⚠️',bg:'var(--amber-light)'};
+    const cfg = {overspeed:{icon:'<i class="fa-solid fa-bolt"></i>',bg:'var(--red-light)'},geofence:{icon:'<i class="fa-solid fa-location-crosshairs"></i>',bg:'var(--amber-light)'},idle:{icon:'<i class="fa-solid fa-pause"></i>',bg:'var(--amber-light)'},braking:{icon:'<i class="fa-solid fa-ban"></i>',bg:'var(--red-light)'}}[a.type] || {icon:'<i class="fa-solid fa-triangle-exclamation"></i>',bg:'var(--amber-light)'};
     return `<div class="alert-item">
       <div class="alert-icon" style="background:${cfg.bg};">${cfg.icon}</div>
       <div>
@@ -713,29 +715,29 @@ function dashboardHTML() {
           <div class="page-subtitle">Real-time Unilever Nepal truck fleet telemetry and dispatch status feed.</div>
         </div>
         <div style="display:flex;gap:8px;">
-          <button class="btn btn-outline btn-sm" onclick="switchPage('map')">🗺️ Live Map</button>
-          <button class="btn btn-primary btn-sm" onclick="switchPage('dispatch')">📋 Dispatch Board →</button>
+          <button class="btn btn-outline btn-sm" onclick="switchPage('map')"><i class="fa-solid fa-map-location-dot"></i> Live Map</button>
+          <button class="btn btn-primary btn-sm" onclick="switchPage('dispatch')"><i class="fa-solid fa-list-check"></i> Dispatch Board <i class="fa-solid fa-arrow-right"></i></button>
         </div>
       </div>
       <div class="page-body" style="display:flex;flex-direction:column;gap:14px;">
         <!-- KPI CARDS -->
         <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-icon teal">🚛</div>
+          <div class="kpi-card"><div class="kpi-icon teal"><i class="fa-solid fa-truck text-teal"></i></div>
             <div><div class="kpi-val">${m.active}<span style="font-size:13px;font-weight:400;color:var(--text-muted);"> / ${m.total}</span></div>
             <div class="kpi-label">Active Trucks</div>
             <div class="kpi-sub">${m.delayed} delayed · ${m.total-m.active-m.delayed} flagged</div></div>
           </div>
-          <div class="kpi-card"><div class="kpi-icon red">⏰</div>
+          <div class="kpi-card"><div class="kpi-icon red"><i class="fa-solid fa-clock text-danger"></i></div>
             <div><div class="kpi-val" style="color:var(--red);">${m.delayed}</div>
             <div class="kpi-label">Delayed Dispatches</div>
             <div class="kpi-sub">Needs immediate attention</div></div>
           </div>
-          <div class="kpi-card"><div class="kpi-icon amber">🔔</div>
+          <div class="kpi-card"><div class="kpi-icon amber"><i class="fa-solid fa-triangle-exclamation text-warning"></i></div>
             <div><div class="kpi-val" style="color:var(--amber);">${m.alerts}</div>
             <div class="kpi-label">Active Safety Alerts</div>
             <div class="kpi-sub">Overspeed, geofence, idle flags</div></div>
           </div>
-          <div class="kpi-card"><div class="kpi-icon purple">⚖️</div>
+          <div class="kpi-card"><div class="kpi-icon purple"><i class="fa-solid fa-boxes-stacked text-primary"></i></div>
             <div><div class="kpi-val">${m.totalKg}<span style="font-size:12px;font-weight:400;color:var(--text-muted);"> kg</span></div>
             <div class="kpi-label">Cargo In Transit</div>
             <div class="kpi-sub">Across all active dispatches</div></div>
@@ -749,7 +751,7 @@ function dashboardHTML() {
             <!-- Terminal Status -->
             <div class="card">
               <div class="card-header">
-                <div class="card-title">🏢 Depot &amp; Terminal Status</div>
+                <div class="card-title"><i class="fa-solid fa-warehouse text-primary"></i> Depot &amp; Terminal Status</div>
                 <span style="font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace;">Gateway Active</span>
               </div>
               <div style="padding:12px;"><div class="terminal-grid">
@@ -783,7 +785,7 @@ function dashboardHTML() {
             <!-- Fleet Table -->
             <div class="card">
               <div class="card-header">
-                <div class="card-title">🧭 Current Fleet Position Monitor</div>
+                <div class="card-title"><i class="fa-solid fa-compass text-teal"></i> Current Fleet Position Monitor</div>
                 <button class="btn btn-outline btn-sm" onclick="switchPage('dispatch')">Full Board →</button>
               </div>
               <div style="overflow-x:auto;">
@@ -794,12 +796,11 @@ function dashboardHTML() {
               </div>
             </div>
           </div>
-
           <!-- RIGHT -->
           <div style="display:flex;flex-direction:column;gap:14px;">
             <div class="card">
               <div class="card-header">
-                <div class="card-title">🚨 Live Safety Alerts</div>
+                <div class="card-title"><i class="fa-solid fa-circle-exclamation text-danger"></i> Live Safety Alerts</div>
                 <button class="btn btn-outline btn-sm" onclick="switchPage('alerts')">All →</button>
               </div>
               ${alertItems}
@@ -807,7 +808,7 @@ function dashboardHTML() {
 
             <div class="card">
               <div class="card-header">
-                <div class="card-title">📟 Dispatch Event Log</div>
+                <div class="card-title"><i class="fa-solid fa-terminal text-muted"></i> Dispatch Event Log</div>
                 <span style="width:7px;height:7px;border-radius:50%;background:var(--teal);display:inline-block;animation:blink 1.4s infinite;"></span>
               </div>
               <div style="padding:10px 14px;" class="elog">
@@ -856,7 +857,7 @@ function dispatchHTML() {
           <div><div class="page-title" style="font-size:14px;">Dispatch Board</div>
           <div class="page-subtitle">Click a row to inspect in the side panel →</div></div>
           <div class="search-wrap">
-            <span class="search-icon">🔍</span>
+            <span class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
             <input type="text" placeholder="Search reg, driver, order..." value="${S.q}"
               oninput="S.q=this.value.toLowerCase();render();">
           </div>
@@ -895,7 +896,7 @@ function dispatchHTML() {
         <div class="insp-tabs">
           ${['timeline','telemetry','cargo','sms'].map(tab => `
             <div class="insp-tab ${S.tab===tab?'active':''}" onclick="S.tab='${tab}';render();">
-              ${tab==='timeline'?'📍 Timeline':tab==='telemetry'?'📡 Telemetry':tab==='cargo'?'📦 Cargo':'📱 SMS'}
+              ${tab==='timeline'?'<i class="fa-solid fa-timeline"></i> Timeline':tab==='telemetry'?'<i class="fa-solid fa-satellite-dish"></i> Telemetry':tab==='cargo'?'<i class="fa-solid fa-box-open"></i> Cargo':'<i class="fa-solid fa-comment-sms"></i> SMS'}
             </div>`).join('')}
         </div>
         <div class="insp-body">${inspTabHTML(active)}</div>
@@ -932,7 +933,7 @@ function inspTabHTML(t) {
     const ec = t.engine==='Normal'||t.engine==='Idle'?'var(--teal)':'var(--amber)';
     return `<div style="display:flex;flex-direction:column;gap:12px;">
       <div style="background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:12px;">
-        <div style="font-size:11.5px;font-weight:700;margin-bottom:8px;">🚀 Live Performance</div>
+        <div style="font-size:11.5px;font-weight:700;margin-bottom:8px;"><i class="fa-solid fa-gauge-high text-primary"></i> Live Performance</div>
         <div class="stat-row"><span class="stat-label">Current Speed</span><span class="stat-val" style="color:${t.speed>80?'var(--red)':'var(--text)'};">${t.speed} km/h</span></div>
         <div class="stat-row"><span class="stat-label">Max Speed (Trip)</span><span class="stat-val">${t.maxSpd} km/h</span></div>
         <div class="stat-row"><span class="stat-label">Average Speed</span><span class="stat-val">${t.avgSpd} km/h</span></div>
@@ -940,7 +941,7 @@ function inspTabHTML(t) {
         <div class="stat-row"><span class="stat-label">Idle Duration</span><span class="stat-val">${t.idle}</span></div>
       </div>
       <div style="background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:12px;">
-        <div style="font-size:11.5px;font-weight:700;margin-bottom:8px;">🛡️ Safety &amp; Mechanical</div>
+        <div style="font-size:11.5px;font-weight:700;margin-bottom:8px;"><i class="fa-solid fa-shield-halved text-teal"></i> Safety &amp; Mechanical</div>
         <div class="stat-row"><span class="stat-label">Driver Safety Score</span><span class="stat-val" style="color:${scoreColor(t.score)};">${t.score} / 100</span></div>
         <div class="stat-row"><span class="stat-label">Brake Condition</span><span class="stat-val">${t.brakes}</span></div>
         <div class="stat-row"><span class="stat-label">Tyre Status</span><span class="stat-val">${t.tyres}</span></div>
@@ -959,7 +960,7 @@ function inspTabHTML(t) {
     </div>`).join('');
     return `<div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div style="font-size:12px;font-weight:700;">📦 Cargo Manifest</div>
+        <div style="font-size:12px;font-weight:700;"><i class="fa-solid fa-box-open"></i> Cargo Manifest</div>
         <span class="badge badge-blue">${total.toFixed(0)} kg Total</span>
       </div>
       <div style="background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:10px 12px;margin-bottom:10px;">${crows}</div>
@@ -984,7 +985,7 @@ function inspTabHTML(t) {
       <div class="form-group"><label class="form-label">Dispatch SMS Broadcast</label>
         <textarea id="sms-txt" class="form-input" placeholder="Message to distributor or driver..." required></textarea>
       </div>
-      <div style="display:flex;justify-content:flex-end;"><button type="submit" class="btn btn-primary btn-sm">📤 Send Broadcast</button></div>
+      <div style="display:flex;justify-content:flex-end;"><button type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-paper-plane"></i> Send Broadcast</button></div>
     </form>
     <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">Communication Logs</div>
     ${logs || '<div style="color:var(--text-muted);font-size:11.5px;text-align:center;padding:20px;">No SMS logs yet.</div>'}`;
@@ -1011,20 +1012,20 @@ let lMap = null;
 
 function mapPageHTML() {
   const stOpts = [
-    {v:'',l:'🗺️ Navigate to Station...'},
-    {v:'ktm',l:'🏢 Kathmandu HQ'},
-    {v:'het',l:'🏢 Hetauda Station'},
-    {v:'bgr',l:'🏢 Birgunj Station'},
-    {v:'pkr',l:'🏢 Pokhara Station'},
-    {v:'btw',l:'🏢 Butwal Station'},
-    {v:'npj',l:'🏢 Nepalgunj Station'},
-    {v:'brt',l:'🏢 Biratnagar Station'},
+    {v:'',l:'Navigate to Station...'},
+    {v:'ktm',l:'Kathmandu HQ'},
+    {v:'het',l:'Hetauda Station'},
+    {v:'bgr',l:'Birgunj Station'},
+    {v:'pkr',l:'Pokhara Station'},
+    {v:'btw',l:'Butwal Station'},
+    {v:'npj',l:'Nepalgunj Station'},
+    {v:'brt',l:'Biratnagar Station'},
   ];
   return `<div class="map-page-wrap">
     <div class="map-toolbar">
-      <span style="font-weight:700;font-size:12px;">🗺️ Live Fleet GPS Tracking</span>
+      <span style="font-weight:700;font-size:12px;"><i class="fa-solid fa-map-location-dot"></i> Live Fleet GPS Tracking</span>
       <div style="width:1px;height:20px;background:var(--border);"></div>
-      <span style="font-size:11px;color:var(--text-muted);">Hover 🚛 markers for info · Click to open inspector</span>
+      <span style="font-size:11px;color:var(--text-muted);">Hover markers for info · Click to open inspector</span>
       <div style="margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
         <div style="display:flex;align-items:center;gap:4px;font-size:11px;">
           <span style="width:10px;height:10px;border-radius:50%;background:var(--teal);display:inline-block;"></span>
@@ -1042,7 +1043,7 @@ function mapPageHTML() {
           style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11.5px;background:#fff;font-family:'DM Sans',sans-serif;cursor:pointer;">
           ${stOpts.map(o=>`<option value="${o.v}">${o.l}</option>`).join('')}
         </select>
-        <button class="btn btn-outline btn-sm" onclick="toggleTraffic()">🚦 Traffic</button>
+        <button class="btn btn-outline btn-sm" onclick="toggleTraffic()"><i class="fa-solid fa-traffic-light"></i> Traffic</button>
       </div>
     </div>
     <div id="leaflet-map"></div>
@@ -1050,13 +1051,13 @@ function mapPageHTML() {
 }
 
 const STATIONS = {
-  ktm:{latlng:[27.7172,85.3240],zoom:13,label:'🏢 Kathmandu HQ'},
-  het:{latlng:[27.4277,85.0315],zoom:13,label:'🏢 Hetauda Station'},
-  bgr:{latlng:[27.0125,84.8767],zoom:13,label:'🏢 Birgunj Station'},
-  pkr:{latlng:[28.2096,83.9856],zoom:13,label:'🏢 Pokhara Station'},
-  btw:{latlng:[27.7006,83.4484],zoom:13,label:'🏢 Butwal Station'},
-  npj:{latlng:[28.0500,81.6167],zoom:13,label:'🏢 Nepalgunj Station'},
-  brt:{latlng:[26.4525,87.2718],zoom:13,label:'🏢 Biratnagar Station'},
+  ktm:{latlng:[27.7172,85.3240],zoom:13,label:'Kathmandu HQ'},
+  het:{latlng:[27.4277,85.0315],zoom:13,label:'Hetauda Station'},
+  bgr:{latlng:[27.0125,84.8767],zoom:13,label:'Birgunj Station'},
+  pkr:{latlng:[28.2096,83.9856],zoom:13,label:'Pokhara Station'},
+  btw:{latlng:[27.7006,83.4484],zoom:13,label:'Butwal Station'},
+  npj:{latlng:[28.0500,81.6167],zoom:13,label:'Nepalgunj Station'},
+  brt:{latlng:[26.4525,87.2718],zoom:13,label:'Biratnagar Station'},
 };
 
 let trafficLayer = null;
@@ -1074,16 +1075,16 @@ function initLeaflet() {
 
   // Station labels
   [
-    {name:'🏢 KTM HQ', latlng:[27.7172,85.3240]},
-    {name:'🏢 Hetauda', latlng:[27.4277,85.0315]},
-    {name:'🏢 Birgunj', latlng:[27.0125,84.8767]},
-    {name:'🏢 Pokhara', latlng:[28.2096,83.9856]},
-    {name:'🏢 Butwal',  latlng:[27.7006,83.4484]},
-    {name:'🏢 Nepalgunj',latlng:[28.0500,81.6167]},
-    {name:'🏢 Biratnagar',latlng:[26.4525,87.2718]}
+    {name:'KTM HQ', latlng:[27.7172,85.3240]},
+    {name:'Hetauda', latlng:[27.4277,85.0315]},
+    {name:'Birgunj', latlng:[27.0125,84.8767]},
+    {name:'Pokhara', latlng:[28.2096,83.9856]},
+    {name:'Butwal',  latlng:[27.7006,83.4484]},
+    {name:'Nepalgunj',latlng:[28.0500,81.6167]},
+    {name:'Biratnagar',latlng:[26.4525,87.2718]}
   ].forEach(s => {
     L.marker(s.latlng, { icon: L.divIcon({
-      html:`<div style="background:rgba(255,255,255,.92);border:1px solid #E2E8F0;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;color:#714B67;box-shadow:0 1px 3px rgba(0,0,0,.12);white-space:nowrap;">${s.name}</div>`,
+      html:`<div style="background:rgba(255,255,255,.92);border:1px solid #E2E8F0;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;color:#714B67;box-shadow:0 1px 3px rgba(0,0,0,.12);white-space:nowrap;"><i class="fa-solid fa-warehouse"></i> ${s.name}</div>`,
       className:'custom-station-marker', iconSize:[110,18], iconAnchor:[55,9]
     })}).bindPopup(`<b>${s.name}</b><br/>Unilever Nepal Regional Depot`).addTo(lMap);
   });
@@ -1095,7 +1096,7 @@ function initLeaflet() {
     }
     const color = t.sc==='green'?'#1D9E75': t.sc==='red'?'#EF4444':'#F0A500';
     const marker = L.marker(t.latlng, { icon: L.divIcon({
-      html:`<div style="background:${color};width:30px;height:30px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-size:15px;">🚛</div>`,
+      html:`<div style="background:${color};width:30px;height:30px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;"><i class="fa-solid fa-truck-moving"></i></div>`,
       className:'custom-truck-marker', iconSize:[30,30], iconAnchor:[15,15]
     })}).addTo(lMap);
 
@@ -1108,7 +1109,7 @@ function initLeaflet() {
         <b>Status:</b> ${t.status}<br>
         <b>ETA:</b> ${t.eta}
       </div>
-      <button onclick="goDispatch('${t.id}')" style="margin-top:8px;width:100%;padding:5px;background:#714B67;color:#fff;border:none;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">Inspect Truck →</button>
+      <button onclick="goDispatch('${t.id}')" style="margin-top:8px;width:100%;padding:5px;background:#714B67;color:#fff;border:none;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">Inspect Truck <i class="fa-solid fa-arrow-right"></i></button>
     </div>`;
     marker.bindPopup(popup);
     marker.on('mouseover', function() { this.openPopup(); });
@@ -1164,7 +1165,7 @@ function routesHTML() {
     </div>
     <div style="display:flex;gap:6px;margin-top:10px;">
       <button class="btn btn-outline btn-sm" style="flex:1;" onclick="showToast('Route Info','${r.id}: ${r.name} — ${r.dist} via ${r.hw}')">View Details</button>
-      <button class="btn btn-outline btn-sm" style="flex:1;" onclick="switchPage('map')">🗺️ Track</button>
+      <button class="btn btn-outline btn-sm" style="flex:1;" onclick="switchPage('map')"><i class="fa-solid fa-map-location-dot"></i> Track</button>
     </div>
   </div>`).join('');
   return `<div>
@@ -1204,7 +1205,7 @@ function driversHTML() {
     </div>
     <div style="display:flex;gap:6px;margin-top:10px;">
       <button class="btn btn-outline btn-sm" style="flex:1;" onclick="goDispatch('${t.id}')">View Trip</button>
-      <button class="btn btn-outline btn-sm" style="flex:1;" onclick="showToast('SMS Sent','Contact message sent to ${t.driver}.')">📱 Contact</button>
+      <button class="btn btn-outline btn-sm" style="flex:1;" onclick="showToast('SMS Sent','Contact message sent to ${t.driver}.')"><i class="fa-solid fa-comment-sms"></i> Contact</button>
     </div>
   </div>`).join('');
   return `<div>
@@ -1224,7 +1225,7 @@ function tripsHTML() {
     const totalW = t.cargo.reduce((s,c) => s + parseFloat(c.wt), 0);
     return `<tr>
       <td style="font-family:'DM Mono',monospace;font-weight:700;">${t.order}</td>
-      <td><div style="font-weight:600;">${t.routeName}</div><div style="font-size:10.5px;color:var(--text-muted);">${t.reg}</div></td>
+      <td><div style="font-weight:600;">${t.routeName}</div><div style="font-size:10px;color:var(--text-muted);">${t.reg}</div></td>
       <td style="font-size:11.5px;">${t.driver}</td>
       <td><div style="font-weight:700;">${totalW.toFixed(0)} kg</div><div style="font-size:10px;color:var(--text-muted);">${t.cargo.length} SKU lines</div></td>
       <td>${sBadge(t)}</td>
@@ -1256,13 +1257,13 @@ function tripsHTML() {
 ================================================================ */
 function alertsHTML() {
   const cfgMap = {
-    overspeed:{ icon:'⚡', bg:'var(--red-light)',   cls:'badge-red',   label:'Overspeed' },
-    geofence: { icon:'📍', bg:'var(--amber-light)', cls:'badge-amber', label:'Geofence Breach' },
-    idle:     { icon:'⏸️', bg:'var(--amber-light)', cls:'badge-amber', label:'Extended Idle' },
-    braking:  { icon:'🛑', bg:'var(--red-light)',   cls:'badge-red',   label:'Harsh Braking' }
+    overspeed:{ icon:'<i class="fa-solid fa-bolt text-danger"></i>', bg:'var(--red-light)',   cls:'badge-red',   label:'Overspeed' },
+    geofence: { icon:'<i class="fa-solid fa-location-crosshairs text-warning"></i>', bg:'var(--amber-light)', cls:'badge-amber', label:'Geofence Breach' },
+    idle:     { icon:'<i class="fa-solid fa-pause text-warning"></i>', bg:'var(--amber-light)', cls:'badge-amber', label:'Extended Idle' },
+    braking:  { icon:'<i class="fa-solid fa-ban text-danger"></i>', bg:'var(--red-light)',   cls:'badge-red',   label:'Harsh Braking' }
   };
   const cards = S.alerts.map(a => {
-    const cfg = cfgMap[a.type] || { icon:'⚠️', bg:'var(--amber-light)', cls:'badge-amber', label:'Alert' };
+    const cfg = cfgMap[a.type] || { icon:'<i class="fa-solid fa-triangle-exclamation text-warning"></i>', bg:'var(--amber-light)', cls:'badge-amber', label:'Alert' };
     return `<div class="card" style="padding:14px;display:flex;align-items:flex-start;gap:12px;">
       <div style="width:40px;height:40px;border-radius:10px;background:${cfg.bg};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">${cfg.icon}</div>
       <div style="flex:1;">
@@ -1284,7 +1285,7 @@ function alertsHTML() {
       <div><div class="page-title">Active Alerts Dashboard</div><div class="page-subtitle">Real-time safety and compliance flags from on-board vehicle diagnostics.</div></div>
       <div style="display:flex;gap:8px;">
         <button class="btn btn-outline btn-sm" onclick="showToast('Acknowledged','All alerts have been acknowledged.')">✓ Acknowledge All</button>
-        <button class="btn btn-danger btn-sm" onclick="showToast('Notified','Alert broadcast sent to all drivers.')">📱 Notify All Drivers</button>
+        <button class="btn btn-danger btn-sm" onclick="showToast('Notified','Alert broadcast sent to all drivers.')"><i class="fa-solid fa-comment-sms"></i> Notify All Drivers</button>
       </div>
     </div>
     <div class="page-body"><div style="display:flex;flex-direction:column;gap:10px;">${cards}</div></div>
@@ -1338,14 +1339,14 @@ function reportsHTML() {
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div class="card">
-          <div class="card-header"><div class="card-title">🚛 Per-Truck Performance</div></div>
+          <div class="card-header"><div class="card-title">Per-Truck Performance</div></div>
           <table class="data-table">
             <thead><tr><th>Vehicle</th><th>Score</th><th>Fuel</th><th>Avg Spd</th><th>Status</th></tr></thead>
             <tbody>${truckRows}</tbody>
           </table>
         </div>
         <div class="card">
-          <div class="card-header"><div class="card-title">📊 Fleet Summary Stats</div></div>
+          <div class="card-header"><div class="card-title">Fleet Summary Stats</div></div>
           <div style="padding:12px;">
             <div class="stat-row"><span class="stat-label">Total Dispatches Today</span><span class="stat-val">${total}</span></div>
             <div class="stat-row"><span class="stat-label">On-Schedule</span><span class="stat-val" style="color:var(--teal);">${onTime}</span></div>
@@ -1373,7 +1374,7 @@ function settingsHTML() {
     <div class="page-body" style="display:flex;flex-direction:column;gap:14px;max-width:680px;">
       <!-- Safety -->
       <div class="card" style="padding:16px;">
-        <div style="font-size:12px;font-weight:800;margin-bottom:12px;">⚡ Safety Alert Thresholds</div>
+        <div style="font-size:12px;font-weight:800;margin-bottom:12px;"><i class="fa-solid fa-shield-halved text-primary"></i> Safety Alert Thresholds</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
           <div class="form-group"><label class="form-label">Overspeed Limit (Highway)</label><input class="form-input" type="text" value="80 km/h"></div>
           <div class="form-group"><label class="form-label">Overspeed Limit (City)</label><input class="form-input" type="text" value="50 km/h"></div>
@@ -1386,7 +1387,7 @@ function settingsHTML() {
       </div>
       <!-- SMS -->
       <div class="card" style="padding:16px;">
-        <div style="font-size:12px;font-weight:800;margin-bottom:12px;">📱 SMS Gateway Configuration</div>
+        <div style="font-size:12px;font-weight:800;margin-bottom:12px;"><i class="fa-solid fa-comment-sms text-teal"></i> SMS Gateway Configuration</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
           <div class="form-group"><label class="form-label">SMS Provider</label><input class="form-input" type="text" value="Sparrow SMS Nepal"></div>
           <div class="form-group"><label class="form-label">Sender ID</label><input class="form-input" type="text" value="UNILEVER-NP"></div>
@@ -1396,7 +1397,7 @@ function settingsHTML() {
       </div>
       <!-- Odoo -->
       <div class="card" style="padding:16px;">
-        <div style="font-size:12px;font-weight:800;margin-bottom:12px;">🔗 Odoo 19 Integration</div>
+        <div style="font-size:12px;font-weight:800;margin-bottom:12px;"><i class="fa-solid fa-circle-nodes text-purple"></i> Odoo 19 Integration</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
           <div class="form-group"><label class="form-label">Odoo Server URL</label><input class="form-input" type="text" value="https://unilever.odoo.com"></div>
           <div class="form-group"><label class="form-label">Database Name</label><input class="form-input" type="text" value="unilever_nepal_prod"></div>
