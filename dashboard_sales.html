@@ -351,6 +351,7 @@
   <!-- SHARED DATASETS -->
   <script src="js/unilever_db.js"></script>
   <script src="js/leaflet_map_common.js"></script>
+  <script src="js/sales_templates.js"></script>
   <script src="js/sales_components.js"></script>
 
   <script>
@@ -443,10 +444,24 @@
           if (activeNode) activeNode.classList.add('active');
 
           try {
-            const response = await fetch(`sales/${componentName}.html`);
-            if (!response.ok) throw new Error(`HTTP fault: ${response.status}`);
-            
-            this.viewport.innerHTML = await response.text();
+            let htmlContent = '';
+            if (window.location.protocol === 'file:' && window.OdooSalesTemplates && window.OdooSalesTemplates[componentName]) {
+              htmlContent = window.OdooSalesTemplates[componentName];
+            } else {
+              try {
+                const response = await fetch(`sales/${componentName}.html`);
+                if (!response.ok) throw new Error(`HTTP fault: ${response.status}`);
+                htmlContent = await response.text();
+              } catch (e) {
+                if (window.OdooSalesTemplates && window.OdooSalesTemplates[componentName]) {
+                  htmlContent = window.OdooSalesTemplates[componentName];
+                } else {
+                  throw e;
+                }
+              }
+            }
+
+            this.viewport.innerHTML = htmlContent;
             
             // Call the decoupled initialization logic directly from our shared registry file
             const lifecycleHook = window.OdooSalesComponents[`init_${componentName}`];
@@ -567,15 +582,19 @@
         let msg = "";
         let recipient = distName;
         
+        const trackerUrl = window.location.protocol === 'file:' 
+          ? window.location.href.substring(0, window.location.href.lastIndexOf('/')) + '/dashboard_distributor.html'
+          : window.location.origin + '/dashboard_distributor.html';
+        
         if (d) {
           recipient = `${d.distributor} - ${d.contact}`;
-          if (d.statusClass === 'red') {
-            msg = `Dear Partner,\n\nWe apologize for the delay. Your Unilever Nepal delivery (Ref: ${d.id}) has been delayed and is now expected to arrive by ${etaTime}.\n\nTrack real-time: http://127.0.0.1:8000/dashboard_distributor.html`;
+          if (d.status === 'Delayed') {
+            msg = `Dear Partner,\n\nWe apologize for the delay. Your Unilever Nepal delivery (Ref: ${d.id}) has been delayed and is now expected to arrive by ${etaTime}.\n\nTrack real-time: ${trackerUrl}`;
           } else {
-            msg = `Dear Partner,\n\nYour Unilever Nepal delivery (Ref: ${d.id}) is en route and expected to arrive by ${etaTime}.\n\nTrack: http://127.0.0.1:8000/dashboard_distributor.html`;
+            msg = `Dear Partner,\n\nYour Unilever Nepal delivery (Ref: ${d.id}) is en route and expected to arrive by ${etaTime}.\n\nTrack: ${trackerUrl}`;
           }
         } else {
-          msg = `Dear Partner,\n\nYour delivery (Ref: ${orderId}) is expected by ${etaTime}.\n\nTrack: http://127.0.0.1:8000/dashboard_distributor.html`;
+          msg = `Dear Partner,\n\nYour delivery (Ref: ${orderId}) is expected by ${etaTime}.\n\nTrack: ${trackerUrl}`;
         }
 
         document.getElementById('smsRecipient').value = recipient;
