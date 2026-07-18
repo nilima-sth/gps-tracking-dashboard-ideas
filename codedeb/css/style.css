@@ -1,45 +1,26 @@
-/* STREAMING_CHUNK: Building layout override typography rules */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 body {
-font-family: 'Inter', sans-serif;
-letter-spacing: -0.01em;
+    font-family: 'Inter', sans-serif;
+    background-color: #f8fafc;
 }
 
 .font-mono-data {
-font-family: 'JetBrains Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
 }
 
-/* Custom scrollbars matching clean enterprise panels */
+/* Remove scrollbar spacing complications */
 ::-webkit-scrollbar {
-width: 6px;
-height: 6px;
+    width: 4px;
+    height: 4px;
 }
 ::-webkit-scrollbar-track {
-background: transparent;
+    background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-background: #cbd5e1;
-border-radius: 3px;
+    background: #cbd5e1;
+    border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-background: #94a3b8;
-}
-
-.active-nav-item {
-background-color: #f1f5f9;
-color: #0f172a !important;
-border-left: 3px solid #0284c7;
-font-weight: 700;
-}
-
-/* Map specific popups clean overrides */
-.leaflet-popup-content-wrapper {
-border-radius: 6px !important;
-border: 1px solid #e2e8f0 !important;
-box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
-}
-
-.leaflet-popup-content {
-margin: 8px 12px !important;
+    background: #94a3b8;
 }

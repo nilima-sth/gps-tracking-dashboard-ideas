@@ -2,8 +2,7 @@
 <html lang="en" class="h-full bg-slate-50">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Directory — CodeDeb VMS</title>
+    <title>Drivers - CodeDeb Fleet System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -12,69 +11,85 @@
 </head>
 <body class="h-full flex flex-col overflow-hidden text-slate-700">
 
-    <header id="header-target" class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 shrink-0 z-40"></header>
+    <!-- TOP HEADER Accents -->
+    <header id="header-target" class="h-14 bg-[#0b192f] flex items-center justify-between px-4 shrink-0 z-40 text-white"></header>
 
     <div class="flex-1 flex overflow-hidden">
+        <!-- APP SIDEBAR -->
         <aside id="sidebar-target" class="w-60 bg-white border-r border-slate-200 flex flex-col shrink-0 z-30"></aside>
 
-        <!-- DIRECTORY GRID -->
+        <!-- DATA MATRIX PORT -->
         <main class="flex-1 overflow-y-auto p-4 space-y-4">
-            <div class="border-b border-slate-200 pb-2 flex justify-between items-center">
+            <div class="border-b border-slate-200 pb-2.5 flex justify-between items-center">
                 <div>
-                    <h1 class="text-sm font-bold text-slate-900 tracking-tight">Active Duty Registry</h1>
-                    <p class="text-[11px] text-slate-400">Directory mapping staff, owner classifications, and vehicle parameters.</p>
+                    <h1 class="text-base font-bold text-slate-900 tracking-tight">Drivers Directory</h1>
+                    <p class="text-[11px] text-slate-500"> Roster index of active vehicle operators, driving licenses, and vehicle assignments.</p>
+                </div>
+                <div class="max-w-xs w-full flex items-center border border-slate-200 bg-white rounded px-2.5 py-1">
+                    <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 mr-2"></i>
+                    <input type="text" id="driverSearch" oninput="searchDriversRegistry()" placeholder="Search by operator name..." class="text-xs focus:outline-none w-full bg-transparent">
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" id="driver-grid"></div>
+            <!-- DRILL-DOWN ROSTER SHEET -->
+            <div class="bg-white border border-slate-200 rounded shadow-sm overflow-hidden">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-50 text-slate-500 border-b border-slate-200 text-[10px] uppercase font-bold tracking-wider">
+                        <tr>
+                            <th class="p-2.5 pl-3">Operator Name</th>
+                            <th class="p-2.5">Mobile Phone Number</th>
+                            <th class="p-2.5">Assigned EV</th>
+                            <th class="p-2.5">License ID</th>
+                            <th class="p-2.5">Mechanical Inspection</th>
+                            <th class="p-2.5 text-right pr-3">Duty Log</th>
+                        </tr>
+                    </thead>
+                    <tbody id="drivers-registry-rows" class="divide-y divide-slate-100 font-medium text-slate-800"></tbody>
+                </table>
+            </div>
         </main>
     </div>
 
     <script>
+        let registryVehicles = [];
+
         document.addEventListener("DOMContentLoaded", () => {
             const db = getDatabase();
-            renderDrivers(db);
+            registryVehicles = db.vehicles;
+            renderDriversRegistry(registryVehicles);
             lucide.createIcons();
         });
 
-        function renderDrivers(db) {
-            const container = document.getElementById("driver-grid");
-            container.innerHTML = db.vehicles.map(v => `
-                <div class="bg-white border border-slate-200 p-3.5 rounded-md shadow-sm space-y-3 flex flex-col justify-between">
-                    <div class="space-y-2">
-                        <div class="flex justify-between items-start">
-                            <span class="text-xs font-bold text-slate-900 block">${v.regNo} (${v.id})</span>
-                            <span class="text-[9px] bg-slate-100 font-mono-data px-1.5 py-0.5 rounded uppercase tracking-wide font-bold">${v.chargeLimit} Input</span>
-                        </div>
-                        <div class="space-y-1 text-xs">
-                            <div class="flex justify-between">
-                                <span class="text-slate-400">Driver:</span>
-                                <span class="font-bold text-slate-800">${v.driver}</span>
-                            </div>
-                            <div class="flex justify-between font-mono-data text-[11px] text-slate-400 border-b border-slate-50 pb-1.5">
-                                <span>Phone:</span>
-                                <span>${v.driverPhone}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-slate-400">Conductor:</span>
-                                <span class="font-bold text-slate-800">${v.conductor}</span>
-                            </div>
-                            <div class="flex justify-between font-mono-data text-[11px] text-slate-400 border-b border-slate-50 pb-1.5">
-                                <span>Phone:</span>
-                                <span>${v.conductorPhone}</span>
-                            </div>
-                            <div class="flex justify-between pt-0.5">
-                                <span class="text-slate-400">Owner:</span>
-                                <span class="font-bold text-slate-900">${v.owner}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="border-t border-slate-100 pt-2.5 flex justify-between text-[10px]">
-                        <span class="text-slate-400 font-semibold">Daily Checkup</span>
-                        <span class="text-emerald-600 font-bold uppercase font-mono-data">Checked OK</span>
-                    </div>
-                </div>
+        function renderDriversRegistry(list) {
+            const tbody = document.getElementById("drivers-registry-rows");
+            tbody.innerHTML = list.map((v, index) => `
+                <tr class="hover:bg-slate-50 cursor-pointer transition" onclick="showDriverDrawer('${v.driver}')">
+                    <td class="p-2.5 pl-3">
+                        <div class="font-bold text-slate-900">${v.driver}</div>
+                        <div class="text-[9px] text-slate-400 font-mono-data">EMP-#CD-${200 + index}</div>
+                    </td>
+                    <td class="p-2.5 font-mono-data text-slate-700">${v.driverPhone}</td>
+                    <td class="p-2.5">
+                        <span class="text-blue-700 font-bold hover:underline" onclick="event.stopPropagation(); showVehicleDrawer('${v.id}')">${v.regNo}</span>
+                        <span class="text-[9px] text-slate-400 font-mono-data block">${v.id}</span>
+                    </td>
+                    <td class="p-2.5 font-mono-data text-slate-600">${v.driverLicense}</td>
+                    <td class="p-2.5">
+                        <span class="text-[9px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded uppercase">TYRES: ${v.checklist.tyres} | BRAKES: ${v.checklist.brakes}</span>
+                    </td>
+                    <td class="p-2.5 text-right pr-3 font-bold text-emerald-600">[ Active Duty ]</td>
+                </tr>
             `).join('');
+        }
+
+        function searchDriversRegistry() {
+            const term = document.getElementById("driverSearch").value.toLowerCase();
+            const filtered = registryVehicles.filter(v => 
+                v.driver.toLowerCase().includes(term) || 
+                v.driverPhone.includes(term) ||
+                v.regNo.toLowerCase().includes(term)
+            );
+            renderDriversRegistry(filtered);
         }
     </script>
 </body>
