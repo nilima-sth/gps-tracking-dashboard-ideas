@@ -24,3 +24,17 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
 }
+/* Compact Weather Styles */
+    .weather-row-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 12px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .weather-row-item:last-child { border-bottom: none; }
+    .weather-city { font-weight: 700; font-size: 11.5px; color: var(--text); }
+    .weather-details { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-muted); }
+
+    /* Dashboard Mini Map Widget Styling */
+    #mini-dashboard-map { width: 100%; height: 235px; border-radius: 0 0 8px 8px; }

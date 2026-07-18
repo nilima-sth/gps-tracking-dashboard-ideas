@@ -1670,17 +1670,36 @@
       render();
     }
 
+    /* Paste this new map instantiator directly above your render() function */
+    let miniMapInstance = null;
+    function initDashboardMiniMap() {
+      if (miniMapInstance) { try { miniMapInstance.remove(); } catch(e){} miniMapInstance = null; }
+      const container = document.getElementById('mini-dashboard-map');
+      if (!container) return;
+
+      miniMapInstance = L.map('mini-dashboard-map', { zoomControl: false, attributionControl: false }).setView([27.5, 84.9], 7);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(miniMapInstance);
+      
+      S.trucks.forEach(t => {
+        if (t.routePts) { L.polyline(t.routePts, { color: '#714B67', weight: 2.5, opacity: 0.5 }).addTo(miniMapInstance); }
+        const markerColor = t.sc === 'green' ? '#1D9E75' : t.sc === 'red' ? '#EF4444' : '#F0A500';
+        L.marker(t.latlng, {
+          icon: L.divIcon({
+            html: `<div style="background:${markerColor}; width:14px; height:14px; border-radius:50%; border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,0.3);"></div>`,
+            className: 'dashboard-mini-dot', iconSize: [14, 14], iconAnchor: [7, 7]
+          })
+        }).bindPopup(`<b>${t.reg}</b><br>${t.status}`).addTo(miniMapInstance);
+      });
+    }
+
+    /* Update your existing render() function to match this one precisely */
     function render() {
       const vp = document.getElementById('main-viewport');
       const active = S.trucks.filter(t => S.depot === 'all' || t.origin === S.depot || t.dest === S.depot);
       const elActive = document.getElementById('hdr-active');
       const elAlerts = document.getElementById('hdr-alerts');
-      if (elActive) {
-        elActive.textContent = `${active.filter(t => t.sc === 'green').length} On Schedule · ${active.filter(t => t.sc === 'red').length} Delayed`;
-      }
-      if (elAlerts) {
-        elAlerts.textContent = `${S.alerts.length} Alerts`;
-      }
+      if (elActive) { elActive.textContent = `${active.filter(t => t.sc === 'green').length} On Schedule · ${active.filter(t => t.sc === 'red').length} Delayed`; }
+      if (elAlerts) { elAlerts.textContent = `${S.alerts.length} Alerts`; }
 
       if (S.page === 'map') {
         vp.innerHTML = mapPageHTML();
@@ -1688,15 +1707,16 @@
         return;
       }
       const fn = {
-        dashboard: dashboardHTML, dispatch: dispatchHTML,
-        routes: routesHTML, drivers: driversHTML, trips: tripsHTML,
-        alerts: alertsHTML, reports: reportsHTML, settings: settingsHTML,
-        vehicles: vehiclesHTML, vehiclerequest: vehiclerequestHTML,
-        contracts: contractsHTML, revenues: revenuesHTML, gpsdevices: gpsdevicesHTML
+        dashboard: dashboardHTML, dispatch: dispatchHTML, routes: routesHTML, drivers: driversHTML, trips: tripsHTML, alerts: alertsHTML, reports: reportsHTML, settings: settingsHTML, vehicles: vehiclesHTML, vehiclerequest: vehiclerequestHTML, contracts: contractsHTML, revenues: revenuesHTML, gpsdevices: gpsdevicesHTML
       }[S.page];
+      
       vp.innerHTML = fn ? fn() : '<div style="padding:40px;color:var(--text-muted);text-align:center;">Page not found.</div>';
+      
+      // Fires the map renderer safely right after the dashboard viewport mounts to the HTML tree
+      if (S.page === 'dashboard') {
+        setTimeout(initDashboardMiniMap, 100);
+      }
     }
-
     /* ================================================================
        TOAST
     ================================================================ */
@@ -1755,30 +1775,30 @@
       const recentTrucks = S.trucks.slice(0, 5);
 
       const fleetRows = recentTrucks.map(t => `
-    <tr onclick="goDispatch('${t.id}')" style="cursor:pointer;">
-      <td><div style="font-weight:700;">${t.reg}</div><div style="font-size:10px;color:var(--text-muted);">${t.model}</div></td>
-      <td><div style="font-weight:600;font-size:11.5px;">${t.routeName}</div><div style="font-size:10.5px;color:var(--text-muted);"><i class="fa-solid fa-location-dot text-danger"></i> ${t.loc}</div></td>
-      <td>${sBadge(t)}</td>
-      <td style="min-width:100px;">${fuelBar(t.fuel)}</td>
-      <td style="font-family:'DM Mono',monospace;font-weight:700;font-size:11.5px;color:${t.delay > 0 ? 'var(--red)' : 'var(--teal)'};">${t.delay > 0 ? `+${t.delay}m` : 'On Time'}</td>
-      <td><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();goDispatch('${t.id}')">Inspect →</button></td>
-    </tr>
-  `).join('');
+        <tr onclick="goDispatch('${t.id}')" style="cursor:pointer;">
+          <td><div style="font-weight:700;">${t.reg}</div><div style="font-size:10px;color:var(--text-muted);">${t.model}</div></td>
+          <td><div style="font-weight:600;font-size:11.5px;">${t.routeName}</div><div style="font-size:10.5px;color:var(--text-muted);"><i class="fa-solid fa-location-dot text-danger"></i> ${t.loc}</div></td>
+          <td>${sBadge(t)}</td>
+          <td style="min-width:100px;">${fuelBar(t.fuel)}</td>
+          <td style="font-family:'DM Mono',monospace;font-weight:700;font-size:11.5px;color:${t.delay > 0 ? 'var(--red)' : 'var(--teal)'};">${t.delay > 0 ? `+${t.delay}m` : 'On Time'}</td>
+          <td><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();goDispatch('${t.id}')">Inspect →</button></td>
+        </tr>
+      `).join('');
 
       const alertItems = S.alerts.slice(0, 3).map(a => {
         const cfg = { overspeed: { icon: '<i class="fa-solid fa-bolt"></i>', bg: 'var(--red-light)' }, geofence: { icon: '<i class="fa-solid fa-location-crosshairs"></i>', bg: 'var(--amber-light)' }, idle: { icon: '<i class="fa-solid fa-pause"></i>', bg: 'var(--amber-light)' }, braking: { icon: '<i class="fa-solid fa-ban"></i>', bg: 'var(--red-light)' } }[a.type] || { icon: '<i class="fa-solid fa-triangle-exclamation"></i>', bg: 'var(--amber-light)' };
         return `<div class="alert-item">
-      <div class="alert-icon" style="background:${cfg.bg};">${cfg.icon}</div>
-      <div>
-        <div style="font-size:11.5px;font-weight:700;color:var(--text);">${a.reg} — ${a.type.toUpperCase()}</div>
-        <div style="font-size:10.5px;color:var(--text-muted);margin-top:2px;line-height:1.5;">${a.detail}</div>
-        <div style="font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-top:3px;">${a.time}</div>
-      </div>
-    </div>`;
+          <div class="alert-icon" style="background:${cfg.bg};">${cfg.icon}</div>
+          <div>
+            <div style="font-size:11.5px;font-weight:700;color:var(--text);">${a.reg} — ${a.type.toUpperCase()}</div>
+            <div style="font-size:10.5px;color:var(--text-muted);margin-top:2px;line-height:1.5;">${a.detail}</div>
+            <div style="font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-top:3px;">${a.time}</div>
+          </div>
+        </div>`;
       }).join('');
 
-      const now = new Date();
-      const h = now.getHours(), pad = n => String(n).padStart(2, '0');
+      const pad = n => String(n).padStart(2, '0');
+      const h = new Date().getHours();
 
       return `
     <div style="display:flex;flex-direction:column;min-height:100%;">
@@ -1798,82 +1818,71 @@
           <div class="kpi-card"><div class="kpi-icon teal">🚛</div>
             <div><div class="kpi-val">${m.active}<span style="font-size:13px;font-weight:400;color:var(--text-muted);"> / ${m.total}</span></div>
             <div class="kpi-label">Active Trucks</div>
-            <div class="kpi-sub">${m.delayed} delayed · ${m.total - m.active - m.delayed} flagged</div></div>
+            <div class="kpi-sub">${m.delayed} delayed</div></div>
           </div>
           <div class="kpi-card"><div class="kpi-icon red">⏰</div>
             <div><div class="kpi-val" style="color:var(--red);">${m.delayed}</div>
             <div class="kpi-label">Delayed Dispatches</div>
-            <div class="kpi-sub">Needs immediate attention</div></div>
+            <div class="kpi-sub">Needs attention</div></div>
           </div>
           <div class="kpi-card"><div class="kpi-icon amber">🔔</div>
             <div><div class="kpi-val" style="color:var(--amber);">${m.alerts}</div>
             <div class="kpi-label">Active Safety Alerts</div>
-            <div class="kpi-sub">Overspeed, geofence, idle flags</div></div>
+            <div class="kpi-sub">Overspeed/Geofence flags</div></div>
           </div>
-          <div class="kpi-card"><div class="kpi-icon purple">⚖️</div>
+          <div class="kpi-card">
+            <div class="kpi-icon purple"><i class="fa-solid fa-boxes-packing"></i></div>
             <div><div class="kpi-val">${m.totalKg}<span style="font-size:12px;font-weight:400;color:var(--text-muted);"> kg</span></div>
             <div class="kpi-label">Cargo In Transit</div>
-            <div class="kpi-sub">Across all active dispatches</div></div>
+            <div class="kpi-sub">Fulfillment case load balance</div></div>
           </div>
         </div>
 
-        <!-- TWO COLUMN -->
-        <div style="display:grid;grid-template-columns:1fr 292px;gap:14px;align-items:start;">
-          <!-- LEFT -->
-          <div style="display:flex;flex-direction:column;gap:14px;">
-            <!-- Terminal Status -->
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title"><i class="fa-solid fa-warehouse text-primary"></i> Weather Conditions</div>
-                <span style="font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace;">Gateway Active</span>
-              </div>
-              <div style="padding:12px;"><div class="terminal-grid">
-                <div class="terminal-card">
-                  <div class="terminal-name">Kathmandu HQ</div>
-                  <div class="terminal-weather">${w.KTM.icon} ${w.KTM.temp} · ${w.KTM.cond}</div>
-                </div>
-                <div class="terminal-card">
-                  <div class="terminal-name">Hetauda Station</div>
-                  <div class="terminal-weather">${w.HET.icon} ${w.HET.temp} · ${w.HET.cond}</div>
-                </div>
-                <div class="terminal-card">
-                  <div class="terminal-name">Birgunj Station</div>
-                  <div class="terminal-weather">${w.BGR.icon} ${w.BGR.temp} · ${w.BGR.cond}</div>
-                </div>
-                <div class="terminal-card">
-                  <div class="terminal-name">Pokhara Station</div>
-                  <div class="terminal-weather">${w.PKR.icon} ${w.PKR.temp} · ${w.PKR.cond}</div>
-                </div>
-                <div class="terminal-card">
-                  <div class="terminal-name">Butwal Station</div>
-                  <div class="terminal-weather">${w.BTW.icon} ${w.BTW.temp} · ${w.BTW.cond}</div>
-                </div>
-                <div class="terminal-card">
-                  <div class="terminal-name">Nepalgunj Station</div>
-                  <div class="terminal-weather">${w.NPJ.icon} ${w.NPJ.temp} · ${w.NPJ.cond}</div>
-                </div>
-                <div class="terminal-card">
-                  <div class="terminal-name">Biratnagar Station</div>
-                  <div class="terminal-weather">${w.BRT.icon} ${w.BRT.temp} · ${w.BRT.cond}</div>
-                </div>
-              </div></div>
+        <!-- NEW COMPACT WEATHER & MAP ROW -->
+        <div style="display:grid; grid-template-columns: 280px 1fr; gap:14px; align-items: stretch;">
+          <!-- COMPACT HIGH DENSITY WEATHER PANEL -->
+          <div class="card" style="display:flex; flex-direction:column;">
+            <div class="card-header">
+              <div class="card-title"><i class="fa-solid fa-cloud-sun text-primary"></i> Depot Weather</div>
+              <span style="font-size:9px;color:var(--text-muted);font-family:'DM Mono',monospace;">Live Feed</span>
             </div>
-
-            <!-- Fleet Table -->
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title"><i class="fa-solid fa-compass text-teal"></i> Current Fleet Position Monitor</div>
-                <button class="btn btn-outline btn-sm" onclick="switchPage('dispatch')">Full Board →</button>
-              </div>
-              <div style="overflow-x:auto;">
-                <table class="data-table">
-                  <thead><tr><th>Vehicle</th><th>Route</th><th>Status</th><th>Fuel</th><th>Delay</th><th></th></tr></thead>
-                  <tbody>${fleetRows}</tbody>
-                </table>
-              </div>
+            <div style="display:flex; flex-direction:column; flex:1; justify-content:center; padding: 6px 0;">
+              <div class="weather-row-item"><span class="weather-city">Kathmandu HQ</span><div class="weather-details">${w.KTM.icon} <b>${w.KTM.temp}</b></div></div>
+              <div class="weather-row-item"><span class="weather-city">Hetauda Station</span><div class="weather-details">${w.HET.icon} <b>${w.HET.temp}</b></div></div>
+              <div class="weather-row-item"><span class="weather-city">Birgunj Station</span><div class="weather-details">${w.BGR.icon} <b>${w.BGR.temp}</b></div></div>
+              <div class="weather-row-item"><span class="weather-city">Pokhara Station</span><div class="weather-details">${w.PKR.icon} <b>${w.PKR.temp}</b></div></div>
+              <div class="weather-row-item"><span class="weather-city">Butwal Station</span><div class="weather-details">${w.BTW.icon} <b>${w.BTW.temp}</b></div></div>
+              <div class="weather-row-item"><span class="weather-city">Nepalgunj Station</span><div class="weather-details">${w.NPJ.icon} <b>${w.NPJ.temp}</b></div></div>
+              <div class="weather-row-item"><span class="weather-city">Biratnagar Station</span><div class="weather-details">${w.BRT.icon} <b>${w.BRT.temp}</b></div></div>
             </div>
           </div>
-          <!-- RIGHT -->
+
+          <!-- INTEGRATED DASHBOARD MINI LIVE MAP -->
+          <div class="card" style="display:flex; flex-direction:column; min-height:270px;">
+            <div class="card-header">
+              <div class="card-title"><i class="fa-solid fa-map-location-dot text-teal"></i> Active Route Monitoring Vectors</div>
+              <span style="font-size:10px; color:var(--text-muted); font-weight:600;"><i class="fa-solid fa-satellite"></i> GPS Real-time Stream</span>
+            </div>
+            <div style="flex:1; position:relative;">
+              <div id="mini-dashboard-map" style="height:100%; width:100%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TWO COLUMN TABLES SECTION -->
+        <div style="display:grid;grid-template-columns:1fr 292px;gap:14px;align-items:start;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><i class="fa-solid fa-compass text-teal"></i> Current Fleet Position Monitor</div>
+              <button class="btn btn-outline btn-sm" onclick="switchPage('dispatch')">Full Board →</button>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="data-table">
+                <thead><tr><th>Vehicle</th><th>Route</th><th>Status</th><th>Fuel</th><th>Delay</th><th></th></tr></thead>
+                <tbody>${fleetRows}</tbody>
+              </table>
+            </div>
+          </div>
           <div style="display:flex;flex-direction:column;gap:14px;">
             <div class="card">
               <div class="card-header">
@@ -1882,17 +1891,13 @@
               </div>
               ${alertItems}
             </div>
-
             <div class="card">
               <div class="card-header">
                 <div class="card-title"><i class="fa-solid fa-terminal text-muted"></i> Dispatch Event Log</div>
-                <span style="width:7px;height:7px;border-radius:50%;background:var(--teal);display:inline-block;animation:blink 1.4s infinite;"></span>
               </div>
               <div style="padding:10px 14px;" class="elog">
-                <div class="elog-item"><span class="elog-time">[${pad(h)}:08]</span><div class="elog-bar" style="background:var(--teal);"></div><span>BA 2 KHA 1423 passed Hetauda. 192.5 kg verified.</span></div>
-                <div class="elog-item"><span class="elog-time">[${pad(h)}:52]</span><div class="elog-bar" style="background:var(--amber);"></div><span>ALERT: GA 3 PA 4412 speed 94 km/h — flag raised.</span></div>
-                <div class="elog-item"><span class="elog-time">[${pad(h - 1 < 0 ? 0 : h - 1)}:40]</span><div class="elog-bar" style="background:var(--blue);"></div><span>KO 1 GA 3311 departed KTM WH — 208 kg loaded.</span></div>
-                <div class="elog-item"><span class="elog-time">[${pad(h - 1 < 0 ? 0 : h - 1)}:15]</span><div class="elog-bar" style="background:var(--red);"></div><span>DELAY: BA 1 CHA 7829 stalled Naubise — 80 min behind.</span></div>
+                <div class="elog-item"><span class="elog-time">[${pad(h)}:08]</span><div class="elog-bar" style="background:var(--teal);"></div><span>BA 2 KHA 1423 passed Hetauda.</span></div>
+                <div class="elog-item"><span class="elog-time">[${pad(h)}:52]</span><div class="elog-bar" style="background:var(--amber);"></div><span>ALERT: GA 3 PA 4412 speed flag raised.</span></div>
               </div>
             </div>
           </div>
@@ -1900,7 +1905,6 @@
       </div>
     </div>`;
     }
-
     function goDispatch(id) {
       S.activeId = id;
       S.tab = 'cargo';
