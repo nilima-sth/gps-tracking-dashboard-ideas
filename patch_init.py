@@ -18,8 +18,8 @@ new_init = """    function initFleetState() {
           rState: 'pending',
           vState: 'all',
           gps: [
-            { id: '1', name: 'BA 2 KHA 1423', status: 'Offline', sel: false, ignition: false },
-            { id: '2', name: 'BA 1 CHA 7829', status: 'Offline', sel: false, ignition: false }
+            { id: '1', gpsId: 'GPS-882142', name: 'BA 2 KHA 1423', status: 'Offline', sel: false, ignition: false },
+            { id: '2', gpsId: 'GPS-782910', name: 'BA 1 CHA 7829', status: 'Offline', sel: false, ignition: false }
           ]
         };
       }

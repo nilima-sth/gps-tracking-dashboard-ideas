@@ -1324,8 +1324,7 @@
     <div class="topbar-menu">
       <div class="top-menu-item" id="top-vehicles" onclick="switchPage('vehicles')"><i class="fa-solid fa-car"></i>
         Vehicles</div>
-      <div class="top-menu-item" id="top-vehiclerequest" onclick="switchPage('vehiclerequest')"><i
-          class="fa-solid fa-hand-holding-hand"></i> Vehicle Request</div>
+
       <div class="top-menu-item" id="top-contracts" onclick="switchPage('contracts')"><i
           class="fa-solid fa-file-contract"></i> Contracts</div>
       <div class="top-menu-item" id="top-revenues" onclick="switchPage('revenues')"><i
@@ -2665,8 +2664,8 @@
           rState: 'pending',
           vState: 'all',
           gps: [
-            { id: '1', name: 'BA 2 KHA 1423', status: 'Offline', sel: false, ignition: false },
-            { id: '2', name: 'BA 1 CHA 7829', status: 'Offline', sel: false, ignition: false }
+            { id: '1', gpsId: 'GPS-882142', name: 'BA 2 KHA 1423', status: 'Offline', sel: false, ignition: false },
+            { id: '2', gpsId: 'GPS-782910', name: 'BA 1 CHA 7829', status: 'Offline', sel: false, ignition: false }
           ]
         };
       }
@@ -2680,9 +2679,9 @@
       S.trucks.forEach((t, idx) => {
         if (!t.vReqState) {
           if (idx === 0) t.vReqState = 'Delivered';
-          else if (idx === 1) t.vReqState = 'Registered';
-          else if (idx === 2) t.vReqState = 'To Order';
-          else if (idx === 3) t.vReqState = 'New Request';
+          else if (idx === 1) t.vReqState = 'Assigned';
+          else if (idx === 2) t.vReqState = 'In Transit';
+          else if (idx === 3) t.vReqState = 'Planning';
           else t.vReqState = 'Delivered';
         }
       });
@@ -2733,7 +2732,7 @@
           S.fleet.vModel = '';
           S.fleet.vPlate = '';
           S.fleet.vDriver = '';
-          S.fleet.vReqState = 'New Request';
+          S.fleet.vReqState = 'Planning';
           S.fleet.vTags = '';
           S.fleet.vMobility = '';
           S.fleet.vFutureDriver = '';
@@ -2778,7 +2777,7 @@
             status: 'On Schedule',
             sc: 'green',
             fuel: 100,
-            vReqState: S.fleet.vReqState || 'New Request',
+            vReqState: S.fleet.vReqState || 'Planning',
             vTags: S.fleet.vTags,
             vMobility: S.fleet.vMobility,
             vFutureDriver: S.fleet.vFutureDriver,
@@ -2826,9 +2825,9 @@
         
         let stateBadgeColor = 'background:#f1f5f9; color:#475569;';
         if (t.vReqState === 'Delivered') stateBadgeColor = 'background:#dcfce7; color:#15803d;';
-        else if (t.vReqState === 'Registered') stateBadgeColor = 'background:#dbeafe; color:#1d4ed8;';
-        else if (t.vReqState === 'To Order') stateBadgeColor = 'background:#fef3c7; color:#b45309;';
-        else if (t.vReqState === 'New Request') stateBadgeColor = 'background:#f3e8ff; color:#6b21a8;';
+        else if (t.vReqState === 'Assigned') stateBadgeColor = 'background:#dbeafe; color:#1d4ed8;';
+        else if (t.vReqState === 'In Transit') stateBadgeColor = 'background:#fef3c7; color:#b45309;';
+        else if (t.vReqState === 'Planning') stateBadgeColor = 'background:#f3e8ff; color:#6b21a8;';
 
         let runStatusBadge = `<span class="badge badge-green">${t.status}</span>`;
         if (t.sc === 'red') runStatusBadge = `<span class="badge badge-red">${t.status}</span>`;
@@ -2838,7 +2837,7 @@
         <div style="padding:12px 16px; border-bottom:1px solid var(--border); cursor:pointer; ${activeBg} transition:all 0.15s;" onclick="selectVehicle('${t.reg}')">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
             <strong style="font-size:13px; color:var(--text);">${t.reg}</strong>
-            <span style="font-size:9.5px; font-weight:700; padding:2px 6px; border-radius:10px; margin-left:auto; ${stateBadgeColor}">${t.vReqState || 'New Request'}</span>
+            <span style="font-size:9.5px; font-weight:700; padding:2px 6px; border-radius:10px; margin-left:auto; ${stateBadgeColor}">${t.vReqState || 'Planning'}</span>
           </div>
           <div style="font-size:11px; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center;">
             <span>${t.model}</span>
@@ -2879,17 +2878,17 @@
           <!-- Header buttons -->
           <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:15px; margin-bottom:20px; gap:8px; flex-wrap:wrap;">
             <div style="display:flex; gap:8px;">
-              <button class="btn btn-primary" onclick="updateRequestState('To Order', 'Vehicle Request Sent')">Request Vehicle</button>
-              <button class="btn btn-outline" onclick="updateRequestState('Registered', 'Vehicle Assigned')">Assign Vehicle</button>
-              <button class="btn btn-outline" onclick="showToast('Ready','Marked as Ready');">Ready for Delivery</button>
+              <button class="btn btn-primary" onclick="updateRequestState('Planning', 'Vehicle moved to Planning')">Planning</button>
+              <button class="btn btn-outline" onclick="updateRequestState('Assigned', 'Vehicle Assigned')">Assigned</button>
+              <button class="btn btn-outline" onclick="updateRequestState('In Transit', 'Vehicle is In Transit')">In Transit</button>
               <button class="btn btn-outline" onclick="updateRequestState('Delivered', 'Vehicle Delivered')">Delivered</button>
             </div>
             
             <div style="display:flex; gap:4px; font-size:11.5px; align-items:center; background:var(--bg); padding:3px; border-radius:6px; border:1px solid var(--border);">
+              <div style="${statusBtn('Planning')}" onclick="updateRequestState('Planning', 'Status: Planning')">Planning</div>
+              <div style="${statusBtn('Assigned')}" onclick="updateRequestState('Assigned', 'Status: Assigned')">Assigned</div>
+              <div style="${statusBtn('In Transit')}" onclick="updateRequestState('In Transit', 'Status: In Transit')">In Transit</div>
               <div style="${statusBtn('Delivered')}" onclick="updateRequestState('Delivered', 'Status: Delivered')">Delivered</div>
-              <div style="${statusBtn('New Request')}" onclick="updateRequestState('New Request', 'Status: New Request')">New Request</div>
-              <div style="${statusBtn('To Order')}" onclick="updateRequestState('To Order', 'Status: To Order')">To Order</div>
-              <div style="${statusBtn('Registered')}" onclick="updateRequestState('Registered', 'Status: Registered')">Registered</div>
             </div>
           </div>
 
@@ -3130,6 +3129,7 @@
       let rows = st.gps.map(g => `
             <tr onclick="const f=S.fleet.gps.find(x=>x.id=='${g.id}'); f.sel=!f.sel; render();" style="cursor:pointer; background:${g.sel ? 'var(--blue-light)' : 'transparent'};">
               <td onclick="event.stopPropagation();"><input type="checkbox" ${g.sel ? 'checked' : ''} onchange="const f=S.fleet.gps.find(x=>x.id=='${g.id}'); f.sel=this.checked; render();"></td>
+              <td style="font-family:'DM Mono',monospace;font-weight:700;color:var(--text-muted);">${g.gpsId || 'N/A'}</td>
               <td style="font-weight:700;">${g.name}</td><td></td><td></td>
               <td><span class="badge badge-red">${g.status}</span></td>
               <td style="font-family:'DM Mono',monospace;">0 km/h</td>
@@ -3158,6 +3158,7 @@
           <thead>
             <tr>
               <th style="width:40px;"><input type="checkbox" ${allSel ? 'checked' : ''} onchange="const ch=this.checked; S.fleet.gps.forEach(g=>g.sel=ch); render();"></th>
+              <th>GPS ID</th>
               <th>Vehicle Name</th>
               <th>Category</th>
               <th>Vehicle Model</th>
