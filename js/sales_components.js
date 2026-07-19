@@ -278,6 +278,31 @@
           alert('Please select a target destination account first.');
           return;
         }
+        const key = selector.value;
+        const d = db.dispatches[key];
+        const textarea = document.getElementById('sms-body-preview');
+        const messageText = textarea ? textarea.value : '';
+
+        if (d && messageText) {
+          const distName = d.distributor;
+          const sender = db.session.role || 'Salesperson';
+          const msgKey = 'unilever_messages_' + distName.replace(/\s+/g, '_');
+          let messages = [];
+          try {
+            messages = JSON.parse(localStorage.getItem(msgKey)) || [];
+          } catch(e) {}
+          
+          messages.push({
+            sender: sender,
+            message: messageText,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            channel: channel
+          });
+          
+          localStorage.setItem(msgKey, JSON.stringify(messages));
+          window.dispatchEvent(new Event('storage'));
+        }
+
         const t = document.getElementById('toast');
         if (t) {
           t.innerHTML = `<i class="fa-solid fa-check"></i> Message sent successfully via ${channel}`;
@@ -285,7 +310,6 @@
           setTimeout(() => t.style.display = 'none', 3000);
         }
         selector.value = '';
-        const textarea = document.getElementById('sms-body-preview');
         if (textarea) textarea.value = '';
       };
     },
@@ -354,6 +378,12 @@
           ? [92, 94, 91, 95, 96, 93, 94]
           : [88, 89, 92, 90, 91, 87, 89];
 
+        const canvasCtx = ctx.getContext('2d');
+        const gradient = canvasCtx.createLinearGradient(0, 0, 0, 220);
+        gradient.addColorStop(0, 'rgba(113, 75, 103, 0.28)');
+        gradient.addColorStop(0.5, 'rgba(113, 75, 103, 0.08)');
+        gradient.addColorStop(1, 'rgba(113, 75, 103, 0.0)');
+
         window.mySlaChart = new Chart(ctx, {
           type: 'line',
           data: {
@@ -362,14 +392,18 @@
               label: 'SLA Fulfillment Rate (%)',
               data: chartData,
               borderColor: '#714B67', // Odoo Purple
-              backgroundColor: 'rgba(113, 75, 103, 0.1)',
-              borderWidth: 2.5,
-              tension: 0.3,
+              backgroundColor: gradient,
+              borderWidth: 3.5,
+              tension: 0.38,
               fill: true,
-              pointBackgroundColor: '#1D9E75', // Odoo Teal
-              pointBorderColor: '#fff',
-              pointRadius: 4.5,
-              pointHoverRadius: 6
+              pointBackgroundColor: '#FFFFFF',
+              pointBorderColor: '#1D9E75', // Odoo Teal
+              pointBorderWidth: 3,
+              pointRadius: 6,
+              pointHoverRadius: 8,
+              pointHoverBackgroundColor: '#1D9E75',
+              pointHoverBorderColor: '#FFFFFF',
+              pointHoverBorderWidth: 2
             }]
           },
           options: {
@@ -380,9 +414,20 @@
                 display: false
               },
               tooltip: {
+                backgroundColor: '#1E293B',
+                titleColor: '#F9FAFB',
+                bodyColor: '#F3F4F6',
+                bodyFont: {
+                  family: "'DM Sans', sans-serif",
+                  size: 11,
+                  weight: '600'
+                },
+                padding: 10,
+                cornerRadius: 6,
+                displayColors: false,
                 callbacks: {
                   label: function(context) {
-                    return ` SLA Fulfillment: ${context.parsed.y}%`;
+                    return `SLA Fulfillment: ${context.parsed.y}%`;
                   }
                 }
               }
@@ -392,26 +437,38 @@
                 min: 80,
                 max: 100,
                 grid: {
-                  color: '#F3F4F6'
+                  color: 'rgba(226, 232, 240, 0.6)',
+                  drawTicks: false
+                },
+                border: {
+                  dash: [5, 5],
+                  display: false
                 },
                 ticks: {
+                  padding: 8,
                   font: {
                     family: "'DM Sans', sans-serif",
-                    size: 10
+                    size: 10,
+                    weight: '500'
                   },
-                  color: '#6B7280'
+                  color: '#64748B'
                 }
               },
               x: {
                 grid: {
                   display: false
                 },
+                border: {
+                  display: false
+                },
                 ticks: {
+                  padding: 8,
                   font: {
                     family: "'DM Sans', sans-serif",
-                    size: 10
+                    size: 10,
+                    weight: '500'
                   },
-                  color: '#6B7280'
+                  color: '#64748B'
                 }
               }
             }

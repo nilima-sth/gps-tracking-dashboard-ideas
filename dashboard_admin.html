@@ -2219,6 +2219,22 @@
       if (t && txt) {
         const now = new Date();
         t.sms.unshift({ time: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`, to: t.dist, msg: txt, status: 'Delivered' });
+        
+        // Save to localStorage for distributor tracking
+        const msgKey = 'unilever_messages_' + t.dist.replace(/\s+/g, '_');
+        let messages = [];
+        try {
+          messages = JSON.parse(localStorage.getItem(msgKey)) || [];
+        } catch(err) {}
+        messages.push({
+          sender: 'Administrator',
+          message: txt,
+          timestamp: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          channel: 'SMS'
+        });
+        localStorage.setItem(msgKey, JSON.stringify(messages));
+        window.dispatchEvent(new Event('storage'));
+
         showToast('SMS Sent', `Broadcast delivered to ${t.dist}`);
         render();
       }

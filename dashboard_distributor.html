@@ -409,6 +409,23 @@ body { font-family: 'DM Sans', system-ui, sans-serif; background: #F9FAFB; color
     </div>
   </div>
 
+  <!-- LIVE MESSAGES CARD -->
+  <div id="live-messages-card" style="background:var(--white); border-radius:10px; padding:16px; box-shadow:0 2px 12px rgba(0,0,0,.1); margin-bottom:14px; border:1px solid var(--border); transition: all 0.3s ease;">
+    <div style="font-size:13.5px; font-weight:700; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px; color:var(--purple);">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span>💬 Live Dispatch Messages</span>
+        <span id="active-pulse" style="display:inline-block; width:8px; height:8px; background-color:#1D9E75; border-radius:50%; animation: ringPulse 1.5s ease-out infinite;"></span>
+      </div>
+      <span style="font-size:10px; font-weight:500; color:var(--text-muted);">Active Connection</span>
+    </div>
+    <div id="no-messages-view" style="padding:20px 10px; text-align:center; color:var(--text-muted); font-size:12.5px; font-style:italic;">
+      No messages received yet. Safe travels!
+    </div>
+    <div id="messages-list" style="display:none; flex-direction:column; gap:10px; max-height:220px; overflow-y:auto; padding-right:4px;">
+      <!-- Message bubbles go here -->
+    </div>
+  </div>
+
   <!-- CONTACT CARD -->
   <div style="background:var(--white); border-radius:10px; padding:14px; box-shadow:0 2px 12px rgba(0,0,0,.1); margin-bottom:14px; border:1px solid var(--border);">
     <div style="font-size:13px; font-weight:700; margin-bottom:12px;">📞 Need Help?</div>
@@ -512,6 +529,14 @@ body { font-family: 'DM Sans', system-ui, sans-serif; background: #F9FAFB; color
         0% { transform: scale(0.5); opacity: 1; }
         100% { transform: scale(1.5); opacity: 0; }
       }
+      @keyframes slideIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes highlightFlash {
+        0% { background-color: #fef9c3; }
+        100% { background-color: transparent; }
+      }
     `;
     document.head.appendChild(styleSheet);
 
@@ -545,6 +570,65 @@ body { font-family: 'DM Sans', system-ui, sans-serif; background: #F9FAFB; color
       const lngWiggle = initialPos[1] + Math.cos(posIndex) * 0.0005;
       truckMarker.setLatLng([latWiggle, lngWiggle]);
     }, 100);
+
+    // Live messages listener
+    const distributorName = "Hetauda Merchants Ltd.";
+    const msgKey = 'unilever_messages_' + distributorName.replace(/\s+/g, '_');
+    
+    function loadLiveMessages() {
+      const messagesList = document.getElementById('messages-list');
+      const noMessagesView = document.getElementById('no-messages-view');
+      if (!messagesList || !noMessagesView) return;
+      
+      let messages = [];
+      try {
+        messages = JSON.parse(localStorage.getItem(msgKey)) || [];
+      } catch(e) {}
+      
+      if (messages.length === 0) {
+        messagesList.style.display = 'none';
+        noMessagesView.style.display = 'block';
+      } else {
+        noMessagesView.style.display = 'none';
+        messagesList.style.display = 'flex';
+        
+        const currentCount = messagesList.children.length;
+        
+        if (messages.length !== currentCount) {
+          messagesList.innerHTML = messages.map((msg, index) => {
+            const isNew = index >= currentCount && currentCount > 0;
+            const borderStyle = msg.sender.toLowerCase().includes('admin') 
+              ? 'border-left:4px solid var(--purple); background: var(--purple-light);' 
+              : 'border-left:4px solid var(--teal); background: var(--teal-light);';
+            const senderColor = msg.sender.toLowerCase().includes('admin')
+              ? 'var(--purple-dark)'
+              : 'var(--teal-dark)';
+              
+            return `
+              <div class="msg-bubble" style="display:flex; flex-direction:column; ${borderStyle} padding:10px 12px; border-radius:0 8px 8px 0; max-width:95%; align-self:flex-start; animation: ${isNew ? 'highlightFlash 2s ease-out, ' : ''} slideIn 0.3s ease-out; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 4px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap: 20px; margin-bottom:4px;">
+                  <strong style="font-size:11px; color:${senderColor}; font-weight:700;">👤 ${msg.sender}</strong>
+                  <span style="font-size:9.5px; color:var(--text-muted); font-family: 'DM Mono', monospace;">${msg.timestamp} · via ${msg.channel}</span>
+                </div>
+                <div style="font-size:12.5px; color:var(--text); white-space:pre-wrap; line-height:1.4; font-weight: 500;">${msg.message}</div>
+              </div>
+            `;
+          }).join('');
+          
+          // Auto scroll to bottom
+          messagesList.scrollTop = messagesList.scrollHeight;
+        }
+      }
+    }
+    
+    // Listen for storage events
+    window.addEventListener('storage', loadLiveMessages);
+    
+    // Polling backup (1s)
+    setInterval(loadLiveMessages, 1000);
+    
+    // Initial load
+    loadLiveMessages();
   });
 </script>
 </body>

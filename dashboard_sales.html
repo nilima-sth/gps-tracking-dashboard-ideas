@@ -597,6 +597,8 @@
           msg = `Dear Partner,\n\nYour delivery (Ref: ${orderId}) is expected by ${etaTime}.\n\nTrack: ${trackerUrl}`;
         }
 
+        window.currentSmsTarget = { distName: d ? d.distributor : distName, orderId };
+
         document.getElementById('smsRecipient').value = recipient;
         document.getElementById('smsMessage').value = msg;
         document.getElementById('smsModal').classList.add('active');
@@ -607,6 +609,30 @@
       };
       
       window.sendSms = function(channel = 'SMS') {
+        const db = window.UNILEVER_GLOBAL_DB;
+        const msgText = document.getElementById('smsMessage').value;
+        const target = window.currentSmsTarget || { distName: 'Hetauda Merchants Ltd.' };
+        
+        if (msgText) {
+          const distName = target.distName;
+          const sender = db.session.role || 'Salesperson';
+          const msgKey = 'unilever_messages_' + distName.replace(/\s+/g, '_');
+          let messages = [];
+          try {
+            messages = JSON.parse(localStorage.getItem(msgKey)) || [];
+          } catch(e) {}
+          
+          messages.push({
+            sender: sender,
+            message: msgText,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            channel: channel
+          });
+          
+          localStorage.setItem(msgKey, JSON.stringify(messages));
+          window.dispatchEvent(new Event('storage'));
+        }
+
         closeSmsModal();
         const t = document.getElementById('toast');
         if (t) {
