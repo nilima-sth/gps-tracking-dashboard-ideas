@@ -1344,11 +1344,11 @@
   <aside class="sidebar">
     <div class="sidebar-section">
       <div class="sidebar-label">Fleet Operations</div>
-      <div class="nav-item active" id="nav-dashboard" onclick="switchPage('dashboard')">
+      <div class="nav-item active" id="nav-dashboard" onclick="S.kpiFilter=null; switchPage('dashboard')">
         <div class="nav-item-left"><span class="nav-icon"><i class="fa-solid fa-chart-simple"></i></span>Dashboard</div>
         <span class="nbadge nbadge-outline">Live</span>
       </div>
-      <div class="nav-item" id="nav-dispatch" onclick="switchPage('dispatch')">
+      <div class="nav-item" id="nav-dispatch" onclick="S.kpiFilter=null; switchPage('dispatch')">
         <div class="nav-item-left"><span class="nav-icon"><i class="fa-solid fa-list-check"></i></span>Dispatch Board
         </div>
         <span class="nbadge nbadge-blue" id="sb-dispatch-badge">7 Active</span>
@@ -1845,17 +1845,17 @@
       <div class="page-body" style="display:flex;flex-direction:column;gap:14px;">
         <!-- KPI CARDS -->
         <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-icon teal">🚛</div>
+          <div class="kpi-card" onclick="S.kpiFilter='green'; switchPage('dispatch')" style="cursor: pointer;"><div class="kpi-icon teal">🚛</div>
             <div><div class="kpi-val">${m.active}<span style="font-size:13px;font-weight:400;color:var(--text-muted);"> / ${m.total}</span></div>
             <div class="kpi-label">Active Trucks</div>
             <div class="kpi-sub">${m.delayed} delayed</div></div>
           </div>
-          <div class="kpi-card"><div class="kpi-icon red">⏰</div>
+          <div class="kpi-card" onclick="S.kpiFilter='red'; switchPage('dispatch')" style="cursor: pointer;"><div class="kpi-icon red">⏰</div>
             <div><div class="kpi-val" style="color:var(--red);">${m.delayed}</div>
             <div class="kpi-label">Delayed Dispatches</div>
             <div class="kpi-sub">Needs attention</div></div>
           </div>
-          <div class="kpi-card"><div class="kpi-icon amber">🔔</div>
+          <div class="kpi-card" onclick="S.kpiFilter='amber'; switchPage('dispatch')" style="cursor: pointer;"><div class="kpi-icon amber">🔔</div>
             <div><div class="kpi-val" style="color:var(--amber);">${m.alerts}</div>
             <div class="kpi-label">Active Safety Alerts</div>
             <div class="kpi-sub">Overspeed/Geofence flags</div></div>
@@ -2021,9 +2021,15 @@
        PAGE 2: DISPATCH BOARD
     ================================================================ */
     function dispatchHTML() {
-      const filtered = S.q
-        ? S.trucks.filter(t => t.reg.toLowerCase().includes(S.q) || t.driver.toLowerCase().includes(S.q) || t.order.toLowerCase().includes(S.q))
-        : S.trucks;
+      let filtered = S.trucks;
+      
+      if (S.kpiFilter) {
+        filtered = filtered.filter(t => t.sc === S.kpiFilter);
+      }
+      
+      if (S.q) {
+        filtered = filtered.filter(t => t.reg.toLowerCase().includes(S.q) || t.driver.toLowerCase().includes(S.q) || t.order.toLowerCase().includes(S.q));
+      }
       const active = S.trucks.find(t => t.id === S.activeId) || S.trucks[0];
 
       const rows = filtered.map(t => {
@@ -2607,6 +2613,23 @@
         </div>
         <button class="btn btn-primary" onclick="showToast('Saved','Safety threshold rules updated in Odoo.')">💾 Save Safety Rules</button>
       </div>
+            <!-- GPS Tracking Settings -->
+      <div class="card" style="padding:16px;">
+        <div style="font-size:12px;font-weight:800;margin-bottom:12px;"><i class="fa-solid fa-satellite-dish text-primary"></i> GPS Tracking Settings</div>
+        <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:10px;">
+          <div class="form-group"><label class="form-label">TrackOnGPS Server URL</label><input class="form-input" type="text" value="https://api.trackongps.com/v1"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+          <div class="form-group"><label class="form-label">Username / Email</label><input class="form-input" type="text" value="unilever_np_api"></div>
+          <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" value="********"></div>
+          <div class="form-group"><label class="form-label">Auto-Sync Interval in minutes</label><input class="form-input" type="text" value="5"></div>
+          <div class="form-group"><label class="form-label">Map Refresh Interval in seconds</label><input class="form-input" type="text" value="30"></div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-primary" onclick="showToast('Saved','GPS Tracking settings updated.')">💾 Save GPS Settings</button>
+          <button class="btn btn-teal" onclick="showToast('Connection OK','GPS server connection test successful.')">🔗 Test Connection</button>
+        </div>
+      </div>
       <!-- SMS -->
       <div class="card" style="padding:16px;">
         <div style="font-size:12px;font-weight:800;margin-bottom:12px;"><i class="fa-solid fa-comment-sms text-teal"></i> SMS Gateway Configuration</div>
@@ -2617,20 +2640,6 @@
         </div>
         <button class="btn btn-teal" onclick="showToast('Gateway OK','SMS gateway connection test successful.')">🔗 Test Connection</button>
       </div>
-      <!-- Odoo -->
-      <div class="card" style="padding:16px;">
-        <div style="font-size:12px;font-weight:800;margin-bottom:12px;"><i class="fa-solid fa-circle-nodes text-purple"></i> Odoo 19 Integration</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div class="form-group"><label class="form-label">Odoo Server URL</label><input class="form-input" type="text" value="https://unilever.odoo.com"></div>
-          <div class="form-group"><label class="form-label">Database Name</label><input class="form-input" type="text" value="unilever_nepal_prod"></div>
-          <div class="form-group"><label class="form-label">API Token</label><input class="form-input" type="password" value="••••••••••••••••"></div>
-          <div class="form-group"><label class="form-label">Sync Interval</label><input class="form-input" type="text" value="Every 60 seconds"></div>
-        </div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-outline" onclick="showToast('Synced','Fleet data synced with Odoo 19 successfully.')">🔄 Sync with Odoo</button>
-          <button class="btn btn-outline" onclick="showToast('Connected','Odoo API connection verified.')">🔐 Test API Auth</button>
-        </div>
-      </div>
     </div>
   </div>`;
     }
@@ -2638,6 +2647,32 @@
     /* ================================================================
        PAGE 10: VEHICLES / VEHICLE REQUEST
     ================================================================ */
+    
+    function buildSelectDriver(sel, onChange) {
+      const drivers = ['Unassigned', 'Rajan Shrestha', 'Bikash Tamang', 'Suresh Rai', 'Deepak Gurung', 'Arjun Thapa', 'Ramesh Magar', 'Santosh Koirala'];
+      return `<select onchange="${onChange}" style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;">${drivers.map(d => `<option value="${d}" ${sel===d?'selected':''}>${d}</option>`).join('')}</select>`;
+    }
+    
+    function buildSelectVehicle(sel, onChange) {
+      const vehicles = ['Unassigned', 'BA 2 KHA 1423', 'BA 1 CHA 7829', 'GA 3 PA 4412', 'KO 1 GA 3311', 'LU 2 MA 8821', 'BA 4 KA 2210', 'GA 1 NA 5520'];
+      return `<select onchange="${onChange}" style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;">${vehicles.map(v => `<option value="${v}" ${sel===v?'selected':''}>${v}</option>`).join('')}</select>`;
+    }
+
+    function initFleetState() {
+      if(!S.fleet) {
+        S.fleet = {
+          cState: 'active',
+          rState: 'pending',
+          vState: 'all',
+          gps: [
+            { id: '1', name: 'BA 2 KHA 1423', status: 'Offline', sel: false, ignition: false },
+            { id: '2', name: 'BA 1 CHA 7829', status: 'Offline', sel: false, ignition: false }
+          ]
+        };
+      }
+      return S.fleet;
+    }
+
     function vehiclesHTML() {
       const st = initFleetState();
       
